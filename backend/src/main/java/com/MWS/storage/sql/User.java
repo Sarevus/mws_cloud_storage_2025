@@ -18,6 +18,10 @@ public class User {
     @NotNull(message = "Email не может быть null")
     private String email;
 
+    @NotNull(message = "Пароль не может быть null")
+    @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
+    private String password;
+
     @PhoneNumber(message = "Некорректный формат телефонного номера")
     private String phoneNumber;
 
