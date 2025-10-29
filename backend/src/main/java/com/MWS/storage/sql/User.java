@@ -4,8 +4,13 @@ import com.MWS.storage.sql.annotations.Email;
 import com.MWS.storage.sql.annotations.NotNull;
 import com.MWS.storage.sql.annotations.PhoneNumber;
 import com.MWS.storage.sql.annotations.Size;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NotNull(message = "ID не может быть null")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
     private final long ID;
@@ -21,11 +26,16 @@ public class User {
     @PhoneNumber(message = "Некорректный формат телефонного номера")
     private String phoneNumber;
 
-    public User(long ID, String name, String email, String phoneNumber) {
+    @NotNull(message = "Пароль не может быть null")
+    @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
+    private String password;
+
+    public User(long ID, String name, String email, String phoneNumber, String password) {
         this.ID = ID;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.password = password;
     }
 
     public long getID() {
@@ -44,6 +54,10 @@ public class User {
         return phoneNumber;
     }
 
+    public String getPassword () {
+        return password;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -54,6 +68,10 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public void setPassword (String password) {
+        this.password = password;
     }
 
     @Override
