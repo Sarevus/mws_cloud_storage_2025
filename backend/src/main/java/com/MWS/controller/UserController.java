@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -20,21 +22,21 @@ public class UserController {
 
     }
 
-    @GetMapping("/{id}")
-    public User getUser(@PathVariable long id) {
-        return userService.getUser(id);
+    @GetMapping("/{ID}")
+    public User getUser(@PathVariable UUID ID) {
+        return userService.getUser(ID);
 
     }
 
-    @PutMapping("/{id}")
-    public User updateUser(@PathVariable long id, @RequestBody User user) {
-        return userService.updateUser(id, user);
+    @PutMapping("/{ID}")
+    public User updateUser(@PathVariable UUID ID, @RequestBody User user) {
+        return userService.updateUser(ID, user);
 
     }
 
     @DeleteMapping("/{id}")
-    public User deleteUser(@PathVariable long id) {
-        userService.deleteUser(id);
+    public User deleteUser(@PathVariable UUID ID) {
+        userService.deleteUser(ID);
         return null;
     }
 }
