@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  ceph-all-in-one:
+    image: quay.io/ceph/daemon:quincy
+    container_name: ceph-all-in-one
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    env_file:
+      - .env
+    environment:
+      - MON_IP=${CEPH_MON_IP}
+      - CEPH_PUBLIC_NETWORK=${CEPH_PUBLIC_NETWORK}
+      - DEMO_DAEMONS=mon,mgr,osd,rgw
+      - RGW_FRONTEND_TYPE=beast
+      - RGW_FRONTEND_PORT=${CEPH_RGW_PORT:-7480}
+      - CEPH_DEMO_UID=${CEPH_RGW_USER}
+      - CEPH_DEMO_BUCKET=${CEPH_RGW_BUCKET}
+      - DEBUG=verbose
+      - NETWORK_AUTO_DETECT=4
+    volumes:
+      - ./data/var/lib/ceph:/var/lib/ceph
+      - ./data/etc/ceph:/etc/ceph
+      - /etc/localtime:/etc/localtime:ro
+    command: demo
+    healthcheck:
+      test: ["CMD", "ceph", "-s"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
