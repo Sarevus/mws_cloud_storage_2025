@@ -1,19 +1,20 @@
-package com.MWS.storage.sql;
+package com.MWS.model;
 
 import com.MWS.storage.sql.annotations.Email;
 import com.MWS.storage.sql.annotations.NotNull;
 import com.MWS.storage.sql.annotations.PhoneNumber;
 import com.MWS.storage.sql.annotations.Size;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 
 @Entity
-@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull(message = "ID не может быть null")
-    @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
-    private final long ID;
+    private long ID;
 
     @NotNull(message = "Имя не может быть null")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
@@ -23,16 +24,20 @@ public class User {
     @NotNull(message = "Email не может быть null")
     private String email;
 
-    @NotNull(message = "Пароль не может быть null")
-    @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
-    private String password;
-
     @PhoneNumber(message = "Некорректный формат телефонного номера")
     private String phoneNumber;
 
     @NotNull(message = "Пароль не может быть null")
     @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
     private String password;
+
+
+    public User(String name, String email, String phoneNumber, String password) {
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+    }
 
     public User(long ID, String name, String email, String phoneNumber, String password) {
         this.ID = ID;
@@ -42,23 +47,25 @@ public class User {
         this.password = password;
     }
 
+
+
     public long getID() {
         return ID;
     }
 
-    public String getName () {
+    public String getName() {
         return name;
     }
 
-    public String getEmail () {
+    public String getEmail() {
         return email;
     }
 
-    public String getPhoneNumber () {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public String getPassword () {
+    public String getPassword() {
         return password;
     }
 
@@ -74,12 +81,13 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public void setPassword (String password) {
+    public void password(String phoneNumber) {
         this.password = password;
     }
 
+
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("User{ID: %d, name='%s'}", ID, name);
     }
 }

@@ -91,6 +91,8 @@
 
     <build>
         <plugins>
+
+
             <!-- Компилятор Java -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
