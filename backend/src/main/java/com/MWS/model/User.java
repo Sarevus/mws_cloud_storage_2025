@@ -81,7 +81,7 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public void password(String phoneNumber) {
+    public void setPassword(String password) {
         this.password = password;
     }
 

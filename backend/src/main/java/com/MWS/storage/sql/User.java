@@ -30,10 +30,6 @@ public class User {
     @PhoneNumber(message = "Некорректный формат телефонного номера")
     private String phoneNumber;
 
-    @NotNull(message = "Пароль не может быть null")
-    @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
-    private String password;
-
     public User(long ID, String name, String email, String phoneNumber, String password) {
         this.ID = ID;
         this.name = name;
