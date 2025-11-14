@@ -21,19 +21,19 @@ public class UserController {
 
     }
 
-    @GetMapping("/{ID}")
+    @GetMapping("/{id}")
     public User getUser(@PathVariable UUID ID) {
         return userService.getUser(ID);
 
     }
 
-    @PutMapping("/{ID}")
+    @PutMapping("/{id}")
     public User updateUser(@PathVariable UUID ID, @RequestBody User user) {
         return userService.updateUser(ID, user);
 
     }
 
-    @DeleteMapping("/{ID}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteUser(@PathVariable UUID ID) {
         userService.deleteUser(ID);
         return ResponseEntity.noContent().build();
