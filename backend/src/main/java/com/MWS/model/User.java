@@ -4,16 +4,10 @@ import com.MWS.storage.sql.annotations.Email;
 import com.MWS.storage.sql.annotations.NotNull;
 import com.MWS.storage.sql.annotations.PhoneNumber;
 import com.MWS.storage.sql.annotations.Size;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
 
-@Entity
+
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long ID;
 
     @NotNull(message = "Имя не может быть null")

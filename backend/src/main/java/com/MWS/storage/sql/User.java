@@ -4,13 +4,8 @@ import com.MWS.storage.sql.annotations.Email;
 import com.MWS.storage.sql.annotations.NotNull;
 import com.MWS.storage.sql.annotations.PhoneNumber;
 import com.MWS.storage.sql.annotations.Size;
-import jakarta.persistence.*;
 
-@Entity
-@Table(name = "users")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NotNull(message = "ID не может быть null")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
     private final long ID;

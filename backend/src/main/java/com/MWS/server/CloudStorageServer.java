@@ -5,7 +5,7 @@ import com.MWS.handlers.UserController;
 
 import static spark.Spark.*;
 
-public class Main {
+public class CloudStorageServer {
     public static void main(String[] args) {
         /**
          * запускаем сервер на порту 80
