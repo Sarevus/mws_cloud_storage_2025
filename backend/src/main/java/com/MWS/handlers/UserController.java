@@ -2,8 +2,8 @@ package com.MWS.handlers;
 
 import com.MWS.model.User;
 import com.MWS.service.UserService;
-import com.MWS.storage.sql.ValidationResult;
-import com.MWS.storage.sql.Validator;
+import com.MWS.Validator.ValidationResult;
+import com.MWS.Validator.Validator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,10 +1,10 @@
 package com.MWS.model;
 
 import java.lang.String;
-import com.MWS.storage.sql.annotations.Email;
-import com.MWS.storage.sql.annotations.NotNull;
-import com.MWS.storage.sql.annotations.PhoneNumber;
-import com.MWS.storage.sql.annotations.Size;
+import com.MWS.Validator.annotations.Email;
+import com.MWS.Validator.annotations.NotNull;
+import com.MWS.Validator.annotations.PhoneNumber;
+import com.MWS.Validator.annotations.Size;
 import jakarta.persistence.*;
 import java.util.UUID;
 

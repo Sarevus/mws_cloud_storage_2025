@@ -1,7 +1,6 @@
 package com.MWS.controller;
 import com.MWS.model.User;
 import com.MWS.service.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,9 +33,9 @@ public class UserController {
 
     }
 
-    @DeleteMapping("/{id}")
-    public User deleteUser(@PathVariable UUID ID) {
+    @DeleteMapping("/{ID}")
+    public ResponseEntity<Object> deleteUser(@PathVariable UUID ID) {
         userService.deleteUser(ID);
-        return null;
+        return ResponseEntity.noContent().build();
     }
 }
