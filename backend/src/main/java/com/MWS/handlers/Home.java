@@ -1,12 +1,7 @@
 package com.MWS.handlers;
 
-import org.springframework.web.bind.annotation.*;
-
-
-@RestController
 public class Home {
-    @RequestMapping("/")
-    public String home() {
+    public static Object check(spark.Request request, spark.Response response) {
         return "Home Page";
     }
 }

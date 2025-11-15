@@ -5,6 +5,9 @@ import com.MWS.Validator.annotations.Email;
 import com.MWS.Validator.annotations.NotNull;
 import com.MWS.Validator.annotations.PhoneNumber;
 import com.MWS.Validator.annotations.Size;
+//import jakarta.validation.constraints.Email;
+//import jakarta.validation.constraints.NotNull;
+//import jakarta.validation.constraints.Size;
 import jakarta.persistence.*;
 import java.util.UUID;
 
@@ -75,6 +78,7 @@ public class UserEntity {
     public void setPassword (String password) {
         this.password = password;
     }
+
 
     @Override
     public String toString(){
