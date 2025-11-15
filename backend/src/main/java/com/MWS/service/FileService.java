@@ -1,6 +1,6 @@
 package com.MWS.service;
 
-import com.MWS.model.FileDto;
+import com.MWS.dto.create_update.FileDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

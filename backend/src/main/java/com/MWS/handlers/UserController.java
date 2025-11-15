@@ -1,6 +1,6 @@
 package com.MWS.handlers;
 
-import com.MWS.model.User;
+import com.MWS.model.UserEntity;
 import com.MWS.service.UserService;
 import com.MWS.Validator.ValidationResult;
 import com.MWS.Validator.Validator;
@@ -18,7 +18,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody UserEntity user) {
 
         ValidationResult result = Validator.validate(user);
 

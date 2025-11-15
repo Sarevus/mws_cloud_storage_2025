@@ -1,6 +1,6 @@
 package com.MWS.controller;
 
-import com.MWS.model.FileDto;
+import com.MWS.dto.create_update.FileDto;
 import com.MWS.service.FileService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
