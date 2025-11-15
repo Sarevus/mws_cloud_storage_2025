@@ -4,8 +4,13 @@ import com.MWS.storage.sql.annotations.Email;
 import com.MWS.storage.sql.annotations.NotNull;
 import com.MWS.storage.sql.annotations.PhoneNumber;
 import com.MWS.storage.sql.annotations.Size;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NotNull(message = "ID не может быть null")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
     private final long ID;
@@ -24,6 +29,10 @@ public class User {
 
     @PhoneNumber(message = "Некорректный формат телефонного номера")
     private String phoneNumber;
+
+    @NotNull(message = "Пароль не может быть null")
+    @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
+    private String password;
 
     public User(long ID, String name, String email, String phoneNumber, String password) {
         this.ID = ID;

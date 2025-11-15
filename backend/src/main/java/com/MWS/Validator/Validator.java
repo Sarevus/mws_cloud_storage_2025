@@ -1,10 +1,10 @@
-package com.MWS.storage.sql;
+package com.MWS.Validator;
 
 
-import com.MWS.storage.sql.annotations.Email;
-import com.MWS.storage.sql.annotations.NotNull;
-import com.MWS.storage.sql.annotations.PhoneNumber;
-import com.MWS.storage.sql.annotations.Size;
+import com.MWS.Validator.annotations.Email;
+import com.MWS.Validator.annotations.NotNull;
+import com.MWS.Validator.annotations.PhoneNumber;
+import com.MWS.Validator.annotations.Size;
 
 import java.lang.reflect.Field;
 import java.util.regex.Pattern;
