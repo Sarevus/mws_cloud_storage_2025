@@ -1,4 +1,4 @@
-package com.MWS.model;
+package com.MWS.dto.get;
 
 import java.util.UUID;
 
