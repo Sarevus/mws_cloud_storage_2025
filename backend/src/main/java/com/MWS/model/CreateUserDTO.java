@@ -1,6 +1,6 @@
 package com.MWS.model;
 
-public record UserDTO(
+public record CreateUserDTO(
         String name,
         String email,
         String phoneNumber
