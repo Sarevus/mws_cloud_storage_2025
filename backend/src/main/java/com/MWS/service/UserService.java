@@ -1,6 +1,8 @@
 package com.MWS.service;
 
-import com.MWS.model.User;
+import com.MWS.dto.create_update.CreateUserDTO;
+import com.MWS.dto.get.GetSimpleUserDto;
+import com.MWS.model.UserEntity;
 
 import java.util.UUID;
 
@@ -8,11 +10,11 @@ public interface UserService {
 
     void save(String userName, String email, String phoneNumber, String password);
 
-    User createUser(User user);
+    GetSimpleUserDto createUser(CreateUserDTO userDTO);
 
-    User updateUser(UUID id, User user);
+    GetSimpleUserDto updateUser(UUID id, CreateUserDTO userDTO);
 
-    User getUser(UUID id);
+    GetSimpleUserDto getUser(UUID id);
 
     void deleteUser(UUID id);
 }

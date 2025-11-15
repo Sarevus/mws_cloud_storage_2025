@@ -10,10 +10,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private final UUID ID;
+    private UUID id;
 
     @NotNull(message = "Имя не может быть null")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
@@ -30,19 +30,21 @@ public class User {
     @PhoneNumber(message = "Некорректный формат телефонного номера")
     private String phoneNumber;
 
-    public User(UUID ID, String name, String email, String phoneNumber, String password) {
-        this.ID = ID;
+    public UserEntity() {
+    }
+
+    public UserEntity(String name, String email, String phoneNumber, String password) {
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
 
-    public UUID getID() {
-        return ID;
+    public UUID getId() {
+        return id;
     }
 
-    public String getName () {
+    public String getName() {
         return name;
     }
 
@@ -76,7 +78,7 @@ public class User {
 
     @Override
     public String toString(){
-        return String.format("User{ID: %s, name=%s}", ID, name);
+        return String.format("User{ID: %s, name=%s}", id, name);
     }
 }
 
