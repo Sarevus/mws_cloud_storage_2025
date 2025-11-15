@@ -4,7 +4,7 @@
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
              version="3.0">
 
-    <persistence-unit name="my-persistence-unit">
+    <persistence-unit name="postgresql">
         <!-- Указываем ваш класс-сущность -->
         <class>com.MWS.model.User</class>
 
