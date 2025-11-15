@@ -11,9 +11,9 @@
         <properties>
             <!-- Настройки подключения к БД -->
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/your_database"/>
-            <property name="jakarta.persistence.jdbc.user" value="your_username"/>
-            <property name="jakarta.persistence.jdbc.password" value="your_password"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/cloud3_data"/>
+            <property name="jakarta.persistence.jdbc.user" value="developer"/>
+            <property name="jakarta.persistence.jdbc.password" value="dev123"/>
 
             <!-- Настройки Hibernate -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
