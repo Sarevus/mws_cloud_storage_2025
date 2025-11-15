@@ -1,4 +1,6 @@
-package com.MWS.model;
+package com.MWS.dto.get;
+
+import com.MWS.dto.create_update.FileDto;
 
 import java.util.List;
 import java.util.UUID;
