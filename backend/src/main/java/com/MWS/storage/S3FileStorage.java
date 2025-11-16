@@ -19,10 +19,13 @@ public class S3FileStorage {
 
     public S3FileStorage(String endpoint, String accesKey, String secretKey, String bucketName){
         this.s3Client = S3Client.builder()
-                .endpointOverride(java.net.URI.create(endpoint))
+                .endpointOverride(java.net.URI.create("http://localhost:9000"))
+                .region(Region.US_EAST_1)
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accesKey, secretKey)))
-                .region(Region.EU_CENTRAL_1).build();
+                        AwsBasicCredentials.create(accesKey, secretKey)
+                ))
+                .forcePathStyle(true)
+                .build();
         this.bucketName = bucketName;
     }
 

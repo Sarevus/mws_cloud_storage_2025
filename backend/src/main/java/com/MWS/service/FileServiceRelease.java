@@ -11,10 +11,10 @@ public class FileServiceRelease implements FileService{
 
     public FileServiceRelease() {
         // Настройки Ceph
-        String endpoint = "http://ceph.local";
-        String accessKey = "your-access-key";
-        String secretKey = "your-secret-key";
-        String bucketName = "user-data";
+        String endpoint = "http://localhost:9000";
+        String accessKey = "admin_access_key";
+        String secretKey = "admin_secret_key";
+        String bucketName = "userdata";
 
         this.cephStorage = new S3FileStorage(endpoint, accessKey, secretKey, bucketName);
     }
