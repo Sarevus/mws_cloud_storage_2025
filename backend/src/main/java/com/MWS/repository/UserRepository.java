@@ -11,7 +11,7 @@ public interface UserRepository {
      * Регает нового пользователя или обновляет существующего
      * @param user пользователь для сохранения
      */
-    void save(UserEntity user);
+    UserEntity save(UserEntity user);
 
     /**
      * Ищет пользователя по его ID.
@@ -26,4 +26,5 @@ public interface UserRepository {
      */
     void deleteById(UUID id);
 
+    Optional<UserEntity> findByEmail(String email);
 }
