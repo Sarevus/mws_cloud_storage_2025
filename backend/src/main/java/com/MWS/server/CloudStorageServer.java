@@ -27,8 +27,20 @@ public class CloudStorageServer {
         /**
          * на запрос /register/ регистрация пользователя.
          */
+        post("/register", userController::register);
         post("/register/", userController::register);
-//        get("/register/", (request, response) -> UserController.register(request, response));
+
+        /**
+         * Получить данные о пользователе по id
+         */
+        get("/user/:id", userController::getUserById);
+        get("/user/:id/", userController::getUserById);
+
+        /**
+         * Удалить пользователя по id
+         */
+        delete("/user/:id", userController::deleteUser);
+        delete("/user/:id/", userController::deleteUser);
 
         /**
          * на запрос /files/user/ возвращаем список файлов.
