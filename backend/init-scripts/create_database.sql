@@ -2,7 +2,7 @@ CREATE TABLE users (
     id UUID PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     email VARCHAR(50) NOT NULL,
-    phone_number VARCHAR(50) NOT NULL,
+    phoneNumber VARCHAR(50),
     password VARCHAR(50) NOT NULL
 );
 
