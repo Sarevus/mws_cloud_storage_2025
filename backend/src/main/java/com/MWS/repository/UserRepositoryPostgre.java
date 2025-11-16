@@ -13,17 +13,20 @@ import java.util.UUID;
 
 public class UserRepositoryPostgre implements UserRepository {
 
-    private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("postgresql");
     private static final Logger logger = LoggerFactory.getLogger(UserRepositoryPostgre.class);
+    private static final EntityManagerFactory emf =
+            Persistence.createEntityManagerFactory("postgresql");
 
     @Override
-    public void save(UserEntity user) {
+    public UserEntity save(UserEntity user) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(user);
+            // merge возвращает управляемый объект
+            UserEntity merged = em.merge(user);
             em.getTransaction().commit();
-            logger.info("Пользователь сохранен или обновлен: {}", user.getId());
+            logger.info("Пользователь сохранён или обновлён: {}", merged.getId());
+            return merged;
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -63,6 +66,24 @@ public class UserRepositoryPostgre implements UserRepository {
             }
             logger.error("Ошибка при удалении пользователя с id {}", id, e);
             throw new RuntimeException("Не удалось удалить пользователя с id: " + id, e);
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Optional<UserEntity> findByEmail(String email) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            UserEntity user = em.createQuery(
+                            "SELECT user FROM UserEntity user WHERE user.email = :email",
+                            UserEntity.class)
+                    .setParameter("email", email)
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
+
+            return Optional.ofNullable(user);
         } finally {
             em.close();
         }
