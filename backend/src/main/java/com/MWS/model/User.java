@@ -1,19 +1,14 @@
 package com.MWS.model;
 
-import java.lang.String;
-import com.MWS.Validator.annotations.Email;
-import com.MWS.Validator.annotations.NotNull;
-import com.MWS.Validator.annotations.PhoneNumber;
-import com.MWS.Validator.annotations.Size;
-import jakarta.persistence.*;
-import java.util.UUID;
+import com.MWS.storage.sql.annotations.Email;
+import com.MWS.storage.sql.annotations.NotNull;
+import com.MWS.storage.sql.annotations.PhoneNumber;
+import com.MWS.storage.sql.annotations.Size;
 
-@Entity
-@Table(name = "users")
-public class UserEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+
+
+public class User {
+    private long ID;
 
     @NotNull(message = "Имя не может быть null")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
@@ -23,40 +18,48 @@ public class UserEntity {
     @NotNull(message = "Email не может быть null")
     private String email;
 
+    @PhoneNumber(message = "Некорректный формат телефонного номера")
+    private String phoneNumber;
+
     @NotNull(message = "Пароль не может быть null")
     @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
     private String password;
 
-    @PhoneNumber(message = "Некорректный формат телефонного номера")
-    private String phoneNumber;
 
-    public UserEntity() {
-    }
-
-    public UserEntity(String name, String email, String phoneNumber, String password) {
+    public User(String name, String email, String phoneNumber, String password) {
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
 
-    public UUID getId() {
-        return id;
+    public User(long ID, String name, String email, String phoneNumber, String password) {
+        this.ID = ID;
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+    }
+
+
+
+    public long getID() {
+        return ID;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getEmail () {
+    public String getEmail() {
         return email;
     }
 
-    public String getPhoneNumber () {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public String getPassword () {
+    public String getPassword() {
         return password;
     }
 
@@ -72,14 +75,14 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
     }
 
-    public void setPassword (String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
 
     @Override
-    public String toString(){
-        return String.format("User{ID: %s, name=%s}", id, name);
+    public String toString() {
+        return String.format("User{ID: %d, name='%s'}", ID, name);
     }
 }
 

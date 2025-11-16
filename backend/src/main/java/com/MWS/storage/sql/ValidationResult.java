@@ -1,4 +1,4 @@
-package com.MWS.Validator;
+package com.MWS.storage.sql;
 
 import java.util.ArrayList;
 import java.util.List;
