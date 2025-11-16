@@ -25,6 +25,7 @@
         <slf4j.version>2.0.7</slf4j.version>
         <servlet.api.version>6.0.0</servlet.api.version>
         <hibernate.validator.version>8.0.0.Final</hibernate.validator.version>
+        <gson.version>2.13.2</gson.version>
     </properties>
 
     <!-- !!! ЭТОТ БЛОК РЕШАЕТ ПРОБЛЕМУ С SLF4J !!! -->
@@ -96,11 +97,18 @@
             <version>${postgresql.version}</version>
         </dependency>
 
-        <!-- AWS S3 SDK (если используется) -->
+        <!-- AWS S3 SDK -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
             <version>${aws.sdk.version}</version>
+        </dependency>
+
+        <!-- GSON для преобразования в JSON и обратно java объектов -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
     </dependencies>
 
