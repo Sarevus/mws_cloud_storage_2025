@@ -1,18 +1,14 @@
-//package com.MWS.service;
-//
-//import com.MWS.dto.create_update.FileDto;
-//import org.springframework.web.multipart.MultipartFile;
-//
-//import java.util.List;
-//import java.util.UUID;
-//
-//public interface FileService {
-//
-//
-//    public List<FileDto> getFileLinksByUserId(UUID userId); // я отдаю user id должна получить список ссылок на файлы доступные пользовавтелю
-//
-//    public String saveUserFile(UUID userId, MultipartFile file);
-//
-//    void deleteUserFile(UUID userId);
-//
-//}
+package com.MWS.service;
+
+import java.util.List;
+import java.io.InputStream;
+
+public interface FileService {
+    List<String> getFileLinksByUserId(long userId);
+
+    String saveUserFile(Long userId, String filename, InputStream fileStream, long fileSize);
+
+    void deleteUserFile(Long userId, String fileId);
+
+    InputStream downloadFile(String objectKey);
+}
