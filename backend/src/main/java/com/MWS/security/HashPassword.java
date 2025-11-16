@@ -14,18 +14,22 @@ public class HashPassword {
     private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
     private static final String SEPARATOR = "#";
 
-    public static String createPasswordHash(String plainPassword) throws Exception {
-        byte[] salt = generateSalt();
-        byte[] passwordHash = computeHash(plainPassword, salt);
-        return formatForStorage(salt, passwordHash);
+    public static String createPasswordHash(String originalPassword) {
+        try {
+            byte[] salt = generateSalt();
+            byte[] passwordHash = computeHash(originalPassword, salt);
+            return formatForStorage(salt, passwordHash);
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка хэширования пароля", e);
+        }
     }
 
-    public static boolean verifyPassword(String plainPassword, String storedHash) throws Exception {
+    public static boolean verifyPassword(String originalPassword, String storedHash) {
 
         String[] parts = storedHash.split(SEPARATOR);
         byte[] salt = decodeFromBase64(parts[0]);
         byte[] expectedHash = decodeFromBase64(parts[1]);
-        byte[] actualHash = computeHash(plainPassword, salt);
+        byte[] actualHash = computeHash(originalPassword, salt);
 
         return hashesEqual(expectedHash, actualHash);
     }
@@ -37,16 +41,21 @@ public class HashPassword {
         return salt;
     }
 
-    private static byte[] computeHash(String password, byte[] salt) throws Exception {
-        KeySpec keySpec = new PBEKeySpec(
-                password.toCharArray(),
-                salt,
-                NUMBER_OF_ITERATIONS,
-                KEY_LENGTH
-        );
+    private static byte[] computeHash(String password, byte[] salt) {
+        try {
+            KeySpec keySpec = new PBEKeySpec(
+                    password.toCharArray(),
+                    salt,
+                    NUMBER_OF_ITERATIONS,
+                    KEY_LENGTH
+            );
 
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
-        return keyFactory.generateSecret(keySpec).getEncoded();
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
+            return keyFactory.generateSecret(keySpec).getEncoded();
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Ошибка вычисления хэша", e);
+        }
     }
 
     private static String formatForStorage(byte[] salt, byte[] hash) {
