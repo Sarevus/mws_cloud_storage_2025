@@ -1,4 +1,4 @@
-package com.MWS.storage.sql.annotations;
+package com.MWS.Validator.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Size {
-    int min();
-    int max();
+public @interface Email {
     String message();
 }
