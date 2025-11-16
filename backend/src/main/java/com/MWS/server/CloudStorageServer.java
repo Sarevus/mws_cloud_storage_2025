@@ -18,9 +18,19 @@ public class CloudStorageServer {
         get("/", (request, response) -> Home.check(request, response));
 
         /**
-         * на запрос /register/ регистрация пользователя.
+         * на запрос /register/ открывается форма для регистрации пользователя.
          */
         get("/register/", (request, response) -> UserController.register(request, response));
+
+        /**
+         * на запрос /register/ открывается форма для регистрации пользователя.
+         */
+        post("/user/register/", (request, response) -> UserController.UserRegister(request, response));
+
+        /**
+         * на запрос /login/ открывается форма для входа пользователя.
+         */
+        get("/login/", (request, response) -> UserController.login(request, response));
 
         /**
          * на запрос /files/user/ возвращаем список файлов.
