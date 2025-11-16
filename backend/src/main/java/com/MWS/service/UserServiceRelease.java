@@ -4,7 +4,6 @@ import com.MWS.Validator.ValidationResult;
 import com.MWS.Validator.Validator;
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
-import com.MWS.handlers.UserController;
 import com.MWS.model.UserEntity;
 import com.MWS.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,12 +21,14 @@ public class UserServiceRelease implements UserService {
         this.userRepository = userRepository;
     }
 
+
+    /**
+     * Регистрация пользователя
+     * @param userDTO - данные о пользователе
+     */
     @Override
     public GetSimpleUserDto createUser(CreateUserDTO userDTO) {
-
-        /**
-         * Проверка валидации
-         */
+        // проверка на валидность вводимых данных
         ValidationResult validationResult = Validator.validate(userDTO);
         if (!validationResult.isValid() || !validationResult.getErrors().isEmpty()) {
             String message = String.join("; ", validationResult.getErrors());
@@ -35,34 +36,29 @@ public class UserServiceRelease implements UserService {
             throw new IllegalArgumentException("Некорректные данные пользователя: " + message);
         }
 
-        /**
-         * Заполняем переменные значениями из dto. Пароль переводим в хэшированный
-         */
+
+        // Заполняем переменные значениями из dto. Пароль переводим в хэшированный
         String email = userDTO.email();
         String name = userDTO.name();
         String phoneNumber = userDTO.phoneNumber();
         String password = HashPassword.createPasswordHash(userDTO.password());
 
-        /**
-         * Проверяем есть ли в бд пользователь с таким же email
-         */
+
+        // Проверяем есть ли в бд пользователь с таким же email
         userRepository.findByEmail(email).ifPresent(existingUser -> {
             logger.warn("Пользователь с email {} уже существует.", email);
             throw new IllegalArgumentException("Email " + email + " уже занят.");
         });
 
-        /**
-         *  заполняем UserEntity
-         */
+
+        // заполняем UserEntity
         UserEntity user = new UserEntity();
         user.setName(name);
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setPassword(password);
 
-        /**
-         * сохраняем user
-         */
+        // сохраняем user
         UserEntity savedUser = userRepository.save(user);
 
         return new GetSimpleUserDto(
@@ -79,14 +75,39 @@ public class UserServiceRelease implements UserService {
         return null;
     }
 
+
+    /**
+     * Возвращает данные о пользователе по его id
+     * @param id - id пользователя
+     */
     @Override
     public GetSimpleUserDto getUser(UUID id) {
-        return null;
+        // Если такого пользователя нет возвращаем exception
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден: " + id));
+
+        // Если есть, то возвращаем его данные
+        return new GetSimpleUserDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhoneNumber()
+        );
     }
 
+    /**
+     * Удаление пользователя по id
+     * @param id
+     */
     @Override
     public void deleteUser(UUID id) {
+        // Если такого пользователя нет возвращаем exception
+        userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден: " + id));
 
+        userRepository.deleteById(id);
+
+        logger.info("Пользователь {} удалён", id);
     }
 
 }
