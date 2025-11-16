@@ -8,8 +8,6 @@ import java.util.UUID;
 
 public interface UserService {
 
-    void save(String userName, String email, String phoneNumber, String password);
-
     GetSimpleUserDto createUser(CreateUserDTO userDTO);
 
     GetSimpleUserDto updateUser(UUID id, CreateUserDTO userDTO);
