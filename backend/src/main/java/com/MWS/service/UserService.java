@@ -1,18 +1,12 @@
 package com.MWS.service;
 
-import com.MWS.dto.create_update.CreateUserDTO;
-import com.MWS.dto.get.GetSimpleUserDto;
-import com.MWS.model.UserEntity;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
-import java.util.UUID;
+import java.util.List;
 
 public interface UserService {
 
-    GetSimpleUserDto createUser(CreateUserDTO userDTO);
+    void save(String userName, String email, String phoneNumber, String password);
 
-    GetSimpleUserDto updateUser(UUID id, CreateUserDTO userDTO);
 
-    GetSimpleUserDto getUser(UUID id);
-
-    void deleteUser(UUID id);
 }
