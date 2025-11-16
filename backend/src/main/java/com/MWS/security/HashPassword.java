@@ -10,7 +10,7 @@ public class HashPassword {
 
     private static final int SALT_SIZE = 16;
     private static final int NUMBER_OF_ITERATIONS = 65536;
-    private static final int KEY_LENGTH = 256;
+    private static final int KEY_LENGTH = 45;
     private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
     private static final String SEPARATOR = "#";
 
