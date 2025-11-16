@@ -23,8 +23,11 @@ public class UserServiceRelease implements UserService {
     }
 
     @Override
-    public GetSimpleUserDto createUser(CreateUserDTO userDTO){
+    public GetSimpleUserDto createUser(CreateUserDTO userDTO) {
 
+        /**
+         * Проверка валидации
+         */
         ValidationResult validationResult = Validator.validate(userDTO);
         if (!validationResult.isValid() || !validationResult.getErrors().isEmpty()) {
             String message = String.join("; ", validationResult.getErrors());
@@ -35,7 +38,6 @@ public class UserServiceRelease implements UserService {
         /**
          * Заполняем переменные значениями из dto. Пароль переводим в хэшированный
          */
-
         String email = userDTO.email();
         String name = userDTO.name();
         String phoneNumber = userDTO.phoneNumber();
@@ -48,13 +50,19 @@ public class UserServiceRelease implements UserService {
             logger.warn("Пользователь с email {} уже существует.", email);
             throw new IllegalArgumentException("Email " + email + " уже занят.");
         });
+
+        /**
+         *  заполняем UserEntity
+         */
         UserEntity user = new UserEntity();
         user.setName(name);
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setPassword(password);
 
-
+        /**
+         * сохраняем user
+         */
         UserEntity savedUser = userRepository.save(user);
 
         return new GetSimpleUserDto(
