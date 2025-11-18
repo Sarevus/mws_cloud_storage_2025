@@ -15,18 +15,22 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "name", nullable = false)
     @NotNull(message = "Имя не может быть null")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
     private String name;
 
+    @Column(name = "email", nullable = false)
     @Email(message = "Некорректный формат email")
     @NotNull(message = "Email не может быть null")
     private String email;
 
+    @Column(name = "password", nullable = false)
     @NotNull(message = "Пароль не может быть null")
     @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
     private String password;
 
+    @Column(name = "phoneNumber", nullable = false)
     @PhoneNumber(message = "Некорректный формат телефонного номера")
     private String phoneNumber;
 
