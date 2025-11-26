@@ -19,7 +19,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    /
+    /**
      * Обрабатывает запрос на создание нового пользователя.
      */
     public Object register(Request request, Response response) {
@@ -32,7 +32,7 @@ public class UserController {
         return gson.toJson(createdUser);
     }
 
-    /
+    /**
      * Обрабатывает запрос на получение пользователя по ID.
      */
     public Object getUserById(Request request, Response response) {
@@ -50,7 +50,7 @@ public class UserController {
         }
     }
 
-    /
+    /**
      * Обрабатывает запрос на обновление данных пользователя.
      */
     public Object updateUser(Request request, Response response) {
@@ -66,7 +66,7 @@ public class UserController {
         }
     }
 
-    /
+    /**
      * Обрабатывает запрос на удаление пользователя.
      */
     public Object deleteUser(Request request, Response response) {
