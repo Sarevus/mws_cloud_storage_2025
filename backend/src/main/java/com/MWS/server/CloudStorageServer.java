@@ -7,6 +7,7 @@ import com.MWS.repository.UserRepositoryPostgre;
 import com.MWS.service.UserService;
 import com.MWS.service.UserServiceRelease;
 
+
 import static spark.Spark.*;
 
 public class CloudStorageServer {
@@ -14,10 +15,19 @@ public class CloudStorageServer {
         UserRepository userRepository = new UserRepositoryPostgre();
         UserService userService = new UserServiceRelease(userRepository);
         UserController userController = new UserController(userService);
+        staticFiles.location("/public");
+
         /**
          * Запускаем сервер на порту 80
          */
         port(80);
+
+
+        get("/register", (req, res) -> {
+            res.type("text/html");
+            res.redirect("/registerIndex.html");
+            return null;
+        });
 
         /**
          * на запрос / возвращаем домашнюю страницу
@@ -27,20 +37,21 @@ public class CloudStorageServer {
         /**
          * на запрос /register/ открывается форма для регистрации пользователя.
          */
-        post("/register", userController::register);
-        post("/register/", userController::register);
+        post("/register", (req, res) -> userController.register(req, res));
+        post("/register/", (req, res) -> userController.register(req, res));
 
         /**
          * Получить данные о пользователе по id
          */
-        get("/user/:id", userController::getUserById);
-        get("/user/:id/", userController::getUserById);
+        get("/user/:id", (req, res) -> userController.getUserById(req, res));
+        get("/user/:id/", (req, res) -> userController.getUserById(req, res));
+
 
         /**
          * Удалить пользователя по id
          */
-        delete("/user/:id", userController::deleteUser);
-        delete("/user/:id/", userController::deleteUser);
+        delete("/user/:id", (req, res) -> userController.deleteUser(req, res));
+        delete("/user/:id/", (req, res) -> userController.deleteUser(req, res));
 
         /**
          * на запрос /register/ открывается форма для регистрации пользователя.
