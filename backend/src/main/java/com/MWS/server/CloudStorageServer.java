@@ -3,7 +3,7 @@ import com.MWS.handlers.Files;
 import com.MWS.handlers.Home;
 import com.MWS.handlers.UserController;
 import com.MWS.repository.UserRepository;
-import com.MWS.repository.UserRepositoryPostgre;
+import com.MWS.repository.UserRepositoryJDBC;
 import com.MWS.service.UserService;
 import com.MWS.service.UserServiceRelease;
 
@@ -12,7 +12,7 @@ import static spark.Spark.*;
 
 public class CloudStorageServer {
     public static void main(String[] args) {
-        UserRepository userRepository = new UserRepositoryPostgre();
+        UserRepository userRepository = new UserRepositoryJDBC();
         UserService userService = new UserServiceRelease(userRepository);
         UserController userController = new UserController(userService);
         staticFiles.location("/public");
