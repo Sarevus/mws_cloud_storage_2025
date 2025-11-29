@@ -2,6 +2,7 @@ package com.MWS.handlers;
 
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
+import com.MWS.dto.login.LoginUserDTO;
 import com.MWS.service.UserService;
 import com.google.gson.Gson;
 import jakarta.persistence.EntityNotFoundException;
@@ -37,6 +38,23 @@ public class UserController {
 
     }
 
+    public Object login(Request request, Response response) {
+        response.type("application/json");
+        try {
+            LoginUserDTO dto = gson.fromJson(request.body(), LoginUserDTO.class);
+            UUID userId = userService.loginUser(dto.email(), dto.password());
+
+            response.status(200);
+            return gson.toJson(new GetSimpleUserDto(
+                    userId, null, dto.email(), null
+            ));
+        } catch (IllegalArgumentException ex) {
+            response.status(400);
+            return gson.toJson(new ErrorResponse(ex.getMessage()));
+        }
+    }
+
+
     /**
      * Обрабатывает запрос на получение пользователя по ID.
      */
@@ -45,6 +63,7 @@ public class UserController {
         try {
             UUID id = UUID.fromString(request.params(":id"));
             GetSimpleUserDto user = userService.getUser(id);
+            response.status(200);
             return gson.toJson(user);
         } catch (EntityNotFoundException e) {
             response.status(404);

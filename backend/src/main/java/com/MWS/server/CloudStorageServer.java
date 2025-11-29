@@ -29,6 +29,15 @@ public class CloudStorageServer {
             return null;
         });
 
+
+        get("/login", (req, res) -> {
+            res.type("text/html");
+            res.redirect("/loginIndex.html");
+            return null;
+        });
+
+        post("/login", (req, res) -> userController.login(req, res));
+
         /**
          * на запрос / возвращаем домашнюю страницу
          */
@@ -43,7 +52,6 @@ public class CloudStorageServer {
         /**
          * Получить данные о пользователе по id
          */
-        // Открытие HTML-страницы профиля
         get("/user/:id", (req, res) -> {
             res.type("text/html");
             res.redirect("/myProfile.html?id=" + req.params(":id"));
@@ -65,6 +73,8 @@ public class CloudStorageServer {
          */
         put("/user/:id", (req, res) -> userController.updateUser(req, res));
         put("/user/:id/", (req, res) -> userController.updateUser(req, res));
+
+
 
         /**
          * на запрос /register/ открывается форма для регистрации пользователя.

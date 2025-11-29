@@ -12,4 +12,6 @@ public record GetUserAndFilesDto(
         String phoneNumber,
         List<FileDto> files
 ) {
+    public static class LoginDTO {
+    }
 }
