@@ -43,8 +43,15 @@ public class CloudStorageServer {
         /**
          * Получить данные о пользователе по id
          */
-        get("/user/:id", (req, res) -> userController.getUserById(req, res));
-        get("/user/:id/", (req, res) -> userController.getUserById(req, res));
+        // Открытие HTML-страницы профиля
+        get("/user/:id", (req, res) -> {
+            res.type("text/html");
+            res.redirect("/myProfile.html?id=" + req.params(":id"));
+            return null;
+        });
+
+        get("/api/user/:id", (req, res) -> userController.getUserById(req, res));
+        get("/api/user/:id/", (req, res) -> userController.getUserById(req, res));
 
 
         /**
