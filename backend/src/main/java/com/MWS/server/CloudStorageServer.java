@@ -2,13 +2,20 @@ package com.MWS.server;
 import com.MWS.handlers.Files;
 import com.MWS.handlers.Home;
 import com.MWS.handlers.UserController;
+import com.MWS.repository.UserRepository;
+import com.MWS.repository.UserRepositoryPostgre;
+import com.MWS.service.UserService;
+import com.MWS.service.UserServiceRelease;
 
 import static spark.Spark.*;
 
 public class CloudStorageServer {
     public static void main(String[] args) {
+        UserRepository userRepository = new UserRepositoryPostgre();
+        UserService userService = new UserServiceRelease(userRepository);
+        UserController userController = new UserController(userService);
         /**
-         * запускаем сервер на порту 80
+         * Запускаем сервер на порту 80
          */
         port(80);
 
@@ -20,17 +27,18 @@ public class CloudStorageServer {
         /**
          * на запрос /register/ открывается форма для регистрации пользователя.
          */
-        get("/register/", (request, response) -> UserController.register(request, response));
+        post("/register/", userController::register);
+//        get("/register/", (request, response) -> UserController.register(request, response));
 
         /**
          * на запрос /register/ открывается форма для регистрации пользователя.
          */
-        post("/user/register/", (request, response) -> UserController.UserRegister(request, response));
+        //post("/user/register/", (request, response) -> UserController.UserRegister(request, response));
 
         /**
          * на запрос /login/ открывается форма для входа пользователя.
          */
-        get("/login/", (request, response) -> UserController.login(request, response));
+        //get("/login/", (request, response) -> UserController.login(request, response));
 
         /**
          * на запрос /files/user/ возвращаем список файлов.
