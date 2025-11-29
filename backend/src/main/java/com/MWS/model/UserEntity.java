@@ -1,11 +1,13 @@
 package com.MWS.model;
 
 import java.lang.String;
+
 import com.MWS.Validator.annotations.Email;
 import com.MWS.Validator.annotations.NotNull;
 import com.MWS.Validator.annotations.PhoneNumber;
 import com.MWS.Validator.annotations.Size;
 import jakarta.persistence.*;
+
 import java.util.UUID;
 
 @Entity
@@ -57,15 +59,15 @@ public class UserEntity {
         return name;
     }
 
-    public String getEmail () {
+    public String getEmail() {
         return email;
     }
 
-    public String getPhoneNumber () {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public String getPassword () {
+    public String getPassword() {
         return password;
     }
 
@@ -81,14 +83,18 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
     }
 
-    public void setPassword (String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("User{ID: %s, name=%s}", id, name);
     }
+
 }
 
