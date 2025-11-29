@@ -10,19 +10,23 @@
 <body>
     <div class="log-in">
         <h1 class="title">Войти</h1>
-        <form class="field-form">
+        
+        <form class="field-form" id="username-form">
             <div class="field">
-                <input class="field_input" id="login-username" placeholder=" " autocomplete="off"/>
+                <input class="field_input" id="login-username" name="username" placeholder=" " autocomplete="username" required/>
                 <label class="field_label" for="login-username">Введите имя пользователя</label>
             </div>
         </form>
-        <form class="field-form">
+        <form class="field-form" id="password-form">
             <div class="field">
-                <input class="field_input" id="login-password" type="password" placeholder=" " autocomplete="off"/>
+                <input class="field_input" id="login-password" name="password" type="password" placeholder=" " autocomplete="current-password" required/>
                 <label class="field_label" for="login-password">Введите пароль</label>
             </div>
         </form>
-        <button class="button" onclick="location.href='myProfile.html'" type="submit">Войти</button>
+        <form class="field-form" id="submit-form">
+            <button class="button" type="submit">Войти</button>
+        </form>
+        
         <a href="registerIndex.html" class="auth-link">
             Ещё не зарегистрированы?
         </a>
@@ -30,5 +34,21 @@
             Вернуться на главную ↪
         </a>
     </div>
+
+    <script>
+        // Обработчик формы - исправлено на правильный ID
+        document.getElementById('submit-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Здесь AJAX запрос к API
+            console.log('Login attempt:', username, password);
+            
+            // После успешной авторизации:
+            window.location.href = 'myProfile.html';
+        });
+    </script>
 </body>
 </html>
