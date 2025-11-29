@@ -72,6 +72,11 @@ public class UserRepositoryPostgre implements UserRepository {
     }
 
     @Override
+    public UserEntity update(UserEntity user) {
+        return user;
+    }
+
+    @Override
     public Optional<UserEntity> findByEmail(String email) {
         EntityManager em = emf.createEntityManager();
         try {

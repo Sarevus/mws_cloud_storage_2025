@@ -47,9 +47,6 @@ public class UserEntity {
         this.password = password;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
 
     public UUID getId() {
         return id;
