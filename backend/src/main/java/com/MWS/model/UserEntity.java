@@ -39,11 +39,16 @@ public class UserEntity {
     public UserEntity() {
     }
 
-    public UserEntity(String name, String email, String phoneNumber, String password) {
+    public UserEntity(UUID id, String name, String email, String phoneNumber, String password) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public UUID getId() {
