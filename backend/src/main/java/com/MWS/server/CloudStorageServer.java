@@ -54,6 +54,12 @@ public class CloudStorageServer {
         delete("/user/:id/", (req, res) -> userController.deleteUser(req, res));
 
         /**
+         * Обновить данные пользователя по id
+         */
+        put("/user/:id", (req, res) -> userController.updateUser(req, res));
+        put("/user/:id/", (req, res) -> userController.updateUser(req, res));
+
+        /**
          * на запрос /register/ открывается форма для регистрации пользователя.
          */
 //        post("/user/register/", (request, response) -> UserController.UserRegister(request, response));

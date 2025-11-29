@@ -26,5 +26,7 @@ public interface UserRepository {
      */
     void deleteById(UUID id);
 
+    UserEntity update(UserEntity user);
+
     Optional<UserEntity> findByEmail(String email);
 }

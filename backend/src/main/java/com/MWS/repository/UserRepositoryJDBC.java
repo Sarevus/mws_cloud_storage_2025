@@ -33,13 +33,43 @@ public class UserRepositoryJDBC implements UserRepository {
             stmt.setString(4, phonenumber);
             stmt.setString(5, password);
             stmt.executeUpdate();
-            logger.info("Пользователь сохранён или обновлён: {}", user.getId());
+            logger.info("Пользователь сохранён: {}", user.getId());
             return user;
 
         } catch (SQLException e) {
             logger.error("Ошибка при сохранении пользователя с id {}", user.getId(), e);
-            throw new RuntimeException("Не удалось сохранить или обновить пользователя", e);
+            throw new RuntimeException("Не удалось сохранить пользователя", e);
         }
+    }
+    @Override
+    public UserEntity update(UserEntity user) {
+        if (user.getId() == null) {
+            throw new IllegalArgumentException("ID пользователя не существует");
+        }
+        String name = user.getName();
+        String email = user.getEmail();
+        String phonenumber = user.getPhoneNumber();
+        String password = user.getPassword();
+        UUID id = user.getId();
+
+        String sql = "UPDATE users SET name = ?, email = ?, phonenumber = ?, password = ? WHERE id = ?";
+        try (Connection con = Database.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+//            stmt.setObject(1, user.getId());
+            stmt.setString(1, name);
+            stmt.setString(2, email);
+            stmt.setString(3, phonenumber);
+            stmt.setString(4, password);
+            stmt.setObject(5, id);
+            stmt.executeUpdate();
+            logger.info("Пользователь обновлён: {}", user.getId());
+
+        } catch (SQLException e) {
+            logger.error("Ошибка при сохранении пользователя с id {}", user.getId(), e);
+            throw new RuntimeException("Не удалось обновить пользователя", e);
+        }
+        return user;
     }
 
     @Override
@@ -103,6 +133,8 @@ public class UserRepositoryJDBC implements UserRepository {
         }
         return Optional.empty();
     }
+
+
 
     private UserEntity mapRowToUser(ResultSet rs) throws SQLException {
         UserEntity user = new UserEntity();
