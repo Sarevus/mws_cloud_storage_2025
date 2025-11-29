@@ -83,6 +83,20 @@
             <version>3.0.2</version>
         </dependency>
 
+        <!-- Mockito core -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.9.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>4.11.0</version>
+            <scope>test</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>org.hibernate.validator</groupId>
@@ -110,8 +124,14 @@
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
         </dependency>
-    </dependencies>
 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <build>
         <finalName>cloud-storage</finalName>
         <plugins>

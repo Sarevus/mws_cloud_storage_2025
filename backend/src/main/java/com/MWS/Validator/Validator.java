@@ -15,7 +15,7 @@ public class Validator {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
 //    private static final String PHONE_NUMBER_REGEX = "^\\+([78])\\s\\([0-9]{3}\\)\\s[0-9]{3}-[0-9]{2}-[0-9]{2}$";
-    private static final String PHONE_NUMBER_REGEX = "^\\+7\\d{10}$";
+    private static final String PHONE_NUMBER_REGEX = "^\\+7[0-9]{10}$";;
     private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile(PHONE_NUMBER_REGEX);
 
     public static ValidationResult validate(Object object) {
