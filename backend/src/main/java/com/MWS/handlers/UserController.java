@@ -24,12 +24,17 @@ public class UserController {
      */
     public Object register(Request request, Response response) {
         response.type("application/json");
+        try {
+            CreateUserDTO dto = gson.fromJson(request.body(), CreateUserDTO.class);
+            GetSimpleUserDto createdUser = userService.createUser(dto);
+            response.status(201);
+            return gson.toJson(createdUser);
+        } catch (IllegalArgumentException ex){
+            response.status(400); // Bad Request
+            return gson.toJson(new ErrorResponse(ex.getMessage()));
+        }
 
-        CreateUserDTO dto = gson.fromJson(request.body(), CreateUserDTO.class);
-        GetSimpleUserDto createdUser = userService.createUser(dto);
 
-        response.status(201);
-        return gson.toJson(createdUser);
     }
 
     /**
