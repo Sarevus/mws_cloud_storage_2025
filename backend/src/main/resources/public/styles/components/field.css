@@ -1,0 +1,46 @@
+.field {
+  position: relative;
+  width: 100%;
+
+  &:has(.field_input:not(:placeholder-shown)) .field_label,
+  &:has(.field_input:focus) .field_label {
+    color: var(--color-black);
+    transform: translateY(-40px) scale(0.8);
+    font-size: 18px;
+  }
+}
+
+.field_label {
+  position: absolute;
+  top: 50%;
+  left: 17px;
+  color: var(--color-gray-4);
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.field_input {
+  --fieldInputPaddingX: 16px;
+  --fieldSeachInputIconSize: 16px;
+
+  width: 100%;
+  color: #fb3233;
+  height: var(--input-height);
+  padding-inline: var(--fieldInputPaddingX);
+  background-color: var(--color-white);
+  border: var(--border);
+  border-radius: 15px; /* ← Добавлено скругление */
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: all 0.3s ease; /* ← Добавлен переход */
+
+  &:hover,
+  &:focus {
+    border-color: #667eea; /* ← Изменено на цвет градиента */
+    background-color: var(--color-white);
+    outline: none;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+  }
+}
