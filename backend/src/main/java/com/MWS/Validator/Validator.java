@@ -1,10 +1,10 @@
-package com.MWS.storage.sql;
+package com.MWS.Validator;
 
 
-import com.MWS.storage.sql.annotations.Email;
-import com.MWS.storage.sql.annotations.NotNull;
-import com.MWS.storage.sql.annotations.PhoneNumber;
-import com.MWS.storage.sql.annotations.Size;
+import com.MWS.Validator.annotations.Email;
+import com.MWS.Validator.annotations.NotNull;
+import com.MWS.Validator.annotations.PhoneNumber;
+import com.MWS.Validator.annotations.Size;
 
 import java.lang.reflect.Field;
 import java.util.regex.Pattern;
@@ -14,7 +14,8 @@ public class Validator {
     private static final String EMAIL_REGEX = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
-    private static final String PHONE_NUMBER_REGEX = "^\\+([78])\\s\\([0-9]{3}\\)\\s[0-9]{3}-[0-9]{2}-[0-9]{2}$";
+//    private static final String PHONE_NUMBER_REGEX = "^\\+([78])\\s\\([0-9]{3}\\)\\s[0-9]{3}-[0-9]{2}-[0-9]{2}$";
+    private static final String PHONE_NUMBER_REGEX = "^\\+7[0-9]{10}$";;
     private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile(PHONE_NUMBER_REGEX);
 
     public static ValidationResult validate(Object object) {
@@ -87,6 +88,7 @@ public class Validator {
                 errors.addError(annotation.message());
             }
         }
+
     }
 
     private static void validateEmail(Field field, Object fieldValue, ValidationResult errors) {

@@ -1,56 +1,55 @@
 package com.MWS.model;
 
-import com.MWS.storage.sql.annotations.Email;
-import com.MWS.storage.sql.annotations.NotNull;
-import com.MWS.storage.sql.annotations.PhoneNumber;
-import com.MWS.storage.sql.annotations.Size;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import java.lang.String;
 
+import com.MWS.Validator.annotations.Email;
+import com.MWS.Validator.annotations.NotNull;
+import com.MWS.Validator.annotations.PhoneNumber;
+import com.MWS.Validator.annotations.Size;
+import jakarta.persistence.*;
+
+import java.util.UUID;
 
 @Entity
-public class User {
+@Table(name = "users")
+public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long ID;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
+    @Column(name = "name", nullable = false)
     @NotNull(message = "Имя не может быть null")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
     private String name;
 
+    @Column(name = "email", nullable = false)
     @Email(message = "Некорректный формат email")
     @NotNull(message = "Email не может быть null")
     private String email;
 
-    @PhoneNumber(message = "Некорректный формат телефонного номера")
-    private String phoneNumber;
-
+    @Column(name = "password", nullable = false)
     @NotNull(message = "Пароль не может быть null")
     @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
     private String password;
 
+    @Column(name = "phoneNumber", nullable = false)
+    @PhoneNumber(message = "Некорректный формат телефонного номера")
+    private String phoneNumber;
 
-    public User(String name, String email, String phoneNumber, String password) {
+    public UserEntity() {
+    }
+
+    public UserEntity(UUID id, String name, String email, String phoneNumber, String password) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
 
-    public User(long ID, String name, String email, String phoneNumber, String password) {
-        this.ID = ID;
-        this.name = name;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.password = password;
-    }
 
-
-
-    public long getID() {
-        return ID;
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {
@@ -85,10 +84,14 @@ public class User {
         this.password = password;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
     @Override
     public String toString() {
-        return String.format("User{ID: %d, name='%s'}", ID, name);
+        return String.format("User{ID: %s, name=%s}", id, name);
     }
+
 }
 

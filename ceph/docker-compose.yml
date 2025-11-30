@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  ceph-rgw:
+    image: quay.io/ceph/demo:latest-quincy
+    container_name: ${CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      - CEPH_PUBLIC_NETWORK=${CEPH_PUBLIC_NETWORK}
+      - MON_IP=${MON_IP}
+      - RGW_NAME=${RGW_NAME}
+
+      - CEPH_DEMO_UID=${CEPH_DEMO_UID}
+      - CEPH_DEMO_ACCESS_KEY=${CEPH_DEMO_ACCESS_KEY}
+      - CEPH_DEMO_SECRET_KEY=${CEPH_DEMO_SECRET_KEY}
+      - CEPH_DEMO_BUCKET=${CEPH_DEMO_BUCKET}
+
+      - RGW_FRONTEND_PORT=${RGW_FRONTEND_PORT}
+
+    ports:
+      - "${HOST_PORT}:${RGW_FRONTEND_PORT}"
+
+    networks:
+      - ceph-net
+
+networks:
+  ceph-net:
+    driver: bridge

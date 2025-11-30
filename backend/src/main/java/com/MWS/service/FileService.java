@@ -1,16 +1,14 @@
 package com.MWS.service;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
+import java.io.InputStream;
 
 public interface FileService {
+    List<String> getFileLinksByUserId(long userId);
 
-
-    public List<String> getFileLinksByUserId(long userId); // я отдаю user id должна получить список ссылок на файлы доступные пользовавтелю
-
-    public String saveUserFile(Long userId, MultipartFile file);
+    String saveUserFile(Long userId, String filename, InputStream fileStream, long fileSize);
 
     void deleteUserFile(Long userId, String fileId);
 
+    InputStream downloadFile(String objectKey);
 }

@@ -1,51 +1,70 @@
 package com.MWS.service;
 
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.stereotype.Service;
+import com.MWS.storage.S3FileStorage;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
-public class FileServiceRelease implements FileService {
+public class FileServiceRelease implements FileService{
+    private final S3FileStorage cephStorage;
+
+    public FileServiceRelease() {
+        // Настройки Ceph
+        String endpoint = "http://localhost:9000";
+        String accessKey = "admin";        // MINIO_ROOT_USER
+        String secretKey = "password123";  // MINIO_ROOT_PASSWORD
+        String bucketName = "userdata";
+
+        this.cephStorage = new S3FileStorage(endpoint, accessKey, secretKey, bucketName);
+    }
+
     @Override
     public List<String> getFileLinksByUserId(long userId) {
-        return List.of();
-    }//временно пустой список
+        System.out.println("DEBUG: Getting REAL files for user " + userId);
+
+        try {
+            List<String> files = cephStorage.listUserFiles(userId);
+            System.out.println("DEBUG: Found " + files.size() + " real files: " + files);
+            return files;
+        } catch (Exception e) {
+            System.out.println("DEBUG: Ceph error: " + e.getMessage());
+            e.printStackTrace();
+            // В случае ошибки верни пустой список
+            return new ArrayList<>();
+        }
+    }
 
     @Override
-    public String saveUserFile(Long userId, MultipartFile file) {
-        try {
-            String originalFileName = file.getOriginalFilename();
-            String fileExtension = getFileExtension(originalFileName);
-            String uniqueFileName = generateUniqueFileName(userId, fileExtension);
+    public String saveUserFile(Long userId, String filename, InputStream fileStream, long fileSize) {
+        System.out.println("DEBUG: Upload file for user " + userId + ", filename: " + filename);
 
-            // !!!времянка имитация сохранения в S3
-            System.out.println("Сохраняем файл: " + uniqueFileName);
-            System.out.println("Размер файла: " + file.getSize() + " bytes");
-            System.out.println("Тип файла: " + file.getContentType());
-            // тоже заглушка
-            return "http://yourserver.com/files/" + uniqueFileName;
-        } catch (Exception e){
-            throw new RuntimeException("Ошибка при сохранении файла", e);
+        try {
+            String objectKey = (String) cephStorage.uploadFile(userId, filename, fileStream, fileSize);
+            System.out.println("DEBUG: File successfully uploaded: " + objectKey);
+            return objectKey;
+        } catch (Exception e) {
+            System.out.println("DEBUG: Upload failed: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 
     @Override
     public void deleteUserFile(Long userId, String fileId) {
-        // времянка
-        System.out.println("Удаляем файл: " + fileId + " для пользователя: " + userId);
-        // todo: Реальная логика удаления из S3 и БД
+        System.out.println("DEBUG: Delete file: " + fileId);
+        // Пока ничего не делаем
     }
 
-    private String generateUniqueFileName(Long userId, String extension) {
-        String uuid = UUID.randomUUID().toString();
-        return "user_" + userId + "_" + uuid + extension;
-    }
+    @Override
+    public InputStream downloadFile(String objectKey) {
+        System.out.println("DEBUG: Download file: " + objectKey);
 
-    private String getFileExtension(String fileName) {
-        if (fileName == null || !fileName.contains(".")) {
-            return "";
-        }
-        return fileName.substring(fileName.lastIndexOf("."));
+        // Временно верни тестовый InputStream
+        String testContent = "This is test content for file: " + objectKey;
+        return new ByteArrayInputStream(testContent.getBytes());
     }
 }
