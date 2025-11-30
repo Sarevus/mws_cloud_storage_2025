@@ -31,14 +31,14 @@
   padding-inline: var(--fieldInputPaddingX);
   background-color: var(--color-white);
   border: var(--border);
-  border-radius: 15px; /* ← Добавлено скругление */
+  border-radius: 15px;
   font-size: 16px;
   box-sizing: border-box;
-  transition: all 0.3s ease; /* ← Добавлен переход */
+  transition: all 0.3s ease;
 
   &:hover,
   &:focus {
-    border-color: #667eea; /* ← Изменено на цвет градиента */
+    border-color: #667eea;
     background-color: var(--color-white);
     outline: none;
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);

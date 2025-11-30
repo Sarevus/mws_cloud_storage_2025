@@ -45,6 +45,7 @@ class UserControllerContainerTest {
         createTables(testConnection);
         testConnection.close();
 
+        // Подменяю Database.getConnection, чтобы он возвращал соединение с тестовой БД вместо продакшн
         MockedStatic<com.MWS.storage.Database> databaseMock = mockStatic(com.MWS.storage.Database.class);
         databaseMock.when(com.MWS.storage.Database::getConnection)
                 .thenAnswer(invocation -> DriverManager.getConnection(

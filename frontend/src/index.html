@@ -31,11 +31,11 @@
         </div>
     </div>
 
-    <!-- Область предпросмотра с flip-эффектом -->
+    <!-- картинки -->
     <div class="full-screen-preview">
         <div class="flip-container">
             <div class="flipper">
-                <!-- Передняя сторона - SVG облачко -->
+                <!-- облачко -->
                 <div class="front">
                     <div class="cloud-svg">
                         <svg width="200" height="200" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,10 +43,10 @@
                                   fill="white" fill-opacity="0.9"/>
                         </svg>
                         <h3>Cloud Storage</h3>
-                        <p>Нажмите чтобы увидеть фото</p>
+                        <p>Нажмите, чтобы увидеть фото</p>
                     </div>
                 </div>
-                <!-- Задняя сторона - чисто белый фон с 4 фото -->
+                <!-- 4 фото -->
                 <div class="back">
                     <div class="white-surface">
                         <div class="photo-grid">
@@ -73,7 +73,7 @@
                             </div>
                             <div class="photo-item">
                                 <div class="photo-square">
-                                    <div class="photo-placeholder">📷 Фото 4</div>
+                                    <div class="photo-placeholder">Фото 4</div>
                                 </div>
                             </div>
                         </div>
@@ -84,7 +84,6 @@
     </div>
 
     <script>
-        // Добавляем немного интерактивности
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.auth-btn');
             const flipContainer = document.querySelector('.flip-container');
@@ -99,14 +98,13 @@
                 });
             });
 
-            // Flip эффект для картинки
+            // Flip эффект
             if (flipContainer) {
                 flipContainer.addEventListener('click', function() {
                     this.classList.toggle('flipped');
                 });
             }
 
-            // Плавное появление элементов при загрузке
             const elements = document.querySelectorAll('.main-page > *, .full-screen-preview');
             elements.forEach((element, index) => {
                 element.style.opacity = '0';

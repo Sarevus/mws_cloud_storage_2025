@@ -5,9 +5,9 @@
   height: var(--input-height);
   padding: 12px;
   color: var(--color-white);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* ← Градиент */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: 1px solid transparent;
-  border-radius: 15px; /* ← Увеличено скругление */
+  border-radius: 15px;
   transition: all 0.3s ease;
   width: 100%;
   max-width: 370px;

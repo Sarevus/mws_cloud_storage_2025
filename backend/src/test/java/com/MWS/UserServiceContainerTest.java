@@ -59,13 +59,6 @@ public class UserServiceContainerTest {
         testConnection.close();
     }
 
-    @AfterAll
-    static void tearDown() throws Exception {
-        if (databaseMock != null) {
-            databaseMock.close();
-        }
-    }
-
     @BeforeEach
     void clearData() throws Exception {
         try (Connection connection = DriverManager.getConnection(
