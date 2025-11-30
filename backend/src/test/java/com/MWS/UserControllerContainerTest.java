@@ -332,7 +332,7 @@ class UserControllerContainerTest {
         String registerBody = """
             {
                 "name": "Аня",
-                "email": "testuser1@mail.ru",
+                "email": "testuserDelete@mail.ru",
                 "phoneNumber": "+79106754432",
                 "password": "123456"
             }
@@ -345,7 +345,7 @@ class UserControllerContainerTest {
                 .build();
 
         HttpResponse<String> registerResponse = httpClient.send(registerRequest, HttpResponse.BodyHandlers.ofString());
-        assertEquals(400, registerResponse.statusCode());
+        assertEquals(201, registerResponse.statusCode());
 
         String userId = extractUserIdFromResponse(registerResponse.body());
 
@@ -357,7 +357,7 @@ class UserControllerContainerTest {
 
         HttpResponse<String> response = httpClient.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(500, response.statusCode());
+        assertEquals(204, response.statusCode());
     }
 
     @Test
@@ -372,7 +372,7 @@ class UserControllerContainerTest {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(500, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
@@ -389,7 +389,7 @@ class UserControllerContainerTest {
 
         assertEquals(400, response.statusCode());
     }
-    
+
     // Извлечение ID пользователя из JSON-ответа
     private String extractUserIdFromResponse(String responseBody) {
         try {
