@@ -94,10 +94,19 @@ public class UserController {
      * Обрабатывает запрос на удаление пользователя.
      */
     public Object deleteUser(Request request, Response response) {
-        UUID id = UUID.fromString(request.params(":id"));
-        userService.deleteUser(id);
-        response.status(204);
-        return "";
+        response.type("application/json");
+        try {
+            UUID id = UUID.fromString(request.params(":id"));
+            userService.deleteUser(id);
+            response.status(204);
+            return "";
+        } catch (IllegalArgumentException e) {
+            response.status(400);
+            return gson.toJson(new ErrorResponse("Некорректный формат UUID"));
+        } catch (EntityNotFoundException e) {
+            response.status(404);
+            return gson.toJson(new ErrorResponse(e.getMessage()));
+        }
     }
 
     private static class ErrorResponse {
