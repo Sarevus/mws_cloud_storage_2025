@@ -26,18 +26,26 @@ public class Files {
      * ["user_123/1700123456789_hui.txt", "user_123/1700123460000_resume.pdf"]
      */
     public static Object getList(spark.Request request, spark.Response response) throws JsonProcessingException {
-        String userIdStr = request.queryParams("userId");
+        try {
+            // Добавь эту проверку
+            response.type("application/json; charset=utf-8");
 
-        if (userIdStr == null) {
-            response.status(400);
-            return "не верные данные (нужен query param userId)";
+            String userIdStr = request.cookie("UserId");
+            System.out.println("DEBUG: UserId from cookie: " + userIdStr);
+
+            long userId = Long.parseLong(userIdStr);
+            List<String> files = fileService.getFileLinksByUserId(userId);
+
+            String result = objectMapper.writeValueAsString(files);
+            System.out.println("DEBUG: Returning JSON: " + result);
+            return result;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.status(500);
+            response.type("application/json; charset=utf-8");
+            return "{\"error\": \"Server error: " + e.getMessage() + "\"}";
         }
-
-        long userId = Long.parseLong(userIdStr);
-        List<String> files = fileService.getFileLinksByUserId(userId);
-
-        response.type("application/json");
-        return objectMapper.writeValueAsString(files);
     }
 
     /**
@@ -49,6 +57,12 @@ public class Files {
      *   id       = "dXNlcl8xMjMvaHVpLnR4dA"
      */
     public static Object downloadFile(spark.Request request, spark.Response response) {
+        String userIdStr = request.cookie("UserId");
+        if (userIdStr == null) {
+            response.status(401);
+            return "Требуется авторизация";
+        }
+
         String encodedId = request.params("id");
         if (encodedId == null) {
             response.status(400);
@@ -56,6 +70,17 @@ public class Files {
         }
 
         String objectKey = decodeFileId(encodedId);
+
+        try {
+            long userId = Long.parseLong(userIdStr);
+            if (!objectKey.startsWith("user_" + userId + "/")) {
+                response.status(403);
+                return "Доступ запрещен";
+            }
+        } catch (NumberFormatException e) {
+            response.status(400);
+            return "Некорректный ID пользователя";
+        }
 
         try (InputStream is = fileService.downloadFile(objectKey)) {
             if (is == null) {
@@ -89,18 +114,20 @@ public class Files {
      * Тело запроса – multipart/form-data с полем file.
      */
     public static Object uploadFile(spark.Request request, spark.Response response) {
-        String userIdStr = request.queryParams("userId");
-        if (userIdStr == null) {
-            response.status(400);
-            return "нужен query param userId";
-        }
-        long userId = Long.parseLong(userIdStr);
+        // Берем userId из cookies
+        String userIdStr = request.cookie("UserId");
 
-        // Настраиваем multipart для Jetty (Spark)
-        request.attribute("org.eclipse.jetty.multipartConfig",
-                new MultipartConfigElement("/tmp"));
+        if (userIdStr == null) {
+            response.status(401);
+            return "Требуется авторизация";
+        }
 
         try {
+            long userId = Long.parseLong(userIdStr);
+
+            // Остальной код загрузки файла без изменений...
+            request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/tmp"));
+
             Part filePart = request.raw().getPart("file");
             if (filePart == null) {
                 response.status(400);
@@ -115,12 +142,8 @@ public class Files {
 
                 response.status(201);
                 response.type("application/json");
-                // Вернём objectKey и id для скачивания
                 String downloadId = encodeFileId(objectKey);
-                String json = String.format(
-                        "{\"objectKey\":\"%s\",\"downloadId\":\"%s\"}",
-                        objectKey, downloadId
-                );
+                String json = String.format("{\"objectKey\":\"%s\",\"downloadId\":\"%s\"}", objectKey, downloadId);
                 return json;
             }
         } catch (Exception e) {
@@ -136,6 +159,12 @@ public class Files {
      * :id – тот же base64url от objectKey.
      */
     public static Object deleteFile(spark.Request request, spark.Response response) {
+        String userIdStr = request.cookie("UserId");
+        if (userIdStr == null) {
+            response.status(401);
+            return "Требуется авторизация";
+        }
+
         String encodedId = request.params("id");
         if (encodedId == null) {
             response.status(400);
@@ -143,6 +172,17 @@ public class Files {
         }
 
         String objectKey = decodeFileId(encodedId);
+
+        try {
+            long userId = Long.parseLong(userIdStr);
+            if (!objectKey.startsWith("user_" + userId + "/")) {
+                response.status(403);
+                return "Доступ запрещен";
+            }
+        } catch (NumberFormatException e) {
+            response.status(400);
+            return "Некорректный ID пользователя";
+        }
 
         try {
             // userId сейчас не используем, реализация FileServiceRelease его игнорирует

@@ -160,19 +160,4 @@ public class UserServiceRelease implements UserService {
         logger.info("Пользователь {} удалён", id);
     }
 
-    @Override
-    public UUID loginUser(String email, String rawPassword) {
-
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
-
-        if (!HashPassword.verifyPassword(rawPassword, user.getPassword())) {
-            throw new IllegalArgumentException("Неверный пароль");
-        }
-
-        return user.getId();
-
-
-    }
-
 }

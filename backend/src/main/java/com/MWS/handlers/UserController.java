@@ -2,7 +2,8 @@ package com.MWS.handlers;
 
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
-import com.MWS.dto.login.LoginUserDTO;
+import com.MWS.model.UserEntity;
+import com.MWS.service.AuthService;
 import com.MWS.service.UserService;
 import com.google.gson.Gson;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,10 +15,19 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
     private final Gson gson = new Gson();
 
+    // Старый конструктор (оставляем для обратной совместимости)
     public UserController(UserService userService) {
         this.userService = userService;
+        this.authService = null;
+    }
+
+
+    public UserController(UserService userService, AuthService authService) {
+        this.userService = userService;
+        this.authService = authService;
     }
 
     /**
@@ -25,35 +35,49 @@ public class UserController {
      */
     public Object register(Request request, Response response) {
         response.type("application/json");
-        try {
-            CreateUserDTO dto = gson.fromJson(request.body(), CreateUserDTO.class);
-            GetSimpleUserDto createdUser = userService.createUser(dto);
-            response.status(201);
-            return gson.toJson(createdUser);
-        } catch (IllegalArgumentException ex){
-            response.status(400); // Bad Request
-            return gson.toJson(new ErrorResponse(ex.getMessage()));
-        }
 
+        CreateUserDTO dto = gson.fromJson(request.body(), CreateUserDTO.class);
+        GetSimpleUserDto createdUser = userService.createUser(dto);
 
+        response.status(201);
+        return gson.toJson(createdUser);
     }
 
     public Object login(Request request, Response response) {
         response.type("application/json");
-        try {
-            LoginUserDTO dto = gson.fromJson(request.body(), LoginUserDTO.class);
-            UUID userId = userService.loginUser(dto.email(), dto.password());
 
-            response.status(200);
+        try {
+            LoginRequest loginData = gson.fromJson(request.body(), LoginRequest.class);
+
+            // НЕПРАВИЛЬНО: AuthService.authenticate(...) - статический вызов
+            // ПРАВИЛЬНО: authService.authenticate(...) - через экземпляр
+
+            UserEntity user = authService.authenticate(loginData.email, loginData.password);
+
+            if (user == null) {
+                response.status(401);
+                return gson.toJson(new ErrorResponse("Неверный email или пароль"));
+            }
+
+            // Создаем сессию в cookie
+            String sessionId = UUID.randomUUID().toString();
+            response.cookie("SESSION_ID", sessionId, 3600);
+            response.cookie("UserId", user.getId().toString(), 3600);
+
             return gson.toJson(new GetSimpleUserDto(
-                    userId, null, dto.email(), null
+                    user.getId(), user.getName(), user.getEmail(), user.getPhoneNumber()
             ));
-        } catch (IllegalArgumentException ex) {
+
+        } catch (Exception e) {
             response.status(400);
-            return gson.toJson(new ErrorResponse(ex.getMessage()));
+            return gson.toJson(new ErrorResponse("Ошибка входа: " + e.getMessage()));
         }
     }
 
+    private static class LoginRequest {
+        String email;
+        String password;
+    }
 
     /**
      * Обрабатывает запрос на получение пользователя по ID.
@@ -63,7 +87,6 @@ public class UserController {
         try {
             UUID id = UUID.fromString(request.params(":id"));
             GetSimpleUserDto user = userService.getUser(id);
-            response.status(200);
             return gson.toJson(user);
         } catch (EntityNotFoundException e) {
             response.status(404);

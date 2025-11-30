@@ -1,12 +1,14 @@
 package com.MWS.server;
+
 import com.MWS.handlers.Files;
 import com.MWS.handlers.Home;
 import com.MWS.handlers.UserController;
+import com.MWS.middleware.AuthMiddleware;
 import com.MWS.repository.UserRepository;
 import com.MWS.repository.UserRepositoryJDBC;
+import com.MWS.service.AuthService;
 import com.MWS.service.UserService;
 import com.MWS.service.UserServiceRelease;
-
 
 import static spark.Spark.*;
 
@@ -14,14 +16,19 @@ public class CloudStorageServer {
     public static void main(String[] args) {
         UserRepository userRepository = new UserRepositoryJDBC();
         UserService userService = new UserServiceRelease(userRepository);
-        UserController userController = new UserController(userService);
+        AuthService authService = new AuthService(userRepository);
+        UserController userController = new UserController(userService, authService); // Обновленный конструктор
+        AuthMiddleware authMiddleware = new AuthMiddleware(authService);
+
         staticFiles.location("/public");
 
-        /**
-         * Запускаем сервер на порту 80
-         */
         port(80);
 
+        // Middleware проверки аутентификации
+        before(authMiddleware::requireAuth);
+
+        // Публичные маршруты
+        get("/", (request, response) -> Home.check(request, response));
 
         get("/register", (req, res) -> {
             res.type("text/html");
@@ -29,81 +36,18 @@ public class CloudStorageServer {
             return null;
         });
 
-
-        get("/login", (req, res) -> {
-            res.type("text/html");
-            res.redirect("/loginIndex.html");
-            return null;
-        });
-
-        post("/login", (req, res) -> userController.login(req, res));
-
-        /**
-         * на запрос / возвращаем домашнюю страницу
-         */
-        get("/", (request, response) -> Home.check(request, response));
-
-        /**
-         * на запрос /register/ открывается форма для регистрации пользователя.
-         */
+        // API маршруты
         post("/register", (req, res) -> userController.register(req, res));
-        post("/register/", (req, res) -> userController.register(req, res));
+        post("/login", (req, res) -> userController.login(req, res)); // Добавляем вход
 
-        /**
-         * Получить данные о пользователе по id
-         */
-        get("/user/:id", (req, res) -> {
-            res.type("text/html");
-            res.redirect("/myProfile.html?id=" + req.params(":id"));
-            return null;
-        });
-
-        get("/api/user/:id", (req, res) -> userController.getUserById(req, res));
-        get("/api/user/:id/", (req, res) -> userController.getUserById(req, res));
-
-
-        /**
-         * Удалить пользователя по id
-         */
+        get("/user/:id", (req, res) -> userController.getUserById(req, res));
         delete("/user/:id", (req, res) -> userController.deleteUser(req, res));
-        delete("/user/:id/", (req, res) -> userController.deleteUser(req, res));
-
-        /**
-         * Обновить данные пользователя по id
-         */
         put("/user/:id", (req, res) -> userController.updateUser(req, res));
-        put("/user/:id/", (req, res) -> userController.updateUser(req, res));
 
-
-
-        /**
-         * на запрос /register/ открывается форма для регистрации пользователя.
-         */
-        //post("/user/register/", (request, response) -> UserController.UserRegister(request, response));
-
-        /**
-         * на запрос /login/ открывается форма для входа пользователя.
-         */
-        //get("/login/", (request, response) -> UserController.login(request, response));
-
-        /**
-         * на запрос /files/user/ возвращаем список файлов.
-         */
+        // Файлы
         get("/files/user/", (request, response) -> Files.getList(request, response));
-
-        /**
-         * на запрос /files/download/:id скачиваем файл по id.
-         */
         get("/files/download/:id", (request, response) -> Files.downloadFile(request, response));
-
-        /**
-         * на запрос /files/upload/ загружаем передаваемый файл.
-         */
         post("/files/upload/", (request, response) -> Files.uploadFile(request, response));
-
-        /**
-         * на запрос /files/delete/:id удаляем файл по id.
-         */
         delete("/files/delete/:id", (request, response) -> Files.deleteFile(request, response));
     }
 }
