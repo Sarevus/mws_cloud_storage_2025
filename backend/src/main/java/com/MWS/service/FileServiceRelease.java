@@ -15,8 +15,8 @@ public class FileServiceRelease implements FileService{
     public FileServiceRelease() {
         // Настройки Ceph
         String endpoint = "http://localhost:9000";
-        String accessKey = "admin_access_key";
-        String secretKey = "admin_secret_key";
+        String accessKey = "admin";        // MINIO_ROOT_USER
+        String secretKey = "password123";  // MINIO_ROOT_PASSWORD
         String bucketName = "userdata";
 
         this.cephStorage = new S3FileStorage(endpoint, accessKey, secretKey, bucketName);
@@ -42,10 +42,15 @@ public class FileServiceRelease implements FileService{
     public String saveUserFile(Long userId, String filename, InputStream fileStream, long fileSize) {
         System.out.println("DEBUG: Upload file for user " + userId + ", filename: " + filename);
 
-        // Временно верни тестовый objectKey
-        String objectKey = "user_" + userId + "/test_" + System.currentTimeMillis() + "_" + filename;
-        System.out.println("DEBUG: Returning objectKey: " + objectKey);
-        return objectKey;
+        try {
+            String objectKey = (String) cephStorage.uploadFile(userId, filename, fileStream, fileSize);
+            System.out.println("DEBUG: File successfully uploaded: " + objectKey);
+            return objectKey;
+        } catch (Exception e) {
+            System.out.println("DEBUG: Upload failed: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

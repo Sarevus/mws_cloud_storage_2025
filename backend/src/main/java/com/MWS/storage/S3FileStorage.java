@@ -27,6 +27,25 @@ public class S3FileStorage {
                 .forcePathStyle(true)
                 .build();
         this.bucketName = bucketName;
+
+        createBucketIfNotExists();
+    }
+
+    private void createBucketIfNotExists() {
+        try {
+            s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
+            System.out.println("Bucket " + bucketName + " already exists");
+        } catch (NoSuchBucketException e) {
+            // Создаем бакет
+            try {
+                s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
+                System.out.println("Bucket " + bucketName + " created successfully");
+            } catch (Exception createException) {
+                System.out.println("Failed to create bucket: " + createException.getMessage());
+            }
+        } catch (Exception e) {
+            System.out.println("Error checking bucket: " + e.getMessage());
+        }
     }
 
     private String generateObjectKey(Long userId, String filename) {
@@ -72,17 +91,33 @@ public class S3FileStorage {
     }
 
     public Object uploadFile(Long userId, String filename, InputStream fileStream, long fileSize){
+        System.out.println("=== S3 UPLOAD DEBUG ===");
+        System.out.println("User ID: " + userId);
+        System.out.println("Filename: " + filename);
+        System.out.println("File size: " + fileSize);
+
         String objectKey = generateObjectKey(userId, filename);
+        System.out.println("Object key: " + objectKey);
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(objectKey)
-                .contentType(getContentType(filename))
-                .build();
+        try {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .contentType(getContentType(filename))
+                    .acl(ObjectCannedACL.PUBLIC_READ)
+                    .build();
 
-        s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(fileStream, fileSize));
+            System.out.println("Sending to S3...");
 
-        return objectKey;
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(fileStream, fileSize));
+            System.out.println("UPLOAD SUCCESSFUL to MinIO!");
+
+            return objectKey;
+        } catch (Exception e) {
+            System.out.println("UPLOAD FAILED: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to upload file to Ceph", e);
+        }
     }
 
 
