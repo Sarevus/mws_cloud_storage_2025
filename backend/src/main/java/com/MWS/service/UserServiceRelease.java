@@ -17,11 +17,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class UserServiceRelease implements UserService {
-    private final UserRepositoryJDBC userRepository;
+    private final UserRepository userRepository;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceRelease.class);
 
     public UserServiceRelease(UserRepository userRepository) {
-        this.userRepository = (UserRepositoryJDBC) userRepository;
+        this.userRepository = userRepository;
     }
 
 
