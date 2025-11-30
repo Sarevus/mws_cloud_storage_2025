@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mockStatic;
 
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UserControllerHttpTest {
+class UserControllerContainerTest {
 
     @Container
     private static final PostgreSQLContainer<?> postgres =
@@ -31,7 +31,7 @@ class UserControllerHttpTest {
                     .withUsername("test_user")
                     .withPassword("passwd");
 
-    private static final String BASE_URL = "http://localhost:4567";
+    private static final String URL = "http://localhost:4567";
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -88,7 +88,7 @@ class UserControllerHttpTest {
     // REGISTER
 
     @Test
-    void ShouldRegisterUserSuccessfully() throws Exception {
+    void SuccessfulRegistration() throws Exception {
         String requestBody = """
             {
                 "name": "Аня",
@@ -99,7 +99,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/register"))
+                .uri(URI.create(URL + "/api/users/register"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
@@ -110,7 +110,7 @@ class UserControllerHttpTest {
     }
 
     @Test
-    void ShouldReturn400ForInvalidPhoneNumber() throws Exception {
+    void InvalidPhoneNumber() throws Exception {
         String requestBody = """
             {
                 "name": "Борис",
@@ -121,7 +121,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/register"))
+                .uri(URI.create(URL + "/api/users/register"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
@@ -132,7 +132,7 @@ class UserControllerHttpTest {
     }
 
     @Test
-    void ShouldReturn400ForDuplicateEmail() throws Exception {
+    void InvalidDoubleEmail() throws Exception {
         String firstRequestBody = """
             {
                 "name": "Пользователь3",
@@ -143,7 +143,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest firstRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/register"))
+                .uri(URI.create(URL + "/api/users/register"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(firstRequestBody))
                 .build();
@@ -161,7 +161,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest secondRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/register"))
+                .uri(URI.create(URL + "/api/users/register"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(secondRequestBody))
                 .build();
@@ -172,7 +172,7 @@ class UserControllerHttpTest {
     }
 
     @Test
-    void ShouldReturn400ForInvalidPassword() throws Exception {
+    void InvalidPassword() throws Exception {
         String requestBody = """
             {
                 "name": "Даша123",
@@ -183,7 +183,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/register"))
+                .uri(URI.create(URL + "/api/users/register"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
@@ -196,7 +196,7 @@ class UserControllerHttpTest {
     // GET
 
     @Test
-    void ShouldGetUserByIdSuccessfully() throws Exception {
+    void GetUserByIdSuccessfully() throws Exception {
         String registerBody = """
             {
                 "name": "Аня",
@@ -207,7 +207,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest registerRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/register"))
+                .uri(URI.create(URL + "/api/users/register"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(registerBody))
                 .build();
@@ -218,7 +218,7 @@ class UserControllerHttpTest {
         String userId = extractUserIdFromResponse(registerResponse.body());
 
         HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/" + userId))
+                .uri(URI.create(URL + "/api/users/" + userId))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
@@ -229,11 +229,11 @@ class UserControllerHttpTest {
     }
 
     @Test
-    void ShouldReturn204ForNonExistentUser() throws Exception {
+    void InvalidGetNonExistentUser() throws Exception {
         String nonExistentId = UUID.randomUUID().toString();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/" + nonExistentId))
+                .uri(URI.create(URL + "/api/users/" + nonExistentId))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
@@ -244,11 +244,11 @@ class UserControllerHttpTest {
     }
 
     @Test
-    void ShouldReturn400ForInvalidUUID() throws Exception {
+    void GetInvalidUUID() throws Exception {
         String invalidId = "invalid-uuid";
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/" + invalidId))
+                .uri(URI.create(URL + "/api/users/" + invalidId))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
@@ -261,7 +261,7 @@ class UserControllerHttpTest {
     // UPDATE
 
     @Test
-    void ShouldUpdateUserSuccessfully() throws Exception {
+    void UpdateUserSuccessfully() throws Exception {
         String registerBody = """
             {
                 "name": "Аня",
@@ -272,7 +272,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest registerRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/register"))
+                .uri(URI.create(URL + "/api/users/register"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(registerBody))
                 .build();
@@ -292,7 +292,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest updateRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/" + userId))
+                .uri(URI.create(URL + "/api/users/" + userId))
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(updateBody))
                 .build();
@@ -303,7 +303,7 @@ class UserControllerHttpTest {
     }
 
     @Test
-    void ShouldReturn400WhenUpdatingWithInvalidUUID() throws Exception {
+    void InvalidUpdateWithInvalidUUID() throws Exception {
         String invalidId = "invalid-uuid";
         String updateBody = """
             {
@@ -315,7 +315,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/" + invalidId))
+                .uri(URI.create(URL + "/api/users/" + invalidId))
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(updateBody))
                 .build();
@@ -328,7 +328,7 @@ class UserControllerHttpTest {
     // DELETE
 
     @Test
-    void ShouldDeleteUserSuccessfully() throws Exception {
+    void DeleteUserSuccessfully() throws Exception {
         String registerBody = """
             {
                 "name": "Аня",
@@ -339,7 +339,7 @@ class UserControllerHttpTest {
             """;
 
         HttpRequest registerRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/register"))
+                .uri(URI.create(URL + "/api/users/register"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(registerBody))
                 .build();
@@ -350,7 +350,7 @@ class UserControllerHttpTest {
         String userId = extractUserIdFromResponse(registerResponse.body());
 
         HttpRequest deleteRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/" + userId))
+                .uri(URI.create(URL + "/api/users/" + userId))
                 .header("Content-Type", "application/json")
                 .DELETE()
                 .build();
@@ -361,11 +361,11 @@ class UserControllerHttpTest {
     }
 
     @Test
-    void ShouldReturn404WhenDeletingNonExistentUser() throws Exception {
+    void InvalidDeleteNonExistentUser() throws Exception {
         String nonExistentId = UUID.randomUUID().toString();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/" + nonExistentId))
+                .uri(URI.create(URL + "/api/users/" + nonExistentId))
                 .header("Content-Type", "application/json")
                 .DELETE()
                 .build();
@@ -376,11 +376,11 @@ class UserControllerHttpTest {
     }
 
     @Test
-    void ShouldReturn400WhenDeletingWithInvalidUUID() throws Exception {
+    void InvalidDeleteWithInvalidUUID() throws Exception {
         String invalidId = "invalid-uuid";
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/users/" + invalidId))
+                .uri(URI.create(URL + "/api/users/" + invalidId))
                 .header("Content-Type", "application/json")
                 .DELETE()
                 .build();
@@ -389,7 +389,8 @@ class UserControllerHttpTest {
 
         assertEquals(400, response.statusCode());
     }
-
+    
+    // Извлечение ID пользователя из JSON-ответа
     private String extractUserIdFromResponse(String responseBody) {
         try {
             com.MWS.dto.get.GetSimpleUserDto userDto = objectMapper.readValue(responseBody, com.MWS.dto.get.GetSimpleUserDto.class);
