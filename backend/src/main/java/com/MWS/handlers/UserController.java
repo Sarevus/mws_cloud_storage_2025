@@ -31,11 +31,9 @@ public class UserController {
             response.status(201);
             return gson.toJson(createdUser);
         } catch (IllegalArgumentException ex){
-            response.status(400); // Bad Request
+            response.status(400);
             return gson.toJson(new ErrorResponse(ex.getMessage()));
         }
-
-
     }
 
     public Object login(Request request, Response response) {
