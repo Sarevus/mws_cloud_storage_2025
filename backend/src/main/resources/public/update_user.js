@@ -33,8 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("GET /api/user status:", response.status);
 
             if (!response.ok) {
-                const text = await response.text();
-                alert("Ошибка загрузки пользователя: " + text);
+                const error = await response.text();   
+                alert("Ошибка загрузки пользователя: " + error);
                 return;
             }
 

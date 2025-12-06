@@ -1,4 +1,5 @@
 package com.MWS.server;
+
 import com.MWS.handlers.Files;
 import com.MWS.handlers.Home;
 import com.MWS.handlers.UserController;
@@ -80,7 +81,6 @@ public class CloudStorageServer {
          */
         put("/user/:id", (req, res) -> userController.updateUser(req, res));
         put("/user/:id/", (req, res) -> userController.updateUser(req, res));
-
 
 
         /**

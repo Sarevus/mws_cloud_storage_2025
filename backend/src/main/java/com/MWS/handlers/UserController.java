@@ -30,7 +30,7 @@ public class UserController {
             GetSimpleUserDto createdUser = userService.createUser(dto);
             response.status(201);
             return gson.toJson(createdUser);
-        } catch (IllegalArgumentException ex){
+        } catch (IllegalArgumentException ex) {
             response.status(400);
             return gson.toJson(new ErrorResponse(ex.getMessage()));
         }
@@ -82,9 +82,9 @@ public class UserController {
             CreateUserDTO dto = gson.fromJson(request.body(), CreateUserDTO.class);
             GetSimpleUserDto updatedUser = userService.updateUser(id, dto);
             return gson.toJson(updatedUser);
-        } catch (EntityNotFoundException e) {
+        } catch (IllegalArgumentException ex) {
             response.status(404);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
+            return gson.toJson(new ErrorResponse(ex.getMessage()));
         }
     }
 
