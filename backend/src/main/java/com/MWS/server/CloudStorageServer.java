@@ -58,6 +58,13 @@ public class CloudStorageServer {
             return null;
         });
 
+        get("/user/:id/edit", (req, res) -> {
+            res.type("text/html");
+            res.redirect("/updateUser.html?id=" + req.params(":id"));
+            return null;
+        });
+
+
         get("/api/user/:id", (req, res) -> userController.getUserById(req, res));
         get("/api/user/:id/", (req, res) -> userController.getUserById(req, res));
 
