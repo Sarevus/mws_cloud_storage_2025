@@ -39,10 +39,9 @@
                 <input type="tel" id="phone" class="form-control" placeholder="Введите ваш телефон" value="+7 (123) 456-78-90">
             </div>
             
-            
             <div class="form-actions">
-                <button type="submit" class="btn-save">Сохранить изменения</button>
-                <button type="button" class="btn-cancel" onclick="location.href='myProfile.html'">Отмена</button>
+                <button type="submit" class="btn-save">Сохранить</button>
+                <button type="button" class="btn-delete" onclick="confirmDeleteAccount()">Удалить аккаунт</button>
             </div>
         </form>
     </div>
@@ -60,12 +59,23 @@
             
             console.log('Сохранение профиля:', formData);
             
-            // После успешного сохранения возвращаемся в профиль
             setTimeout(() => {
                 alert('Профиль успешно обновлен!');
                 window.location.href = 'myProfile.html';
             }, 500);
         });
+        
+        function confirmDeleteAccount() {
+            if (confirm('Вы уверены, что хотите удалить аккаунт? Это действие невозможно отменить. Все ваши файлы будут удалены.')) {
+                // Здесь будет запрос на удаление аккаунта на сервере
+                console.log('Удаление аккаунта...');
+                
+                setTimeout(() => {
+                    alert('Аккаунт успешно удален.');
+                    window.location.href = 'index.html';
+                }, 500);
+            }
+        }
     </script>
 </body>
 </html>

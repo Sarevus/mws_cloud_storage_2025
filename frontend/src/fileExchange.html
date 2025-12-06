@@ -198,26 +198,20 @@
         // Переключение категорий
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                // Убираем активный класс у всех табов
                 document.querySelectorAll('.category-tab').forEach(t => {
                     t.classList.remove('active');
                 });
                 
-                // Добавляем активный класс текущему табу
                 this.classList.add('active');
                 
-                // Скрываем все категории
                 document.querySelectorAll('.category-content').forEach(content => {
                     content.classList.remove('active');
                 });
                 
-                // Показываем выбранную категорию
                 const categoryId = this.getAttribute('data-category');
                 document.getElementById(`${categoryId}-content`).classList.add('active');
             });
         });
-        
-        // Обработка загрузки файлов для всех категорий
         function setupFileUpload(inputId) {
             const input = document.getElementById(inputId);
             if (input) {
@@ -239,7 +233,6 @@
             }
         }
         
-        // Настраиваем загрузку для всех категорий
         setupFileUpload('photos-upload');
         setupFileUpload('videos-upload');
         setupFileUpload('documents-upload');

@@ -76,14 +76,12 @@
     margin: 0 auto;
 }
 
-/* ИСПРАВЛЕННЫЙ СТИЛЬ - делаем одну карточку, а не сетку */
 .actions-container {
     display: flex;
     justify-content: center;
     margin-bottom: 50px;
 }
 
-/* ИСПРАВЛЕННЫЙ СТИЛЬ - задаём такую же ширину как у user-info */
 .action-card {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -92,7 +90,7 @@
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
-    max-width: 500px; /* ТАКАЯ ЖЕ ШИРИНА КАК У USER-INFO */
+    max-width: 500px;
     width: 100%;
 }
 
