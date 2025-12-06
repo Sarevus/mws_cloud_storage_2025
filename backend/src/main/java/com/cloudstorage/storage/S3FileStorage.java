@@ -5,8 +5,6 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3ClientBuilder;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.InputStream;
@@ -90,7 +88,7 @@ public class S3FileStorage {
         }
     }
 
-    public Object uploadFile(Long userId, String filename, InputStream fileStream, long fileSize){
+    public Object uploadFile(String userId, InputStream filename, long fileStream, String fileSize){
         System.out.println("=== S3 UPLOAD DEBUG ===");
         System.out.println("User ID: " + userId);
         System.out.println("Filename: " + filename);

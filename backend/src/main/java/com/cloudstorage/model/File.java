@@ -8,56 +8,52 @@ import java.util.UUID;
  * Модель файла в облачном хранилище.
  */
 public class File {
-    private UUID id;
+    private UUID id;                // Уникальный ID файла в БД
     private User user;              // Владелец файла
-    private String s3Key;           // Ключ в S3 (например: "user/123/filename.jpg")
+    private String s3Key;           // Ключ в S3 (путь: user/{userId}/{timestamp}_{filename})
     private String originalName;    // Оригинальное имя файла
-    private Long fileSize;          // Размер в байтах
-    private String mimeType;        // Тип файла
+    private Long size;              // Размер в байтах
+    private String mimeType;        // MIME-тип (image/jpeg, application/pdf и т.д.)
     private Boolean isPublic;       // Публичный ли файл
     private String description;     // Описание файла
-    private String tags;            // Теги (через запятую)
-    private LocalDateTime uploadedAt;    // Когда загружен
-    private LocalDateTime lastAccessedAt; // Когда последний раз скачивали
+    private LocalDateTime uploadedAt;    // Дата загрузки
+    private LocalDateTime updatedAt;     // Дата обновления
 
-    public File() {
+    public File() {}
+
+    public File(User user, String originalName, Long size, String mimeType) {
         this.id = UUID.randomUUID();
-        this.uploadedAt = LocalDateTime.now();
-        this.lastAccessedAt = LocalDateTime.now();
-        this.isPublic = false;
-    }
-
-    public File(User user, String originalName, Long fileSize, String mimeType) {
-        this();
         this.user = user;
         this.originalName = originalName;
-        this.fileSize = fileSize;
+        this.size = size;
         this.mimeType = mimeType;
+        this.isPublic = false;
+        this.uploadedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public UUID getId() { return id; }
     public User getUser() { return user; }
     public String getS3Key() { return s3Key; }
     public String getOriginalName() { return originalName; }
-    public Long getFileSize() { return fileSize; }
+    public Long getSize() { return size; }
     public String getMimeType() { return mimeType; }
     public Boolean getIsPublic() { return isPublic; }
     public String getDescription() { return description; }
-    public String getTags() { return tags; }
     public LocalDateTime getUploadedAt() { return uploadedAt; }
-    public LocalDateTime getLastAccessedAt() { return lastAccessedAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+
 
     public void setId(UUID id) { this.id = id; }
     public void setUser(User user) { this.user = user; }
     public void setS3Key(String s3Key) { this.s3Key = s3Key; }
     public void setOriginalName(String originalName) { this.originalName = originalName; }
-    public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
+    public void setSize(Long size) { this.size = size; }
     public void setMimeType(String mimeType) { this.mimeType = mimeType; }
     public void setIsPublic(Boolean isPublic) { this.isPublic = isPublic; }
     public void setDescription(String description) { this.description = description; }
-    public void setTags(String tags) { this.tags = tags; }
     public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
-    public void setLastAccessedAt(LocalDateTime lastAccessedAt) { this.lastAccessedAt = lastAccessedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
 
     /**
@@ -65,9 +61,9 @@ public class File {
      * нужно, чтобы во фронте не ебаться
      */
     public String getFormattedSize() {
-        if (fileSize == null) return "0 B";
+        if (size == null) return "0 B";
 
-        long bytes = fileSize;
+        long bytes = size;
         if (bytes < 1024) return bytes + " B";
         if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
         if (bytes < 1024 * 1024 * 1024) return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
