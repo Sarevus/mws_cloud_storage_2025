@@ -11,9 +11,27 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ${PWD}/init-scripts:/docker-entrypoint-initdb.d
     networks:
       - cloud3-network
+
+  flyway-migrate:
+    image: flyway/flyway:9-alpine
+    container_name: cloud3-flyway
+    depends_on:
+      - postgres
+    command:
+      -url=jdbc:postgresql://postgres:5432/cloud3_data
+      -user=developer
+      -password=dev123
+      -connectRetries=40
+      -locations=filesystem:/flyway/sql
+      -baselineOnMigrate=true
+      migrate
+    volumes:
+      - ./src/main/resources/migration:/flyway/sql
+    networks:
+      - cloud3-network
+    restart: on-failure
 
 volumes:
   postgres_data:
