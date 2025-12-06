@@ -40,11 +40,11 @@ function sendRegisterRequest(event) {
             alert(error);
         })
         .catch(err => console.error("Ошибка:", err));
+}
 
-    btn.onclick = sendRegisterRequest;
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            sendRegisterRequest(event);
-        }
-    });
-};
+btn.onclick = sendRegisterRequest;
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        sendRegisterRequest(event);
+    }
+});
