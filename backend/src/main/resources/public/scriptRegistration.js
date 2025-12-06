@@ -3,7 +3,7 @@ console.log("script.js ЗАГРУЖЕН");
 const btn = document.getElementById('reg-button');
 console.log("btn =", btn);
 
-btn.onclick = function (event) {
+function sendRegisterRequest(event) {
     event.preventDefault(); // чтобы форма не перезагружала страницу
 
     console.log("Кнопка нажата");
@@ -26,18 +26,25 @@ btn.onclick = function (event) {
         },
         body: JSON.stringify({ name: username, email: email, phoneNumber: phone, password: password })
     })
-    .then(async response => {    
-        console.log("status:", response.status);
+        .then(async response => {
+            console.log("status:", response.status);
 
-        if (response.status === 201) {
-            const user = await response.json();      
-            console.log("Создан пользователь:", user);
-            window.location.href = "/user/" + encodeURIComponent(user.id);
-            return;
+            if (response.status === 201) {
+                const user = await response.json();
+                console.log("Создан пользователь:", user);
+                window.location.href = "/user/" + encodeURIComponent(user.id);
+                return;
+            }
+
+            const error = await response.text();
+            alert(error);
+        })
+        .catch(err => console.error("Ошибка:", err));
+
+    btn.onclick = sendRegisterRequest;
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            sendRegisterRequest(event);
         }
-
-        const error = await response.text();   
-        alert(error);
-    })
-    .catch(err => console.error("Ошибка:", err));
+    });
 };

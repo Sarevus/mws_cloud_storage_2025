@@ -1,6 +1,8 @@
 const loginBtn = document.getElementById("login-button");
 
-loginBtn.onclick = function () {
+function sendLoginRequest(event) {
+    event.preventDefault();
+
     const email = document.getElementById("login-username").value.trim();
     const password = document.getElementById("login-password").value.trim();
 
@@ -23,4 +25,12 @@ loginBtn.onclick = function () {
         }
     })
     .catch(err => console.error("Ошибка:", err));
-};
+}
+
+loginBtn.onclick = sendLoginRequest;
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        sendLoginRequest(event);
+    }
+});
