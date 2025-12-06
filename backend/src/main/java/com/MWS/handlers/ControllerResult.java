@@ -1,13 +1,14 @@
 package com.MWS.handlers;
 
 public class ControllerResult {
-    private static int status;
-    private static String body;
-    private static String contentType;
+    private int status;
+    private String body;
+    private String contentType;
 
     public ControllerResult(int status, String body) {
         this(status, body, "application/json; charset=utf-8");
     }
+
     public ControllerResult(int status, String body, String contentType) {
         this.status = status;
         this.body = body;

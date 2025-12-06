@@ -14,7 +14,7 @@
         <form class="field-form" id="username-form">
             <div class="field">
                 <input class="field_input" id="login-username" name="username" placeholder=" " autocomplete="username" required/>
-                <label class="field_label" for="login-username">Введите имя пользователя</label>
+                <label class="field_label" for="login-username">Введите почту</label>
             </div>
         </form>
         <form class="field-form" id="password-form">
@@ -36,7 +36,6 @@
     </div>
 
     <script>
-        // Обработчик формы - исправлено на правильный ID
         document.getElementById('submit-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -45,8 +44,7 @@
             
             // Здесь AJAX запрос к API
             console.log('Login attempt:', username, password);
-            
-            // После успешной авторизации:
+
             window.location.href = 'myProfile.html';
         });
     </script>

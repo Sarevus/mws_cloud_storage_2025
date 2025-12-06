@@ -77,9 +77,8 @@
 }
 
 .actions-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    display: flex;
+    justify-content: center;
     margin-bottom: 50px;
 }
 
@@ -91,6 +90,8 @@
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
+    max-width: 500px;
+    width: 100%;
 }
 
 .action-card:hover {
@@ -131,6 +132,51 @@
 .action-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
+}
+
+/* Специальная кнопка для обмена */
+.exchange-btn {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    border: none !important;
+}
+
+.exchange-btn:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4) !important;
+}
+
+/* Кнопка редактирования профиля */
+.edit-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    backdrop-filter: blur(10px);
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.edit-profile-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.edit-profile-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.edit-profile-btn:hover svg {
+    transform: rotate(15deg);
 }
 
 .files-section {
@@ -237,6 +283,7 @@
     .user-info {
         flex-direction: column;
         text-align: center;
+        padding: 20px;
     }
     
     .user-avatar {
@@ -244,8 +291,10 @@
         margin-bottom: 15px;
     }
     
-    .actions-container {
-        grid-template-columns: 1fr;
+    /* Для мобильных немного уменьшаем ширину карточки */
+    .action-card {
+        max-width: 400px;
+        padding: 20px;
     }
     
     .file-item {
@@ -261,5 +310,20 @@
     .file-actions {
         margin-left: 0;
         margin-top: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .action-card {
+        max-width: 300px;
+        padding: 15px;
+    }
+    
+    .action-card h3 {
+        font-size: 1.3rem;
+    }
+    
+    .action-card p {
+        font-size: 0.9rem;
     }
 }
