@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru" class="no-js">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cloud Storage - Главная страница</title>
     <link rel="stylesheet" href="./styles/index.css">
 </head>
-
 <body>
     <div class="overlay"></div>
     <!-- Анимированные круги на фоне -->
@@ -21,9 +19,8 @@
     <!-- Главная страница с кнопками авторизации -->
     <div class="main-page">
         <h1>Cloud Storage</h1>
-        <p>Безопасное облачное хранилище для ваших файлов. Регистрируйтесь и получайте доступ к вашим данным с любого
-            устройства.</p>
-
+        <p>Безопасное облачное хранилище для ваших файлов. Регистрируйтесь и получайте доступ к вашим данным с любого устройства.</p>
+        
         <div class="auth-buttons">
             <button class="auth-btn" onclick="location.href='registerIndex.html'">
                 Зарегистрироваться
@@ -34,24 +31,22 @@
         </div>
     </div>
 
-    <!-- Область предпросмотра с flip-эффектом -->
+    <!-- картинки -->
     <div class="full-screen-preview">
         <div class="flip-container">
             <div class="flipper">
-                <!-- Передняя сторона - SVG облачко -->
+                <!-- облачко -->
                 <div class="front">
                     <div class="cloud-svg">
-                        <svg width="200" height="200" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M18 10H16C16 6.69 13.31 4 10 4C6.69 4 4 6.69 4 10C1.79 10 0 11.79 0 14C0 16.21 1.79 18 4 18H18C20.21 18 22 16.21 22 14C22 11.79 20.21 10 18 10Z"
-                                fill="white" fill-opacity="0.9" />
+                        <svg width="200" height="200" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 10H16C16 6.69 13.31 4 10 4C6.69 4 4 6.69 4 10C1.79 10 0 11.79 0 14C0 16.21 1.79 18 4 18H18C20.21 18 22 16.21 22 14C22 11.79 20.21 10 18 10Z" 
+                                  fill="white" fill-opacity="0.9"/>
                         </svg>
                         <h3>Cloud Storage</h3>
-                        <p>Нажмите чтобы увидеть фото</p>
+                        <p>Нажмите, чтобы увидеть фото</p>
                     </div>
                 </div>
-                <!-- Задняя сторона - чисто белый фон с 4 фото -->
+                <!-- 4 фото -->
                 <div class="back">
                     <div class="white-surface">
                         <div class="photo-grid">
@@ -78,7 +73,7 @@
                             </div>
                             <div class="photo-item">
                                 <div class="photo-square">
-                                    <div class="photo-placeholder">📷 Фото 4</div>
+                                    <div class="photo-placeholder">Фото 4</div>
                                 </div>
                             </div>
                         </div>
@@ -89,34 +84,32 @@
     </div>
 
     <script>
-        // Добавляем немного интерактивности
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.auth-btn');
             const flipContainer = document.querySelector('.flip-container');
-
+            
             buttons.forEach(button => {
-                button.addEventListener('mouseenter', function () {
+                button.addEventListener('mouseenter', function() {
                     this.style.transform = 'translateY(-2px)';
                 });
-
-                button.addEventListener('mouseleave', function () {
+                
+                button.addEventListener('mouseleave', function() {
                     this.style.transform = 'translateY(0)';
                 });
             });
 
-            // Flip эффект для картинки
+            // Flip эффект
             if (flipContainer) {
-                flipContainer.addEventListener('click', function () {
+                flipContainer.addEventListener('click', function() {
                     this.classList.toggle('flipped');
                 });
             }
 
-            // Плавное появление элементов при загрузке
             const elements = document.querySelectorAll('.main-page > *, .full-screen-preview');
             elements.forEach((element, index) => {
                 element.style.opacity = '0';
                 element.style.transform = 'translateY(20px)';
-
+                
                 setTimeout(() => {
                     element.style.transition = 'all 0.6s ease';
                     element.style.opacity = '1';
@@ -126,5 +119,4 @@
         });
     </script>
 </body>
-
 </html>

@@ -1,28 +1,33 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход - Cloud Storage</title>
     <link rel="stylesheet" href="./styles/index.css">
-
 </head>
+
 <body>
     <div class="log-in">
         <h1 class="title">Войти</h1>
-        <form class="field-form">
+
+        <form class="field-form" id="username-form">
             <div class="field">
-                <input class="field_input" id="login-username" placeholder=" " autocomplete="off"/>
-                <label class="field_label" for="login-username">Введите email пользователя</label>
+                <input class="field_input" id="login-username" name="username" placeholder=" " autocomplete="username"
+                    required />
+                <label class="field_label" for="login-username">Введите почту</label>
             </div>
         </form>
-        <form class="field-form">
+        <form class="field-form" id="password-form">
             <div class="field">
-                <input class="field_input" id="login-password" type="password" placeholder=" " autocomplete="off"/>
+                <input class="field_input" id="login-password" name="password" type="password" placeholder=" "
+                    autocomplete="current-password" required />
                 <label class="field_label" for="login-password">Введите пароль</label>
             </div>
         </form>
         <button class="button" id="login-button">Войти</button>
+
         <a href="registerIndex.html" class="auth-link">
             Ещё не зарегистрированы?
         </a>
@@ -30,6 +35,7 @@
             Вернуться на главную ↪
         </a>
     </div>
-        <script src="scriptLogin.js" type="module"></script>
+    <script src="scriptLogin.js"></script>
 </body>
+
 </html>

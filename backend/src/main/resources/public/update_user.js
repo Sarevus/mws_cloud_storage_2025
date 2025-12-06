@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const phoneInput = document.getElementById("phone");
     const emailInput = document.getElementById("email");
 
-    // --- 1. Достаём userId из query-параметров: ?id=<uuid> ---
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("id");
     console.log("userId из URL:", userId);
@@ -21,8 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // --- 2. Загружаем данные пользователя и подставляем в форму ---
-    // РОУТ НА БЭКЕ: get("/api/user/:id", ...)
+    // подстановка данных из бд
     fetch(`/api/user/${encodeURIComponent(userId)}`, {
         method: "GET",
         headers: {
@@ -33,30 +31,25 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("GET /api/user status:", response.status);
 
             if (!response.ok) {
-                const error = await response.text();   
+                const error = await response.text();
                 alert("Ошибка загрузки пользователя: " + error);
                 return;
             }
-
             const user = await response.json();
             console.log("Загружен пользователь:", user);
-
-            // GetSimpleUserDto(id, name, email, phoneNumber, password)
-            usernameInput.value = user.name || "";
-            emailInput.value = user.email || "";
-            phoneInput.value = user.phoneNumber || "";
+            usernameInput.value = user.name;
+            emailInput.value = user.email;
+            phoneInput.value = user.phoneNumber;
             passwordInput.value = "";
         })
-        .catch(err => {
-            console.error("Ошибка при загрузке пользователя:", err);
+        .catch(error => {
+            console.error("Ошибка при загрузке пользователя:", error);
             alert("Ошибка сети при загрузке пользователя");
         });
 
-    // --- 3. Обновление пользователя (PUT /user/:id) ---
+    // обновление данных пользователя
     btn.onclick = function (event) {
         event.preventDefault();
-
-        console.log("Кнопка 'Сохранить' нажата");
 
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
@@ -66,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Перед отправкой (update):", { username, email, phone, password });
 
 
-        
+
         fetch(`/user/${encodeURIComponent(userId)}`, {
             method: "PUT",
             headers: {
@@ -87,12 +80,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 let updatedUser = null;
                 try {
                     updatedUser = text ? JSON.parse(text) : null;
-                } catch (_) {}
+                } catch (_) { }
 
                 if (response.ok) {
                     console.log("Обновлён пользователь:", updatedUser);
                     alert("Пользователь обновлён");
-                    // у тебя есть get("/user/:id", ...) -> редирект на myProfile.html
                     if (updatedUser && updatedUser.id) {
                         window.location.href = "/user/" + encodeURIComponent(updatedUser.id);
                     }
@@ -111,13 +103,12 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     };
 
-    // --- 4. Удаление пользователя (DELETE /user/:id) ---
+    // удаление пользователя
     if (deleteBtn) {
         deleteBtn.onclick = function () {
             const sure = confirm("Точно удалить пользователя?");
             if (!sure) return;
 
-            // РОУТ НА БЭКЕ: delete("/user/:id", ...)
             fetch(`/user/${encodeURIComponent(userId)}`, {
                 method: "DELETE"
             })
@@ -126,7 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if (response.status === 204) {
                         alert("Пользователь удалён");
-                        // например, на главную
                         window.location.href = "/";
                         return;
                     }
@@ -135,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     let data = null;
                     try {
                         data = text ? JSON.parse(text) : null;
-                    } catch (_) {}
+                    } catch (_) { }
 
                     if (data && data.error) {
                         alert("Ошибка удаления: " + data.error);

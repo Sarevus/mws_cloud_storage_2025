@@ -61,7 +61,7 @@ public class CloudStorageServer {
 
         get("/user/:id/edit", (req, res) -> {
             res.type("text/html");
-            res.redirect("/updateUser.html?id=" + req.params(":id"));
+            res.redirect("/editProfile.html?id=" + req.params(":id"));
             return null;
         });
 

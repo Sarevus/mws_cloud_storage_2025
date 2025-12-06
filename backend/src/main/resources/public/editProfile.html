@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование профиля - Cloud Storage</title>
+    <link rel="stylesheet" href="./styles/index.css">
+    <link rel="stylesheet" href="./styles/edit-profile.css">
+    <!-- <script src="script.js" type="module"></script> -->
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <div class="background-circles">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+
+    <div class="edit-profile-container">
+        <div class="edit-header">
+            <h1>Редактирование профиля</h1>
+            <p>Обновите ваши личные данные</p>
+        </div>
+
+        <form class="edit-form" id="profileForm">
+            <div class="form-group">
+                <label for="name">Имя</label>
+                <input type="text" id="name" class="form-control" placeholder="Введите ваше имя" value="Пользователь">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control" placeholder="Введите ваш email"
+                    value="email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Телефон</label>
+                <input type="tel" id="phone" class="form-control" placeholder="Введите ваш телефон" value="+7 (123) 456-78-90">
+            </div>
+            <div class="form-group">
+                <label for="reg-password">Пароль:</label><br>
+                <input id="reg-password" class="form-control" type="password"><br><br>
+            </div>
+            <div class="form-actions">
+                <button type="submit" id="reg-button" class="btn-save">Сохранить</button>
+                <button type="button" id="delete-button" class="btn-delete" onclick="confirmDeleteAccount()">Удалить аккаунт</button>
+            </div>
+        </form>
+    </div>
+<script src="update_user.js"></script>
+</body>
+
+</html>
