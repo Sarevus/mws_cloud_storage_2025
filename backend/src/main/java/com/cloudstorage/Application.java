@@ -1,14 +1,16 @@
 package com.cloudstorage;
+import com.cloudstorage.config.Config;
 import com.cloudstorage.controller.*;
 import com.cloudstorage.repository.FileRepository;
+import com.cloudstorage.repository.FileRepositoryJDBC;
 import com.cloudstorage.repository.UserRepository;
+import com.cloudstorage.repository.UserRepositoryJDBC;
 import com.cloudstorage.security.*;
 import com.cloudstorage.storage.*;
 import com.cloudstorage.service.*;
 import spark.Spark;
 
-import static spark.Spark.post;
-import static spark.Spark.get;
+import static spark.Spark.*;
 
 
 /**
@@ -18,46 +20,58 @@ public class Application{
     public static void main(String[] args){
         System.out.println("Запуск сервера");
 
-        Spark.port(8080);
+        Spark.port(Config.getServerPort());
         Spark.staticFiles.location("/public");
 
         // 1. Создаём основные утилиты
         PasswordEncoder passwordEncoder = new PasswordEncoder();
 
-        // 2. Создаём репозитории todo ждём реализацию
-        UserRepository userRepository = createUserRepository();
-        FileRepository fileRepository = createFileRepository();
+        // 2. Создаём репозитории
+        UserRepository userRepository = new UserRepositoryJDBC();
+        FileRepository fileRepository = new FileRepositoryJDBC();
 
         // 3. Создаём S3 клиент (готовый компонент)
         S3FileStorage s3Storage = new S3FileStorage(
-                "http://localhost:9000",  // MinIO endpoint
-                "admin",                   // accessKey
-                "password123",             // secretKey
-                "cloud-storage"            // bucketName
+                Config.getCephEndpoint(),
+                Config.getCephAccessKey(),
+                Config.getCephSecretKey(),
+                Config.getCephBucketName()
         );
 
         // 4. Создаём сервисы
         AuthService authService = new AuthService(userRepository, passwordEncoder);
+        UserService userService = new UserService(userRepository, passwordEncoder);
         FileService fileService = new FileService(fileRepository, userRepository, s3Storage);
+
 
         /**
          * контроллер для регистрации пользователя
          *
          * содержит методы register, который создаёт нового пользователя
          */
-        AuthController authController = new AuthController();
+        AuthController authController = new AuthController(authService);
 
 
         /**
          * контроллер для управления файлами
          */
-        FileController fileController = new FileController(fileService, 100 * 1024 * 1024); // 100MB макс
+        FileController fileController = new FileController(
+                fileService,
+                Config.getMaxFileSize()
+        );
+
+
+        /**
+         * контроллер для управления юзерами
+         */
+        UserController userController = new UserController(userService);
+
 
         // Middleware
-        AuthMiddleware authMiddleware = new AuthMiddleware();
+        AuthMiddleware authMiddleware = new AuthMiddleware(authService);
 
 
-        System.out.println("✅ Все компоненты созданы");
+        System.out.println("Все компоненты созданы");
 
 
         // ===== MIDDLEWARE =====
@@ -73,11 +87,13 @@ public class Application{
         post("/auth/register", authController::register);
         post("/auth/login", authController::login);
         post("/auth/logout", authController::logout);
+        get("/auth/me", authController::getCurrentUser);
 
         // Пользователь (требуют авторизации)
-        Spark.get("/user/:id", userController::getUserById);     // ← БУДЕТ ПОЗЖЕ
-        Spark.put("/user/:id", userController::updateUser);      // ← БУДЕТ ПОЗЖЕ
-        Spark.delete("/user/:id", userController::deleteUser);   // ← БУДЕТ ПОЗЖЕ
+        get("/user", userController::getCurrentUser);
+        put("/user", userController::updateUser);
+        put("/user/password", userController::updatePassword);
+        delete("/user", userController::deleteUser);
 
 
         // Файлы (требуют авторизации)
@@ -85,6 +101,46 @@ public class Application{
         Spark.post("/files/upload", fileController::uploadFile);
         Spark.get("/files/:id/download", fileController::downloadFile);
         Spark.delete("/files/:id", fileController::deleteFile);
+
+
+
+
+
+
+        get("/", (req, res) -> {
+            res.redirect("/index.html");
+            return null;
+        });
+
+        get("/login", (req, res) -> {
+            res.redirect("/login.html");
+            return null;
+        });
+
+        get("/register", (req, res) -> {
+            res.redirect("/register.html");
+            return null;
+        });
+
+        get("/profile", (req, res) -> {
+            res.redirect("/profile.html");
+            return null;
+        });
+
+        get("/edit-profile", (req, res) -> {
+            res.redirect("/edit-profile.html");
+            return null;
+        });
+
+        get("/file-exchange", (req, res) -> {
+            res.redirect("/file-exchange.html");
+            return null;
+        });
+
+
+
+
+
 
 
         // ====== CORS ======
@@ -103,8 +159,21 @@ public class Application{
         });
 
         // ====== ИНФОРМАЦИЯ ======
-        System.out.println("✅ Сервер запущен: http://localhost:8080");
-        System.out.println("   GET  /             - Домашняя страница");
-        System.out.println("   POST /register     - Регистрация (JSON: name, email, password)");
+        System.out.println("\n==================================");
+        System.out.println("✅ Сервер запущен: http://localhost:" + Config.getServerPort());
+        System.out.println("📁 Ceph S3: " + Config.getCephEndpoint());
+        System.out.println("🐘 PostgreSQL: " + Config.getDatabaseUrl());
+        System.out.println("==================================");
+        System.out.println("\nДоступные endpoints:");
+        System.out.println("   GET  /               - Домашняя страница");
+        System.out.println("   POST /auth/register  - Регистрация");
+        System.out.println("   POST /auth/login     - Вход");
+        System.out.println("   POST /auth/logout    - Выход");
+        System.out.println("   GET  /auth/me        - Текущий пользователь");
+        System.out.println("   GET  /user           - Инфо о пользователе");
+        System.out.println("   PUT  /user           - Обновить данные");
+        System.out.println("   GET  /files          - Список файлов");
+        System.out.println("   POST /files/upload   - Загрузить файл");
+        System.out.println("\n==================================\n");
     }
 }

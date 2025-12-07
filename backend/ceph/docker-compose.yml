@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mon:
     image: ceph/ceph:v16
@@ -80,6 +82,8 @@ services:
       - MON_IP=172.25.0.10
       - CEPH_PUBLIC_NETWORK=172.25.0.0/16
       - RGW_FRONTEND_PORT=9000
+      - RGW_ACCESS_KEY=${RGW_ACCESS_KEY:-}
+      - RGW_SECRET_KEY=${RGW_SECRET_KEY:-}
     volumes:
       - ./entrypoint.sh:/entrypoint.sh:ro
       - ceph-conf:/etc/ceph

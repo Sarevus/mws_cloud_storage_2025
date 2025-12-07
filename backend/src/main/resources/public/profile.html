@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой кабинет - Cloud Storage</title>
+    <link rel="stylesheet" href="/styles/index.css">
+    <link rel="stylesheet" href="/styles/profile.css">
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="background-circles">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+    
+    <!-- Шапка профиля -->
+    <header class="profile-header">
+        <div class="header-content">
+            <h1>Мой кабинет</h1>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="white"/>
+                        <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="white"/>
+                    </svg>
+                </div>
+                <div class="user-details">
+                    <h2 id="user-name">Загрузка...</h2>
+                    <p id="user-email">Загрузка...</p>
+                    <p id="user-number">Загрузка...</p>
+                    <!-- Кнопка редактирования -->
+                    <button class="edit-profile-btn" id="edit-profile-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Редактировать профиль
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Основной контент -->
+    <main class="profile-main">
+        <div class="actions-container">
+            <div class="action-card">
+                <div class="action-icon">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 17L17 7M17 7H7M17 7V17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3>Обмен файлами</h3>
+                <p>Начните хранить свои файлы в безопасности или получите доступ к общим файлам</p>
+                <button class="action-btn exchange-btn" onclick="location.href='/file-exchange'">Начать обмен</button>
+            </div>
+        </div>
+        
+        <!-- Список файлов -->
+        <div class="files-section">
+            <h2>Недавние файлы</h2>
+            <div class="files-grid" id="files-list">
+                <!-- Файлы будут загружены через JavaScript -->
+            </div>
+        </div>
+
+        <div class="profile-navigation">
+            <button class="nav-link" id="logout-btn">Выйти</button>
+        </div>
+    </main>
+    
+    <script src="/scripts/scriptUser.js"></script>
+</body>
+</html>
