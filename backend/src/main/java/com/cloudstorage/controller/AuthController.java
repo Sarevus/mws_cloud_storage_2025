@@ -1,7 +1,11 @@
 package com.cloudstorage.controller;
 
+import com.cloudstorage.dto.request.CreateUserDTO;
+import com.cloudstorage.dto.request.GetSimpleUserDto;
+import com.cloudstorage.dto.request.LoginRequest;
 import com.cloudstorage.model.User;
 import com.cloudstorage.security.PasswordEncoder;
+import com.cloudstorage.service.AuthService;
 import com.google.gson.Gson;
 import spark.Request;
 import spark.Response;
@@ -18,185 +22,155 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AuthController {
     private final Gson gson = new Gson();
-    private final PasswordEncoder passwordEncoder = new PasswordEncoder();
+    private final AuthService authService;
 
-
-    //временное хранилище пользователей в памяти
-    //ключ email значение user
-    private final Map<String, User> users = new ConcurrentHashMap<>();
-
+    public AuthController(AuthService authService){
+        this.authService = authService;
+    }
 
     /**
      * регистрация нового пользователя
-     * @param request
+     * @param req
      * @param res
      * @return статус создания
      */
-    public Object register(Request request, Response res){
+    public Object register(Request req, Response res){
         try {
-            /**
-             * читаем данные из тела запроса для безопасности
-             */
-            String body = request.body();
-            var data = gson.fromJson(body, Map.class);
-
-            String name = (String) data.get("name");
-            String email = (String) data.get("email");
-            String rawPassword = (String) data.get("password");
-
+            CreateUserDTO request = gson.fromJson(req.body(), CreateUserDTO.class);
 
             /**
              * проверка полей, тк они обязательны
              */
             // Проверяем обязательные поля
-            if (name == null || name.trim().isEmpty()) {
+            if (request.name() == null || request.name().trim().isEmpty()) {
                 return error(res, 400, "Имя обязательно");
             }
-            if (email == null || email.trim().isEmpty()) {
+            if (request.email() == null || request.email().trim().isEmpty()) {
                 return error(res, 400, "Email обязателен");
             }
-            if (rawPassword == null || rawPassword.length() < 6) {
+            if (request.phoneNumber() == null || request.phoneNumber().trim().isEmpty()) {
+                return error(res, 400, "Телефон обязателен");
+            }
+            if (request.password() == null || request.password().length() < 6) {
                 return error(res, 400, "Пароль должен быть минимум 6 символов");
             }
 
-            if (users.containsKey(email)) {
-                return error(res, 400, "Пользователь с таким email уже существует");
-            }
+            GetSimpleUserDto userDto = authService.register(request);
+            String sessionId = authService.login(request.email(), request.password());
 
-
-
-            //хэширование пароля
-            String hashedPassword = passwordEncoder.encode(rawPassword);
-
-
-            /**
-             * создание пользователя,
-             */
-            User user = new User(name, email, hashedPassword);
-
-
-            //сохранение пользователя
-            users.put(email,user);
+            // Устанавливаем куку
+            res.cookie("session_id", sessionId, 3600);
 
             /**
              * возвращаем ответ
              */
             System.out.println("пользователь зарегестрирован");
-            res.type("application/json");
-            res.status(201);
-
-            //сам ответ
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "пользователь создан");
-            response.put("userId", user.getId().toString());
-            response.put("name", user.getName());
-            response.put("email", user.getEmail());
+            response.put("message", "Пользователь создан");
+            response.put("user", userDto);
 
+            res.type("application/json");
+            res.status(201);
             return gson.toJson(response);
-        }
-        //видимо всё пошло не по плану и какая-то странная ошибка
-        catch (Exception e) {
-            res.status(500);
-            return "{\"error\": \"Ошибка сервера: " + e.getMessage() + "\"}";
+
+        } catch (RuntimeException e) {
+            return error(res, 400, e.getMessage());
+        } catch (Exception e) {
+            return error(res, 500, "Ошибка сервера");
         }
     }
 
     public Object login(Request req, Response res){
         try{
-            /**
-             * читаем данные из тела запроса для безопасности
-             */
-            String body = req.body();
-            var data = gson.fromJson(body, Map.class);
+            // Используем LoginRequest DTO
+            LoginRequest request = gson.fromJson(req.body(), LoginRequest.class);
 
-            String email = (String) data.get("email");
-            String rawPassword = (String) data.get("password");
-
-
-            //проверка ввода
-            if (email == null || rawPassword == null){
-
-                return error(res, 400, "Email и пароль обязательны");
+            if (request.email() == null || request.email().trim().isEmpty()) {
+                return error(res, 400, "Email обязателен");
+            }
+            if (request.password() == null) {
+                return error(res, 400, "Пароль обязателен");
             }
 
-            //проверка в бд
-            User user = users.get(email);
-            if
-            (
-                user == null ||
-                !passwordEncoder.matches(rawPassword, user.getPassword())
-            ) {
-                return error(res, 401, "неверный email или пароль");
+
+            String sessionId = authService.login(request.email(), request.password());
+            User user = authService.getUserFromSession(sessionId);
+
+            if (user == null) {
+                return error(res, 500, "Ошибка создания сессии");
             }
 
-            System.out.println("пользователь вошёл");
+            GetSimpleUserDto userDto = new GetSimpleUserDto(
+                    user.getId(),
+                    user.getName(),
+                    user.getEmail(),
+                    user.getPhoneNumber()
+            );
 
-            //создаём сессию
-            // пока только иммитация, поэтому
-            //todo: создание сессий
+            res.cookie("session_id", sessionId, 3600);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Вход выполнен");
-            response.put("userId", user.getId().toString());
-            response.put("name", user.getName());
-            response.put("email", user.getEmail());
+            response.put("user", userDto);
 
-            //устанавливаем cookie в качестве сессии
-            res.cookie("user_id", user.getId().toString(), 3600);
-
+            res.type("application/json");
             return gson.toJson(response);
-        } catch (Exception e){
+
+        } catch (RuntimeException e) {
+            return error(res, 401, e.getMessage());
+        } catch (Exception e) {
             return error(res, 500, "Ошибка сервера");
         }
     }
 
     public Object logout(Request req, Response res){
-        res.cookie("user_id", "", 0);
+        String sessionId = req.cookie("session_id");
+
+        if (sessionId != null) {
+            authService.logout(sessionId);
+        }
+
+        res.cookie("session_id", "", 0);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Выход выполнен");
 
         res.type("application/json");
-        return "{\"success\": true, \"message\": \"Выход выполнен\"}";
+        return gson.toJson(response);
     }
 
 
     //возвращает всё кроме пароля текущего пользователя
     // todo возможно стоит урезать до возврата только id/email
-    public Object getCurrentUser(Request req, Response res){
-        String userId = req.cookie("user_id");
+    public Object getCurrentUser(Request req, Response res) {
+        String sessionId = req.cookie("session_id");
 
-        if (userId == null){
-            return error(res, 401, "не авторизован");
+        if (sessionId == null) {
+            return error(res, 401, "Не авторизован");
         }
 
-        //поиск юзера по id
-        User user = findUserById(UUID.fromString(userId));
-        if (user == null){
-            return error(res, 401, "пользователь не найден");
+        User user = authService.getUserFromSession(sessionId);
+        if (user == null) {
+            return error(res, 401, "Сессия недействительна");
         }
+
+        GetSimpleUserDto userDto = new GetSimpleUserDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhoneNumber()
+        );
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("userId", user.getId().toString());
-        response.put("name", user.getName());
-        response.put("email", user.getEmail());
+        response.put("user", userDto);
 
+        res.type("application/json");
         return gson.toJson(response);
     }
-
-
-    /**
-     * Вспомогательный метод для поиска пользователя по ID.
-     */
-    private User findUserById(UUID id) {
-        for (User user : users.values()) {
-            if (user.getId().equals(id)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
 
     //упрощённый метод для возврата ошибок
     private String error(Response res, int status, String message) {

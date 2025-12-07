@@ -1,5 +1,6 @@
 package com.cloudstorage.security;
 
+import com.cloudstorage.service.AuthService;
 import spark.Request;
 import spark.Response;
 
@@ -13,73 +14,35 @@ import static spark.Spark.halt;
  */
 public class AuthMiddleware {
 
-    /**
-     * Проверяет авторизацию и делает редирект если нужно.
-     */
-    public void checkAuthAndRedirect(Request req, Response res) {
-        String path = req.pathInfo();
+    private final AuthService authService;
 
-        // Публичные маршруты (не требуют входа)
-        if (isPublicRoute(path)) {
-            return;
-        }
-
-        // Проверяем авторизацию
-        if (!isAuthenticated(req)) {
-            // AJAX запросы (например, от фронтенда) получают JSON ошибку
-            if (isAjaxRequest(req)) {
-                halt(401, "{\"error\": \"Требуется авторизация\"}");
-            }
-
-            // Обычные запросы - редирект на страницу входа
-            res.redirect("/login.html");
-            halt(); // Останавливаем дальнейшую обработку
-        }
-    }
-
-    /**
-     * Проверяет, авторизован ли пользователь.
-     */
-    private boolean isAuthenticated(Request req) {
-        String userId = req.cookie("user_id");
-
-        if (userId == null || userId.isEmpty()) {
-            return false;
-        }
-
-        try {
-            // Проверяем, что это валидный UUID
-            UUID.fromString(userId);
-            //todo проверка в базе данных userId
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+    public AuthMiddleware(AuthService authService) {
+        this.authService = authService;
     }
 
     /**
      * Проверяет, публичный ли маршрут.
      */
     private boolean isPublicRoute(String path) {
-        // Точное совпадение с публичными маршрутами
-        String[] exactMatches = {
+        // Точные совпадения с публичными маршрутами
+        String[] publicExactPaths = {
                 "/",
-                "/auth/register",
-                "/auth/login",
-                "/auth/logout",
-                "/login.html",
-                "/register.html",
-                "/index.html"
         };
 
-        for (String route : exactMatches) {
-            if (path.equals(route)) {
+        for (String publicPath : publicExactPaths) {
+            if (path.equals(publicPath)) {
                 return true;
             }
         }
 
-        // Статические файлы всегда публичные
+        // Маршруты начинающиеся с /auth/ - публичные
+        if (path.startsWith("/auth/")) {
+            return true;
+        }
+
+        // Статические файлы - публичные
         if (path.startsWith("/public/") ||
+                path.endsWith(".html") ||
                 path.endsWith(".css") ||
                 path.endsWith(".js") ||
                 path.endsWith(".png") ||
@@ -89,19 +52,65 @@ public class AuthMiddleware {
             return true;
         }
 
-        // Маршруты начинающиеся с /auth/ тоже публичные
-        if (path.startsWith("/auth/")) {
-            return true;
-        }
-
+        // Всё остальное - защищённое
         return false;
     }
 
+
     /**
-     * Проверяет, AJAX ли это запрос.
+     * Проверяет авторизацию пользователя.
      */
-    private boolean isAjaxRequest(Request req) {
-        return "XMLHttpRequest".equals(req.headers("X-Requested-With")) ||
+    private void checkAuth(Request req, Response res) {
+        // 1. Получаем sessionId из куки
+        String sessionId = req.cookie("session_id");
+
+        if (sessionId == null || sessionId.isEmpty()) {
+            haltUnauthorized(req, res, "Требуется авторизация");
+        }
+
+        // 2. Проверяем валидность сессии через AuthService
+        if (!authService.isValidSession(sessionId)) {
+            haltUnauthorized(req, res, "Сессия истекла или недействительна");
+        }
+
+        // 3. Проверяем, что sessionId - валидный UUID
+        try {
+            UUID.fromString(sessionId);
+        } catch (IllegalArgumentException e) {
+            haltUnauthorized(req, res, "Неверный формат сессии");
+        }
+    }
+
+    /**
+     * Прерывает запрос с ошибкой 401.
+     */
+    private void haltUnauthorized(Request req,Response res, String message) {
+        // Определяем тип запроса
+        boolean isAjax = "XMLHttpRequest".equals(req.headers("X-Requested-With")) ||
                 "application/json".equals(req.contentType());
+
+        if (isAjax) {
+            // AJAX/API запросы получают JSON
+            halt(401, "{\"error\": \"" + message + "\"}");
+        } else {
+            // Браузерные запросы - редирект на страницу входа
+            res.redirect("/login.html");
+            halt();
+        }
+    }
+
+    /**
+     * Проверяет все маршруты. Решает сам, нужно ли требовать авторизацию.
+     */
+    public void checkAllRoutes(Request req, Response res) {
+        String path = req.pathInfo();
+
+        // 1. Проверяем, публичный ли маршрут
+        if (isPublicRoute(path)) {
+            return; // Пропускаем без проверки
+        }
+
+        // 2. Для защищённых маршрутов проверяем авторизацию
+        checkAuth(req, res);
     }
 }
