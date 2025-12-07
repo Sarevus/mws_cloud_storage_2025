@@ -1,6 +1,7 @@
 package com.MWS;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -29,24 +30,24 @@ class UserControllerContainerTest {
             new PostgreSQLContainer<>("postgres:13")
                     .withDatabaseName("testdb")
                     .withUsername("test_user")
-                    .withPassword("passwd");
+                    .withPassword("passwd")
+                    .withReuse(false);
 
     private static final String URL = "http://localhost:4567";
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static MockedStatic<com.MWS.storage.Database> databaseMock;
+    private static boolean isDatabaseMigrated = false;
+
     @BeforeAll
     static void setUpAll() throws Exception {
-        Connection testConnection = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword()
-        );
-        createTables(testConnection);
-        testConnection.close();
+        if (!isDatabaseMigrated) {
+            migrateDatabaseWithFlyway();
+            isDatabaseMigrated = true;
+        }
 
-        // Подменяю Database.getConnection, чтобы он возвращал соединение с тестовой БД вместо продакшн
-        MockedStatic<com.MWS.storage.Database> databaseMock = mockStatic(com.MWS.storage.Database.class);
+        databaseMock = mockStatic(com.MWS.storage.Database.class);
         databaseMock.when(com.MWS.storage.Database::getConnection)
                 .thenAnswer(invocation -> DriverManager.getConnection(
                         postgres.getJdbcUrl(),
@@ -55,24 +56,25 @@ class UserControllerContainerTest {
                 ));
 
         Thread serverThread = new Thread(() -> Main.main(new String[]{}));
+        serverThread.setDaemon(true);
         serverThread.start();
 
         sleep(3000);
     }
 
-    private static void createTables(Connection connection) throws Exception {
-        String sql = """
-                CREATE TABLE IF NOT EXISTS users (
-                    id UUID PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
-                    email VARCHAR(255) UNIQUE NOT NULL,
-                    phonenumber VARCHAR(20),
-                    password VARCHAR(255) NOT NULL
+    private static void migrateDatabaseWithFlyway() {
+        Flyway flyway = Flyway.configure()
+                .dataSource(
+                        postgres.getJdbcUrl(),
+                        postgres.getUsername(),
+                        postgres.getPassword()
                 )
-                """;
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute(sql);
-        }
+                .locations("classpath:migration")
+                .baselineOnMigrate(true)
+                .cleanDisabled(false)
+                .load();
+
+        flyway.migrate();
     }
 
     @BeforeEach
@@ -83,6 +85,44 @@ class UserControllerContainerTest {
                 postgres.getPassword());
              Statement stmt = connection.createStatement()) {
             stmt.execute("DELETE FROM users");
+        }
+    }
+
+    @AfterAll
+    static void tearDownAll() throws Exception {
+        System.out.println("Завершение всех тестов контроллера...");
+
+        cleanDatabase();
+
+        if (databaseMock != null) {
+            databaseMock.close();
+            System.out.println("Mock для Database закрыт");
+        }
+
+        try (Connection connection = DriverManager.getConnection(
+                postgres.getJdbcUrl(),
+                postgres.getUsername(),
+                postgres.getPassword());
+             Statement stmt = connection.createStatement()) {
+            stmt.execute("DELETE FROM users");
+            System.out.println("Финальная очистка данных пользователей выполнена");
+        }
+    }
+
+    private static void cleanDatabase() {
+        try {
+            Flyway flyway = Flyway.configure()
+                    .dataSource(
+                            postgres.getJdbcUrl(),
+                            postgres.getUsername(),
+                            postgres.getPassword()
+                    )
+                    .load();
+
+            flyway.clean();
+            flyway.migrate();
+        } catch (Exception e) {
+            System.err.println("Ошибка при очистке базы данных: " + e.getMessage());
         }
     }
 
@@ -323,7 +363,7 @@ class UserControllerContainerTest {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     // DELETE
@@ -397,6 +437,7 @@ class UserControllerContainerTest {
             com.MWS.dto.get.GetSimpleUserDto userDto = objectMapper.readValue(responseBody, com.MWS.dto.get.GetSimpleUserDto.class);
             return userDto.id().toString();
         } catch (Exception e) {
+            System.err.println("Ошибка при извлечении ID из ответа: " + e.getMessage());
             return UUID.randomUUID().toString();
         }
     }

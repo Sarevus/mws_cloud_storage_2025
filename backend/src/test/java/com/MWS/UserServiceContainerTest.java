@@ -6,6 +6,7 @@ import com.MWS.model.UserEntity;
 import com.MWS.repository.UserRepository;
 import com.MWS.repository.UserRepositoryJDBC;
 import com.MWS.service.UserServiceRelease;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -34,16 +35,14 @@ public class UserServiceContainerTest {
     private static UserServiceRelease userService;
     private static UserRepository userRepository;
     private static MockedStatic<com.MWS.storage.Database> databaseMock;
+    private static boolean isDatabaseMigrated = false;
 
     @BeforeAll
     static void setUp() throws Exception {
-        Connection testConnection = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword()
-        );
-
-        createTables(testConnection);
+        if (!isDatabaseMigrated) {
+            migrateDatabaseWithFlyway();
+            isDatabaseMigrated = true;
+        }
 
         databaseMock = mockStatic(com.MWS.storage.Database.class);
         databaseMock.when(com.MWS.storage.Database::getConnection)
@@ -55,8 +54,20 @@ public class UserServiceContainerTest {
 
         userRepository = new UserRepositoryJDBC();
         userService = new UserServiceRelease(userRepository);
+    }
 
-        testConnection.close();
+    private static void migrateDatabaseWithFlyway() {
+        Flyway flyway = Flyway.configure()
+                .dataSource(
+                        postgres.getJdbcUrl(),
+                        postgres.getUsername(),
+                        postgres.getPassword()
+                )
+                .locations("classpath:migration")
+                .baselineOnMigrate(true)
+                .load();
+
+        flyway.migrate();
     }
 
     @BeforeEach
@@ -70,18 +81,10 @@ public class UserServiceContainerTest {
         }
     }
 
-    private static void createTables(Connection connection) throws Exception {
-        String sql = """
-            CREATE TABLE IF NOT EXISTS users (
-                id UUID PRIMARY KEY,
-                name VARCHAR(100) NOT NULL,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                phonenumber VARCHAR(20),
-                password VARCHAR(255) NOT NULL
-            )
-            """;
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute(sql);
+    @AfterAll
+    static void tearDown() {
+        if (databaseMock != null) {
+            databaseMock.close();
         }
     }
 
