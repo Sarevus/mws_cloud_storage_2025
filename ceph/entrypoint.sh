@@ -1,25 +1,22 @@
 #!/bin/bash
 set -e
 
-# Color definitions
+# Minimal color definitions
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
-BOLD='\033[1m'
 NC='\033[0m'
 
-# Переменные окружения
+# Environment variables
 CEPH_DAEMON=${CEPH_DAEMON:-mon}
 MON_IP=${MON_IP:-0.0.0.0}
 CEPH_PUBLIC_NETWORK=${CEPH_PUBLIC_NETWORK:-172.25.0.0/16}
 RGW_FRONTEND_PORT=${RGW_FRONTEND_PORT:-9000}
 
-# Создание директорий
+# Create directories
 mkdir -p /etc/ceph /var/lib/ceph/mon /var/lib/ceph/osd /var/lib/ceph/mgr /var/lib/ceph/bootstrap-osd
 
-# Генерация UUID для кластера если не существует
+# Generate cluster UUID if not exists
 if [ ! -f /etc/ceph/ceph.conf ]; then
     CLUSTER_UUID=$(uuidgen)
 
@@ -33,6 +30,8 @@ cluster network = ${CEPH_PUBLIC_NETWORK}
 auth cluster required = cephx
 auth service required = cephx
 auth client required = cephx
+ms_bind_msgr2 = true
+ms_bind_msgr1 = true
 osd journal size = 1024
 osd pool default size = 1
 osd pool default min size = 1
@@ -69,22 +68,16 @@ fi
 
 case "$CEPH_DAEMON" in
     mon)
-        echo -e "${CYAN}▶ Starting Ceph Monitor...${NC}"
         chown -R ceph:ceph /var/lib/ceph/mon
 
-        echo -e "\n${GREEN}╔════════════════════════════════════════╗${NC}"
-        echo -e "${GREEN}║${NC}   ${BOLD}🚀 CEPH MONITOR SERVICE${NC}           ${GREEN}║${NC}"
-        echo -e "${GREEN}╠════════════════════════════════════════╣${NC}"
-        echo -e "${GREEN}║${NC}   Status: ${GREEN}●${NC} ${BOLD}UP${NC}                       ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   State:  ${GREEN}▶${NC} ${BOLD}Running${NC}                  ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   Health: ${GREEN}✓${NC} ${BOLD}Healthy${NC}                 ${GREEN}║${NC}"
-        echo -e "${GREEN}╚════════════════════════════════════════╝${NC}\n"
+        echo -e "\n${GREEN}Ceph Monitor${NC}"
+        echo "Status: OK"
+        echo "Address: ${MON_IP}"
+        echo ""
 
         exec ceph-mon -f -i mon0 --public-addr ${MON_IP}
         ;;
     mgr)
-        echo -e "${CYAN}▶ Starting Ceph Manager...${NC}"
-
         for i in {1..30}; do
             if ceph -s &>/dev/null; then
                 break
@@ -120,25 +113,18 @@ case "$CEPH_DAEMON" in
 
             touch /var/lib/ceph/mgr/ceph-mgr0/.dashboard_initialized
 
-            kill $MGR_PID
             wait $MGR_PID 2>/dev/null || true
             sleep 2
         fi
 
-        echo -e "\n${GREEN}╔════════════════════════════════════════╗${NC}"
-        echo -e "${GREEN}║${NC}   ${BOLD}📊 CEPH MANAGER SERVICE${NC}           ${GREEN}║${NC}"
-        echo -e "${GREEN}╠════════════════════════════════════════╣${NC}"
-        echo -e "${GREEN}║${NC}   Status: ${GREEN}●${NC} ${BOLD}UP${NC}                       ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   State:  ${GREEN}▶${NC} ${BOLD}Running${NC}                  ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   Health: ${GREEN}✓${NC} ${BOLD}Healthy${NC}                 ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   Dashboard: ${CYAN}http://*:8080${NC}       ${GREEN}║${NC}"
-        echo -e "${GREEN}╚════════════════════════════════════════╝${NC}\n"
+        echo -e "\n${GREEN}Ceph Manager${NC}"
+        echo "Status: OK"
+        echo "Dashboard: http://localhost:8080"
+        echo ""
 
         exec ceph-mgr -f -i mgr0
         ;;
     osd)
-        echo -e "${CYAN}▶ Starting Ceph OSD...${NC}"
-
         for i in {1..30}; do
             if ceph -s &>/dev/null; then
                 break
@@ -184,14 +170,10 @@ case "$CEPH_DAEMON" in
             chown -R ceph:ceph $OSD_PATH
         fi
 
-        echo -e "\n${GREEN}╔════════════════════════════════════════╗${NC}"
-        echo -e "${GREEN}║${NC}   ${BOLD}💾 CEPH OSD SERVICE${NC}               ${GREEN}║${NC}"
-        echo -e "${GREEN}╠════════════════════════════════════════╣${NC}"
-        echo -e "${GREEN}║${NC}   Status: ${GREEN}●${NC} ${BOLD}UP${NC}                       ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   State:  ${GREEN}▶${NC} ${BOLD}Running${NC}                  ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   Health: ${GREEN}✓${NC} ${BOLD}Healthy${NC}                 ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   OSD ID: ${YELLOW}$OSD_ID${NC}                      ${GREEN}║${NC}"
-        echo -e "${GREEN}╚════════════════════════════════════════╝${NC}\n"
+        echo -e "\n${GREEN}Ceph OSD${NC}"
+        echo "Status: OK"
+        echo "OSD ID: $OSD_ID"
+        echo ""
 
         chown -R ceph:ceph $OSD_PATH
         exec ceph-osd -f -i $OSD_ID \
@@ -202,8 +184,6 @@ case "$CEPH_DAEMON" in
             --osd-journal $OSD_PATH/journal 2>/dev/null
         ;;
     rgw)
-        echo -e "${CYAN}▶ Starting Ceph RGW...${NC}"
-
         for i in {1..15}; do
             if ceph -s &>/dev/null 2>&1; then
                 break
@@ -239,27 +219,37 @@ case "$CEPH_DAEMON" in
             radosgw-admin zone create --rgw-zone=default --rgw-zonegroup=default --master --default 2>/dev/null || true
             radosgw-admin period update --commit 2>/dev/null || true
 
-            radosgw-admin user create --uid=admin --display-name="Admin User" --system 2>/dev/null || true
+            if [ -n "$RGW_ACCESS_KEY" ] && [ -n "$RGW_SECRET_KEY" ]; then
+                radosgw-admin user create \
+                    --uid=admin \
+                    --display-name="Admin User" \
+                    --access-key="$RGW_ACCESS_KEY" \
+                    --secret-key="$RGW_SECRET_KEY" \
+                    --system 2>/dev/null || true
 
-            ADMIN_USER_INFO=$(radosgw-admin user info --uid=admin 2>/dev/null)
-            if [ -n "$ADMIN_USER_INFO" ]; then
+                ACCESS_KEY="$RGW_ACCESS_KEY"
+                SECRET_KEY="$RGW_SECRET_KEY"
+            else
+                radosgw-admin user create --uid=admin --display-name="Admin User" --system 2>/dev/null || true
+
+                ADMIN_USER_INFO=$(radosgw-admin user info --uid=admin 2>/dev/null)
                 ACCESS_KEY=$(echo "$ADMIN_USER_INFO" | grep -oP '"access_key":\s*"\K[^"]+' | head -1)
                 SECRET_KEY=$(echo "$ADMIN_USER_INFO" | grep -oP '"secret_key":\s*"\K[^"]+' | head -1)
+            fi
 
-                if [ -n "$ACCESS_KEY" ] && [ -n "$SECRET_KEY" ]; then
-                    echo "$ACCESS_KEY" > /tmp/access.key
-                    echo "$SECRET_KEY" > /tmp/secret.key
+            if [ -n "$ACCESS_KEY" ] && [ -n "$SECRET_KEY" ]; then
+                echo "$ACCESS_KEY" > /tmp/access.key
+                echo "$SECRET_KEY" > /tmp/secret.key
 
-                    ceph dashboard set-rgw-api-access-key -i /tmp/access.key 2>/dev/null || true
-                    ceph dashboard set-rgw-api-secret-key -i /tmp/secret.key 2>/dev/null || true
-                    ceph dashboard set-rgw-api-host "172.25.0.13" 2>/dev/null || true
-                    ceph dashboard set-rgw-api-port 9000 2>/dev/null || true
-                    ceph dashboard set-rgw-api-scheme "http" 2>/dev/null || true
-                    ceph dashboard set-rgw-api-user-id "admin" 2>/dev/null || true
-                    ceph dashboard set-rgw-api-ssl-verify False 2>/dev/null || true
+                ceph dashboard set-rgw-api-access-key -i /tmp/access.key 2>/dev/null || true
+                ceph dashboard set-rgw-api-secret-key -i /tmp/secret.key 2>/dev/null || true
+                ceph dashboard set-rgw-api-host "172.25.0.13" 2>/dev/null || true
+                ceph dashboard set-rgw-api-port 9000 2>/dev/null || true
+                ceph dashboard set-rgw-api-scheme "http" 2>/dev/null || true
+                ceph dashboard set-rgw-api-user-id "admin" 2>/dev/null || true
+                ceph dashboard set-rgw-api-ssl-verify False 2>/dev/null || true
 
-                    rm -f /tmp/access.key /tmp/secret.key
-                fi
+                rm -f /tmp/access.key /tmp/secret.key
             fi
 
             touch /var/lib/ceph/radosgw/.rgw_initialized
@@ -267,19 +257,15 @@ case "$CEPH_DAEMON" in
 
         sleep 3
 
-        echo -e "\n${GREEN}╔════════════════════════════════════════╗${NC}"
-        echo -e "${GREEN}║${NC}   ${BOLD}🌐 CEPH OBJECT GATEWAY${NC}            ${GREEN}║${NC}"
-        echo -e "${GREEN}╠════════════════════════════════════════╣${NC}"
-        echo -e "${GREEN}║${NC}   Status: ${GREEN}●${NC} ${BOLD}UP${NC}                       ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   State:  ${GREEN}▶${NC} ${BOLD}Running${NC}                  ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   Health: ${GREEN}✓${NC} ${BOLD}Healthy${NC}                 ${GREEN}║${NC}"
-        echo -e "${GREEN}║${NC}   S3 API: ${CYAN}http://*:${RGW_FRONTEND_PORT}${NC}        ${GREEN}║${NC}"
-        echo -e "${GREEN}╚════════════════════════════════════════╝${NC}\n"
+        echo -e "\n${GREEN}Ceph Object Gateway${NC}"
+        echo "Status: OK"
+        echo "S3 API: http://localhost:${RGW_FRONTEND_PORT}"
+        echo ""
 
         exec radosgw -f -n client.rgw.${HOSTNAME} --rgw-frontends="beast port=${RGW_FRONTEND_PORT}"
         ;;
     *)
-        echo -e "${RED}✗ Unknown daemon type: $CEPH_DAEMON${NC}"
+        echo -e "${RED}Error: Unknown daemon type: $CEPH_DAEMON${NC}"
         exit 1
         ;;
 esac
