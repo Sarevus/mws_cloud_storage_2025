@@ -283,27 +283,30 @@
     .user-info {
         flex-direction: column;
         text-align: center;
+        padding: 20px;
     }
-    
+
     .user-avatar {
         margin-right: 0;
         margin-bottom: 15px;
     }
-    
-    .actions-container {
-        grid-template-columns: 1fr;
+
+    /* Для мобильных немного уменьшаем ширину карточки */
+    .action-card {
+        max-width: 400px;
+        padding: 20px;
     }
-    
+
     .file-item {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .file-icon {
         margin-right: 0;
         margin-bottom: 10px;
     }
-    
+
     .file-actions {
         margin-left: 0;
         margin-top: 10px;

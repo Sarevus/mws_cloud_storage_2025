@@ -90,13 +90,11 @@ class UserControllerContainerTest {
 
     @AfterAll
     static void tearDownAll() throws Exception {
-        System.out.println("Завершение всех тестов контроллера...");
 
         cleanDatabase();
 
         if (databaseMock != null) {
             databaseMock.close();
-            System.out.println("Mock для Database закрыт");
         }
 
         try (Connection connection = DriverManager.getConnection(
@@ -105,7 +103,6 @@ class UserControllerContainerTest {
                 postgres.getPassword());
              Statement stmt = connection.createStatement()) {
             stmt.execute("DELETE FROM users");
-            System.out.println("Финальная очистка данных пользователей выполнена");
         }
     }
 
