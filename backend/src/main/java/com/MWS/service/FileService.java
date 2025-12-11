@@ -79,18 +79,14 @@ public class FileService {
      */
     public InputStream downloadFile(UUID userId, UUID fileId) {
         // 1. Находим метаданные в PostgreSQL
-        File file = fileRepository.findById(fileId)
+        File file = userRepository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("Файл не найден"));
 
         // 2. Проверяем доступ
         checkFileAccess(userId, file);
 
-        // 3. Обновляем время последнего доступа
-        file.setUpdatedAt(LocalDateTime.now());
-        fileRepository.update(file);
-
         // 4. Скачиваем из S3
-        return s3Storage.downloadFile(file.getS3Key());
+        return fileRepository.findByS3Key(file.getS3Key());
     }
 
     /**
@@ -110,9 +106,9 @@ public class FileService {
         }
 
         // 3. Удаляем из S3
-        s3Storage.deleteFile(file.getS3Key());
+        fileRepository.deleteByS3Key(file.getS3Key());
 
         // 4. Удаляем метаданные из PostgreSQL
-        fileRepository.deleteById(fileId);
+        userRepository.deleteFileByS3Key(file.getS3Key());
     }
 }
