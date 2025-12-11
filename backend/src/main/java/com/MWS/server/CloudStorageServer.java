@@ -1,12 +1,18 @@
 package com.MWS.server;
 
-import com.MWS.handlers.Files;
+import com.MWS.config.Config;
+import com.MWS.handlers.FileController;
 import com.MWS.handlers.Home;
 import com.MWS.handlers.UserController;
+import com.MWS.repository.FileRepository;
+import com.MWS.repository.FileRepositoryJDBC;
 import com.MWS.repository.UserRepository;
 import com.MWS.repository.UserRepositoryJDBC;
+import com.MWS.service.FileService;
 import com.MWS.service.UserService;
 import com.MWS.service.UserServiceRelease;
+import com.MWS.storage.S3FileStorage;
+import spark.Spark;
 
 
 import static spark.Spark.*;
@@ -83,34 +89,27 @@ public class CloudStorageServer {
         put("/user/:id/", (req, res) -> userController.updateUser(req, res));
 
 
-        /**
-         * на запрос /register/ открывается форма для регистрации пользователя.
-         */
-        //post("/user/register/", (request, response) -> UserController.UserRegister(request, response));
 
-        /**
-         * на запрос /login/ открывается форма для входа пользователя.
-         */
-        //get("/login/", (request, response) -> UserController.login(request, response));
 
-        /**
-         * на запрос /files/user/ возвращаем список файлов.
-         */
-        get("/files/user/", (request, response) -> Files.getList(request, response));
 
-        /**
-         * на запрос /files/download/:id скачиваем файл по id.
-         */
-        get("/files/download/:id", (request, response) -> Files.downloadFile(request, response));
+        FileRepository fileRepository = new FileRepositoryJDBC();
+        S3FileStorage s3Storage = new S3FileStorage(
+                Config.getCephEndpoint(),
+                Config.getCephAccessKey(),
+                Config.getCephSecretKey(),
+                Config.getCephBucketName()
+        );
 
-        /**
-         * на запрос /files/upload/ загружаем передаваемый файл.
-         */
-        post("/files/upload/", (request, response) -> Files.uploadFile(request, response));
 
-        /**
-         * на запрос /files/delete/:id удаляем файл по id.
-         */
-        delete("/files/delete/:id", (request, response) -> Files.deleteFile(request, response));
+        FileService fileService = new FileService(fileRepository, userRepository, s3Storage);
+        FileController fileController = new FileController(
+                fileService,
+                100 * 1024 * 1024
+        );
+
+        Spark.get("/files", fileController::listFiles);
+        Spark.post("/files/upload", fileController::uploadFile);
+        Spark.get("/files/:id/download", fileController::downloadFile);
+        Spark.delete("/files/:id", fileController::deleteFile);
     }
 }
