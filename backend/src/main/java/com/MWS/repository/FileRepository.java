@@ -17,6 +17,10 @@ public interface FileRepository {
      */
     File save(File file);
 
+    /**
+     * Находит файл по ID.
+     */
+    Optional<File> findById(UUID id);
 
     /**
      * Находит файл по ключу в S3.
@@ -24,7 +28,22 @@ public interface FileRepository {
     Optional<File> findByS3Key(String s3Key);
 
     /**
-     * Удаляет файл по по ключу в S3.
+     * Находит все файлы пользователя.
+     */
+    List<File> findByUserId(UUID userId);
+
+    /**
+     * Удаляет файл по ID.
+     */
+    void deleteById(UUID id);
+
+    /**
+     * Удаляет файл по ключу в S3.
      */
     void deleteByS3Key(String s3Key);
+
+    /**
+     * Обновляет информацию о файле.
+     */
+    File update(File file);
 }

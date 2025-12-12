@@ -3,190 +3,324 @@ package com.MWS.handlers;
 import com.MWS.model.File;
 import com.MWS.service.FileService;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 import java.io.InputStream;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
- * Контроллер для работы с файлами через HTTP.
- * получает запрос и возвращает ответ
- *
+ * Контроллер для работы с файлами через HTTP API
  */
 public class FileController {
-    private final Gson gson = new Gson();
+
+    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
     private final FileService fileService;
     private final long maxFileSize;
+    private final Gson gson;
 
     public FileController(FileService fileService, long maxFileSize) {
         this.fileService = fileService;
         this.maxFileSize = maxFileSize;
+        this.gson = new Gson();
     }
 
     /**
-     * Загружает файл на сервер.
-     * Формат запроса: multipart/form-data
+     * Получить список всех файлов пользователя
+     * GET /api/files?userId={userId}
      */
-    public Object uploadFile(Request req, Response res) {
+    public String listFiles(Request req, Response res) {
         try {
-            // 1. Получаем ID пользователя из куки
-            UUID userId = UUID.fromString(req.cookie("user_id"));
-
-            // 2. Настраиваем загрузку файла
-            req.attribute("org.eclipse.jetty.multipartConfig",
-                    new MultipartConfigElement("/tmp"));
-
-            // 3. Получаем файл из запроса
-            Part filePart = req.raw().getPart("file");
-            if (filePart == null) {
-                return error(res, 400, "Файл не предоставлен");
+            String userIdStr = req.queryParams("userId");
+            if (userIdStr == null || userIdStr.isEmpty()) {
+                res.status(400);
+                return errorResponse("Параметр userId обязателен");
             }
 
-            // 4. Проверяем размер файла
-            if (filePart.getSize() > maxFileSize) {
-                return error(res, 413, "Файл слишком большой. Максимум: " +
-                        (maxFileSize / (1024 * 1024)) + " MB");
-            }
-
-            // 5. Получаем дополнительные параметры
-            boolean isPublic = "true".equalsIgnoreCase(req.queryParams("isPublic"));
-            String description = req.queryParams("description");
-
-            // 6. Загружаем файл через сервис
-            try (InputStream fileStream = filePart.getInputStream()) {
-                File file = fileService.uploadFile(
-                        userId,
-                        filePart.getSubmittedFileName(),
-                        fileStream,
-                        filePart.getSize(),
-                        filePart.getContentType(),
-                        isPublic,
-                        description
-                );
-
-                // 7. Возвращаем успешный ответ
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                response.put("message", "Файл успешно загружен");
-                response.put("file", toFileMap(file));
-
-                res.status(201); // 201 Created
-                res.type("application/json");
-                return gson.toJson(response);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error(res, 500, "Ошибка загрузки файла: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Возвращает список файлов пользователя.
-     * GET /files
-     */
-    public Object listFiles(Request req, Response res) {
-        try {
-            UUID userId = UUID.fromString(req.cookie("user_id"));
-
-            // Получаем файлы через сервис
+            UUID userId = UUID.fromString(userIdStr);
             List<File> files = fileService.getUserFiles(userId);
 
-            // Формируем ответ
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("files", files.stream()
-                    .map(this::toFileMap)
-                    .collect(Collectors.toList()));
-            response.put("count", files.size());
-
             res.type("application/json");
-            return gson.toJson(response);
+            res.status(200);
+            return gson.toJson(Map.of(
+                    "success", true,
+                    "files", files,
+                    "count", files.size()
+            ));
 
+        } catch (IllegalArgumentException e) {
+            logger.error("Неверный формат UUID", e);
+            res.status(400);
+            return errorResponse("Неверный формат userId");
         } catch (Exception e) {
-            return error(res, 500, "Ошибка получения списка файлов: " + e.getMessage());
+            logger.error("Ошибка при получении списка файлов", e);
+            res.status(500);
+            return errorResponse("Ошибка сервера: " + e.getMessage());
         }
     }
 
     /**
-     * Скачивает файл.
-     * GET /files/{id}/download
+     * Загрузить файл
+     * POST /api/files/upload
+     * Content-Type: multipart/form-data
+     */
+    public String uploadFile(Request req, Response res) {
+        try {
+            // Настройка для работы с multipart/form-data
+            req.attribute("org.eclipse.jetty.multipartConfig",
+                    new MultipartConfigElement("/temp", maxFileSize, maxFileSize, 1024 * 1024));
+
+            // Получаем userId из query параметров
+            String userIdStr = req.queryParams("userId");
+            if (userIdStr == null || userIdStr.isEmpty()) {
+                res.status(400);
+                return errorResponse("Параметр userId обязателен");
+            }
+            UUID userId = UUID.fromString(userIdStr);
+
+            // Получаем загруженный файл
+            Part filePart = req.raw().getPart("file");
+            if (filePart == null) {
+                res.status(400);
+                return errorResponse("Файл не найден в запросе");
+            }
+
+            // Проверяем размер файла
+            long fileSize = filePart.getSize();
+            if (fileSize > maxFileSize) {
+                res.status(413);
+                return errorResponse("Файл слишком большой. Максимальный размер: "
+                        + (maxFileSize / 1024 / 1024) + " MB");
+            }
+
+            // Получаем данные файла
+            String originalFilename = filePart.getSubmittedFileName();
+            String mimeType = filePart.getContentType();
+            InputStream fileStream = filePart.getInputStream();
+
+            logger.info("Загрузка файла: {}, размер: {} байт, тип: {}",
+                    originalFilename, fileSize, mimeType);
+
+            // Загружаем файл через сервис
+            File uploadedFile = fileService.uploadFile(
+                    userId,
+                    originalFilename,
+                    fileStream,
+                    fileSize,
+                    mimeType
+            );
+
+            res.type("application/json");
+            res.status(201);
+            return gson.toJson(Map.of(
+                    "success", true,
+                    "message", "Файл успешно загружен",
+                    "file", uploadedFile
+            ));
+
+        } catch (IllegalArgumentException e) {
+            logger.error("Неверные параметры", e);
+            res.status(400);
+            return errorResponse(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Ошибка при загрузке файла", e);
+            res.status(500);
+            return errorResponse("Ошибка загрузки: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Получить метаданные файла
+     * GET /api/files/:id?userId={userId}
+     */
+    public String getFileMetadata(Request req, Response res) {
+        try {
+            UUID fileId = UUID.fromString(req.params(":id"));
+            String userIdStr = req.queryParams("userId");
+
+            if (userIdStr == null || userIdStr.isEmpty()) {
+                res.status(400);
+                return errorResponse("Параметр userId обязателен");
+            }
+            UUID userId = UUID.fromString(userIdStr);
+
+            File file = fileService.getFileMetadata(userId, fileId);
+
+            res.type("application/json");
+            res.status(200);
+            return gson.toJson(Map.of(
+                    "success", true,
+                    "file", file
+            ));
+
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return errorResponse("Неверный формат UUID");
+        } catch (SecurityException e) {
+            res.status(403);
+            return errorResponse("Доступ запрещен");
+        } catch (RuntimeException e) {
+            res.status(404);
+            return errorResponse(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Ошибка при получении метаданных файла", e);
+            res.status(500);
+            return errorResponse("Ошибка сервера: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Скачать файл
+     * GET /api/files/:id/download?userId={userId}
      */
     public Object downloadFile(Request req, Response res) {
         try {
-            UUID userId = UUID.fromString(req.cookie("user_id"));
             UUID fileId = UUID.fromString(req.params(":id"));
+            String userIdStr = req.queryParams("userId");
 
-            // Скачиваем файл через сервис
-            InputStream fileStream = fileService.downloadFile(userId, fileId);
+            if (userIdStr == null || userIdStr.isEmpty()) {
+                res.status(400);
+                return errorResponse("Параметр userId обязателен");
+            }
+            UUID userId = UUID.fromString(userIdStr);
 
-            // Получаем информацию о файле для заголовков
-            File file = fileService.getUserFiles(userId).stream()
-                    .filter(f -> f.getId().equals(fileId))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Файл не найден"));
+            // Получаем метаданные файла
+            File file = fileService.getFileMetadata(userId, fileId);
 
-            // Устанавливаем правильные заголовки
-            res.type(file.getMimeType() != null ? file.getMimeType() : "application/octet-stream");
-            res.header("Content-Disposition",
-                    "attachment; filename=\"" + file.getOriginalName() + "\"");
-            res.header("Content-Length", String.valueOf(file.getSize()));
+            // TODO: Реализовать скачивание из S3/Ceph
+            // InputStream fileStream = fileService.downloadFile(userId, fileId);
 
-            // Возвращаем поток файла
-            return fileStream;
+            // Пока возвращаем метаданные
+            res.type("application/json");
+            res.status(501); // Not Implemented
+            return gson.toJson(Map.of(
+                    "success", false,
+                    "message", "Скачивание файлов пока не реализовано",
+                    "file", file,
+                    "note", "Добавьте интеграцию с S3/Ceph для скачивания файлов"
+            ));
 
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return errorResponse("Неверный формат UUID");
+        } catch (SecurityException e) {
+            res.status(403);
+            return errorResponse("Доступ запрещен");
+        } catch (RuntimeException e) {
+            res.status(404);
+            return errorResponse(e.getMessage());
         } catch (Exception e) {
-            return error(res, 404, "Файл не найден или доступ запрещён");
+            logger.error("Ошибка при скачивании файла", e);
+            res.status(500);
+            return errorResponse("Ошибка сервера: " + e.getMessage());
         }
     }
 
     /**
-     * Удаляет файл.
-     * DELETE /files/{id}
+     * Удалить файл
+     * DELETE /api/files/:id?userId={userId}
      */
-    public Object deleteFile(Request req, Response res) {
+    public String deleteFile(Request req, Response res) {
         try {
-            UUID userId = UUID.fromString(req.cookie("user_id"));
             UUID fileId = UUID.fromString(req.params(":id"));
+            String userIdStr = req.queryParams("userId");
+
+            if (userIdStr == null || userIdStr.isEmpty()) {
+                res.status(400);
+                return errorResponse("Параметр userId обязателен");
+            }
+            UUID userId = UUID.fromString(userIdStr);
 
             fileService.deleteFile(userId, fileId);
 
-            res.status(204); // 204 No Content
-            return "";
+            res.type("application/json");
+            res.status(200);
+            return gson.toJson(Map.of(
+                    "success", true,
+                    "message", "Файл успешно удален"
+            ));
 
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return errorResponse("Неверный формат UUID");
+        } catch (SecurityException e) {
+            res.status(403);
+            return errorResponse("Доступ запрещен");
+        } catch (RuntimeException e) {
+            res.status(404);
+            return errorResponse(e.getMessage());
         } catch (Exception e) {
-            return error(res, 500, "Ошибка удаления файла: " + e.getMessage());
+            logger.error("Ошибка при удалении файла", e);
+            res.status(500);
+            return errorResponse("Ошибка сервера: " + e.getMessage());
         }
     }
 
     /**
-     * Преобразует File в Map для JSON ответа.
+     * Обновить метаданные файла
+     * PUT /api/files/:id?userId={userId}
+     * Body: {"newName": "new_filename.txt"}
      */
-    private Map<String, Object> toFileMap(File file) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", file.getId());
-        map.put("originalName", file.getOriginalName());
-        map.put("size", file.getSize());
-        map.put("formattedSize", file.getFormattedSize());
-        map.put("mimeType", file.getMimeType());
-        map.put("isPublic", file.getIsPublic());
-        map.put("description", file.getDescription());
-        map.put("uploadedAt", file.getUploadedAt());
-        map.put("updatedAt", file.getUpdatedAt());
-        map.put("downloadUrl", "/files/" + file.getId() + "/download");
-        return map;
+    public String updateFileMetadata(Request req, Response res) {
+        try {
+            UUID fileId = UUID.fromString(req.params(":id"));
+            String userIdStr = req.queryParams("userId");
+
+            if (userIdStr == null || userIdStr.isEmpty()) {
+                res.status(400);
+                return errorResponse("Параметр userId обязателен");
+            }
+            UUID userId = UUID.fromString(userIdStr);
+
+            // Парсим JSON из body
+            Map<String, String> body = gson.fromJson(req.body(), Map.class);
+            String newName = body.get("newName");
+
+            if (newName == null || newName.trim().isEmpty()) {
+                res.status(400);
+                return errorResponse("Параметр newName обязателен");
+            }
+
+            File updatedFile = fileService.updateFileMetadata(userId, fileId, newName);
+
+            res.type("application/json");
+            res.status(200);
+            return gson.toJson(Map.of(
+                    "success", true,
+                    "message", "Метаданные файла обновлены",
+                    "file", updatedFile
+            ));
+
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return errorResponse("Неверный формат данных");
+        } catch (SecurityException e) {
+            res.status(403);
+            return errorResponse("Доступ запрещен");
+        } catch (RuntimeException e) {
+            res.status(404);
+            return errorResponse(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Ошибка при обновлении метаданных", e);
+            res.status(500);
+            return errorResponse("Ошибка сервера: " + e.getMessage());
+        }
     }
 
     /**
-     * Возвращает ошибку в JSON формате.
+     * Вспомогательный метод для формирования ошибок
      */
-    private String error(Response res, int status, String message) {
-        res.status(status);
-        res.type("application/json");
-        return "{\"success\": false, \"error\": \"" + message + "\"}";
+    private String errorResponse(String message) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("success", false);
+        error.put("error", message);
+        return gson.toJson(error);
     }
 }

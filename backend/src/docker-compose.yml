@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: cloud3-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cloud3_data
+      POSTGRES_USER: developer
+      POSTGRES_PASSWORD: dev123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Автоматическая инициализация БД при первом запуске
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - cloud3-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U developer -d cloud3_data"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    command:
+      - "postgres"
+      - "-c"
+      - "log_connections=off"
+      - "-c"
+      - "log_disconnections=off"
+
+  flyway-migrate:
+    image: flyway/flyway:11-alpine
+    container_name: cloud3-flyway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - -url=jdbc:postgresql://postgres:5432/cloud3_data
+      - -user=developer
+      - -password=dev123
+      - -connectRetries=60
+      - -locations=filesystem:/flyway/sql
+      - -baselineOnMigrate=true
+      - migrate
+    volumes:
+      # Монтируем папку с миграциями
+      - ./migrations:/flyway/sql
+    networks:
+      - cloud3-network
+    restart: "no"  # Flyway выполнится один раз и завершится
+
+volumes:
+  postgres_data:
+
+networks:
+  cloud3-network:
+    driver: bridge

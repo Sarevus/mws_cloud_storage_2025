@@ -3,6 +3,8 @@ package com.MWS.repository;
 import com.MWS.model.File;
 import com.MWS.model.UserEntity;
 import com.MWS.storage.Database;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,11 +14,13 @@ import java.util.UUID;
 
 public class FileRepositoryJDBC implements FileRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(FileRepositoryJDBC.class);
+
     @Override
     public File save(File file) {
         String sql = """
-            INSERT INTO files (id, user_id, s3_key, original_name, size, mime_type, is_public, description, uploaded_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO files (id, user_id, s3_key, original_name, size, mime_type)
+            VALUES (?, ?, ?, ?, ?, ?)
             """;
 
         try (Connection conn = Database.getConnection();
@@ -27,21 +31,23 @@ public class FileRepositoryJDBC implements FileRepository {
                 throw new IllegalArgumentException("File must have an ID");
             }
 
+            if (file.getUser() == null || file.getUser().getId() == null) {
+                throw new IllegalArgumentException("File must have a valid user");
+            }
+
             stmt.setObject(1, file.getId());
             stmt.setObject(2, file.getUser().getId());
             stmt.setString(3, file.getS3Key());
             stmt.setString(4, file.getOriginalName());
             stmt.setLong(5, file.getSize());
             stmt.setString(6, file.getMimeType());
-            stmt.setBoolean(7, file.getIsPublic());
-            stmt.setString(8, file.getDescription());
-            stmt.setTimestamp(9, Timestamp.valueOf(file.getUploadedAt()));
-            stmt.setTimestamp(10, Timestamp.valueOf(file.getUpdatedAt()));
 
             stmt.executeUpdate();
+            logger.info("Файл сохранён: {}", file.getId());
             return file;
 
         } catch (SQLException e) {
+            logger.error("Ошибка сохранения файла с id {}", file.getId(), e);
             throw new RuntimeException("Ошибка сохранения файла", e);
         }
     }
@@ -49,7 +55,7 @@ public class FileRepositoryJDBC implements FileRepository {
     @Override
     public Optional<File> findById(UUID id) {
         String sql = """
-            SELECT f.*, u.id as user_id, u.name, u.email, u.phone_number, u.password
+            SELECT f.*, u.id as user_id, u.name, u.email, u.phonenumber, u.password
             FROM files f
             JOIN users u ON f.user_id = u.id
             WHERE f.id = ?
@@ -67,6 +73,7 @@ public class FileRepositoryJDBC implements FileRepository {
             return Optional.empty();
 
         } catch (SQLException e) {
+            logger.error("Ошибка поиска файла по ID {}", id, e);
             throw new RuntimeException("Ошибка поиска файла по ID", e);
         }
     }
@@ -74,11 +81,11 @@ public class FileRepositoryJDBC implements FileRepository {
     @Override
     public List<File> findByUserId(UUID userId) {
         String sql = """
-            SELECT f.*, u.id as user_id, u.name, u.email, u.phone_number, u.password
+            SELECT f.*, u.id as user_id, u.name, u.email, u.phonenumber, u.password
             FROM files f
             JOIN users u ON f.user_id = u.id
             WHERE f.user_id = ?
-            ORDER BY f.uploaded_at DESC
+            ORDER BY f.original_name ASC
             """;
 
         List<File> files = new ArrayList<>();
@@ -92,9 +99,11 @@ public class FileRepositoryJDBC implements FileRepository {
             while (rs.next()) {
                 files.add(mapRowToFile(rs));
             }
+            logger.info("Найдено {} файлов для пользователя {}", files.size(), userId);
             return files;
 
         } catch (SQLException e) {
+            logger.error("Ошибка поиска файлов пользователя {}", userId, e);
             throw new RuntimeException("Ошибка поиска файлов пользователя", e);
         }
     }
@@ -102,7 +111,7 @@ public class FileRepositoryJDBC implements FileRepository {
     @Override
     public Optional<File> findByS3Key(String s3Key) {
         String sql = """
-            SELECT f.*, u.id as user_id, u.name, u.email, u.phone_number, u.password
+            SELECT f.*, u.id as user_id, u.name, u.email, u.phonenumber, u.password
             FROM files f
             JOIN users u ON f.user_id = u.id
             WHERE f.s3_key = ?
@@ -120,6 +129,7 @@ public class FileRepositoryJDBC implements FileRepository {
             return Optional.empty();
 
         } catch (SQLException e) {
+            logger.error("Ошибка поиска файла по S3 ключу {}", s3Key, e);
             throw new RuntimeException("Ошибка поиска файла по S3 ключу", e);
         }
     }
@@ -132,10 +142,39 @@ public class FileRepositoryJDBC implements FileRepository {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setObject(1, id);
-            stmt.executeUpdate();
+            int affected = stmt.executeUpdate();
+
+            if (affected > 0) {
+                logger.info("Файл удалён: {}", id);
+            } else {
+                logger.warn("Файл с id {} не найден для удаления", id);
+            }
 
         } catch (SQLException e) {
+            logger.error("Ошибка удаления файла с id {}", id, e);
             throw new RuntimeException("Ошибка удаления файла", e);
+        }
+    }
+
+    @Override
+    public void deleteByS3Key(String s3Key) {
+        String sql = "DELETE FROM files WHERE s3_key = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, s3Key);
+            int affected = stmt.executeUpdate();
+
+            if (affected > 0) {
+                logger.info("Файл удалён по S3 ключу: {}", s3Key);
+            } else {
+                logger.warn("Файл с S3 ключом {} не найден для удаления", s3Key);
+            }
+
+        } catch (SQLException e) {
+            logger.error("Ошибка удаления файла по S3 ключу {}", s3Key, e);
+            throw new RuntimeException("Ошибка удаления файла по S3 ключу", e);
         }
     }
 
@@ -143,37 +182,45 @@ public class FileRepositoryJDBC implements FileRepository {
     public File update(File file) {
         String sql = """
             UPDATE files 
-            SET original_name = ?, size = ?, mime_type = ?, is_public = ?, 
-                description = ?, updated_at = ?
+            SET original_name = ?, size = ?, mime_type = ?
             WHERE id = ?
             """;
 
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            if (file.getId() == null) {
+                throw new IllegalArgumentException("File ID cannot be null for update");
+            }
+
             stmt.setString(1, file.getOriginalName());
             stmt.setLong(2, file.getSize());
             stmt.setString(3, file.getMimeType());
-            stmt.setBoolean(4, file.getIsPublic());
-            stmt.setString(5, file.getDescription());
-            stmt.setTimestamp(6, Timestamp.valueOf(file.getUpdatedAt()));
-            stmt.setObject(7, file.getId());
+            stmt.setObject(4, file.getId());
 
-            stmt.executeUpdate();
+            int affected = stmt.executeUpdate();
+
+            if (affected == 0) {
+                logger.warn("Файл с id {} не найден для обновления", file.getId());
+            } else {
+                logger.info("Файл обновлён: {}", file.getId());
+            }
+
             return file;
 
         } catch (SQLException e) {
+            logger.error("Ошибка обновления файла с id {}", file.getId(), e);
             throw new RuntimeException("Ошибка обновления файла", e);
         }
     }
 
     private File mapRowToFile(ResultSet rs) throws SQLException {
         // Создаём пользователя
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setId((UUID) rs.getObject("user_id"));
         user.setName(rs.getString("name"));
         user.setEmail(rs.getString("email"));
-        user.setPhoneNumber(rs.getString("phone_number"));
+        user.setPhoneNumber(rs.getString("phonenumber"));
         user.setPassword(rs.getString("password"));
 
         // Создаём файл
@@ -184,22 +231,9 @@ public class FileRepositoryJDBC implements FileRepository {
                 rs.getString("mime_type")
         );
 
-        // Устанавливаем дополнительные поля
+        // Устанавливаем ID и S3 ключ
         file.setId((UUID) rs.getObject("id"));
         file.setS3Key(rs.getString("s3_key"));
-        file.setIsPublic(rs.getBoolean("is_public"));
-        file.setDescription(rs.getString("description"));
-
-        // Устанавливаем даты
-        Timestamp uploadedAt = rs.getTimestamp("uploaded_at");
-        if (uploadedAt != null) {
-            file.setUploadedAt(uploadedAt.toLocalDateTime());
-        }
-
-        Timestamp updatedAt = rs.getTimestamp("updated_at");
-        if (updatedAt != null) {
-            file.setUpdatedAt(updatedAt.toLocalDateTime());
-        }
 
         return file;
     }
