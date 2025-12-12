@@ -79,7 +79,7 @@ public class FileService {
      */
     public InputStream downloadFile(UUID userId, UUID fileId) {
         // 1. Находим метаданные в PostgreSQL
-        File file = userRepository.findById(fileId)
+        File file = userRepository.findFileById(fileId, userId)
                 .orElseThrow(() -> new RuntimeException("Файл не найден"));
 
         // 2. Проверяем доступ
@@ -97,18 +97,16 @@ public class FileService {
      */
     public void deleteFile(UUID userId, UUID fileId) {
         // 1. Находим файл
-        File file = fileRepository.findById(fileId)
+        File file = userRepository.findFileById(fileId, userId)
                 .orElseThrow(() -> new RuntimeException("Файл не найден"));
 
         // 2. Проверяем, что пользователь - владелец
-        if (!file.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Недостаточно прав для удаления файла");
-        }
+        checkFileAccess(userId, file);
 
         // 3. Удаляем из S3
         fileRepository.deleteByS3Key(file.getS3Key());
 
         // 4. Удаляем метаданные из PostgreSQL
-        userRepository.deleteFileByS3Key(file.getS3Key());
+        userRepository.deleteFileById(fileId, userId);
     }
 }
