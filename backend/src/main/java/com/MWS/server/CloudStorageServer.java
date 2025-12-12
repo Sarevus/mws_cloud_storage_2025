@@ -93,15 +93,8 @@ public class CloudStorageServer {
 
 
         FileRepository fileRepository = new FileRepositoryJDBC();
-        S3FileStorage s3Storage = new S3FileStorage(
-                Config.getCephEndpoint(),
-                Config.getCephAccessKey(),
-                Config.getCephSecretKey(),
-                Config.getCephBucketName()
-        );
 
-
-        FileService fileService = new FileService(fileRepository, userRepository, s3Storage);
+        FileService fileService = new FileService(fileRepository, userRepository);
         FileController fileController = new FileController(
                 fileService,
                 100 * 1024 * 1024
