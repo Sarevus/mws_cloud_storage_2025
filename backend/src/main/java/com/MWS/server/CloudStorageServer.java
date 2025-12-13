@@ -12,6 +12,7 @@ import com.MWS.service.FileService;
 import com.MWS.service.UserService;
 import com.MWS.service.UserServiceRelease;
 import com.MWS.storage.Database;
+import com.MWS.storage.S3FileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
@@ -38,9 +39,16 @@ public class CloudStorageServer {
             UserRepository userRepository = new UserRepositoryJDBC();
             FileRepository fileRepository = new FileRepositoryJDBC();
 
+            // Инициализация S3/Ceph хранилища
+            S3FileStorage s3Storage = new S3FileStorage();
+            if (!s3Storage.testConnection()) {
+                logger.error("Не удалось подключиться к S3/Ceph!");
+                System.exit(1);
+            }
+
             // Инициализация сервисов
             UserService userService = new UserServiceRelease(userRepository);
-            FileService fileService = new FileService(fileRepository, userRepository);
+            FileService fileService = new FileService(fileRepository, userRepository, s3Storage);
 
             // Инициализация контроллеров
             UserController userController = new UserController(userService);

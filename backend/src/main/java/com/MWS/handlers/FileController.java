@@ -194,18 +194,32 @@ public class FileController {
             // Получаем метаданные файла
             File file = fileService.getFileMetadata(userId, fileId);
 
-            // TODO: Реализовать скачивание из S3/Ceph
-            // InputStream fileStream = fileService.downloadFile(userId, fileId);
+            // Скачиваем файл из S3/Ceph
+            InputStream fileStream = fileService.downloadFile(userId, fileId);
 
-            // Пока возвращаем метаданные
-            res.type("application/json");
-            res.status(501); // Not Implemented
-            return gson.toJson(Map.of(
-                    "success", false,
-                    "message", "Скачивание файлов пока не реализовано",
-                    "file", file,
-                    "note", "Добавьте интеграцию с S3/Ceph для скачивания файлов"
-            ));
+            // Устанавливаем заголовки для скачивания
+            res.type(file.getMimeType());
+            res.header("Content-Disposition",
+                    "attachment; filename=\"" + file.getOriginalName() + "\"");
+            res.header("Content-Length", String.valueOf(file.getSize()));
+
+            // Возвращаем поток файла
+            try {
+                byte[] buffer = fileStream.readAllBytes();
+                res.status(200);
+
+                // Записываем данные в response
+                javax.servlet.ServletOutputStream output = res.raw().getOutputStream();
+                output.write(buffer);
+                output.flush();
+                output.close();
+
+                logger.info("✅ Файл {} успешно отправлен пользователю {}", fileId, userId);
+                return res.raw();
+
+            } finally {
+                fileStream.close();
+            }
 
         } catch (IllegalArgumentException e) {
             res.status(400);
@@ -279,7 +293,6 @@ public class FileController {
             }
             UUID userId = UUID.fromString(userIdStr);
 
-            // Парсим JSON из body
             Map<String, String> body = gson.fromJson(req.body(), Map.class);
             String newName = body.get("newName");
 
@@ -314,9 +327,6 @@ public class FileController {
         }
     }
 
-    /**
-     * Вспомогательный метод для формирования ошибок
-     */
     private String errorResponse(String message) {
         Map<String, Object> error = new HashMap<>();
         error.put("success", false);

@@ -1,5 +1,6 @@
 package com.MWS.model;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 /**
@@ -12,6 +13,16 @@ public class File {
     private String originalName;    // Оригинальное имя файла
     private Long size;              // Размер в байтах
     private String mimeType;        // MIME-тип (image/jpeg, application/pdf и т.д.)
+
+    /**
+     * Контент файла.
+     *
+     * В БД это НЕ хранится — тело файла лежит в S3/Ceph.
+     * Поле нужно, чтобы можно было:
+     *  - при upload передать поток в репозиторий (repo сам загрузит в S3),
+     *  - при download вернуть поток наружу.
+     */
+    private transient InputStream contentStream;
     //private Boolean isPublic;       // Публичный ли файл
     //private String description;     // Описание файла
     //private LocalDateTime uploadedAt;    // Дата загрузки
@@ -36,6 +47,8 @@ public class File {
     public String getOriginalName() { return originalName; }
     public Long getSize() { return size; }
     public String getMimeType() { return mimeType; }
+
+    public InputStream getContentStream() { return contentStream; }
 //    public Boolean getIsPublic() { return isPublic; }
 //    public String getDescription() { return description; }
 //    public LocalDateTime getUploadedAt() { return uploadedAt; }
@@ -48,6 +61,8 @@ public class File {
     public void setOriginalName(String originalName) { this.originalName = originalName; }
     public void setSize(Long size) { this.size = size; }
     public void setMimeType(String mimeType) { this.mimeType = mimeType; }
+
+    public void setContentStream(InputStream contentStream) { this.contentStream = contentStream; }
 //    public void setIsPublic(Boolean isPublic) { this.isPublic = isPublic; }
 //    public void setDescription(String description) { this.description = description; }
 //    public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
