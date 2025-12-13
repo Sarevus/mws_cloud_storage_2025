@@ -28,70 +28,13 @@ public class FileController {
     }
 
     /**
-     * Загружает файл на сервер.
-     * Формат запроса: multipart/form-data
-     */
-    public Object uploadFile(Request req, Response res) {
-        try {
-            // 1. Получаем ID пользователя из куки
-            UUID userId = UUID.fromString(req.cookie("user_id"));
-
-            // 2. Настраиваем загрузку файла
-            req.attribute("org.eclipse.jetty.multipartConfig",
-                    new MultipartConfigElement("/tmp"));
-
-            // 3. Получаем файл из запроса
-            Part filePart = req.raw().getPart("file");
-            if (filePart == null) {
-                return error(res, 400, "Файл не предоставлен");
-            }
-
-            // 4. Проверяем размер файла
-            if (filePart.getSize() > maxFileSize) {
-                return error(res, 413, "Файл слишком большой. Максимум: " +
-                        (maxFileSize / (1024 * 1024)) + " MB");
-            }
-
-            // 5. Получаем дополнительные параметры
-            boolean isPublic = "true".equalsIgnoreCase(req.queryParams("isPublic"));
-            String description = req.queryParams("description");
-
-            // 6. Загружаем файл через сервис
-            try (InputStream fileStream = filePart.getInputStream()) {
-                File file = fileService.uploadFile(
-                        userId,
-                        filePart.getSubmittedFileName(),
-                        fileStream,
-                        filePart.getSize(),
-                        filePart.getContentType(),
-                        isPublic,
-                        description
-                );
-
-                // 7. Возвращаем успешный ответ
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                response.put("message", "Файл успешно загружен");
-                response.put("file", toFileMap(file));
-
-                res.status(201); // 201 Created
-                res.type("application/json");
-                return gson.toJson(response);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error(res, 500, "Ошибка загрузки файла: " + e.getMessage());
-        }
-    }
-
-    /**
      * Возвращает список файлов пользователя.
      * GET /files
      */
     public Object listFiles(Request req, Response res) {
         try {
-            UUID userId = UUID.fromString(req.cookie("user_id"));
+            // 1. Получаем ID пользователя из url
+            UUID userId = UUID.fromString(req.params(":id"));
 
             // Получаем файлы через сервис
             List<File> files = fileService.getUserFiles(userId);
@@ -113,13 +56,68 @@ public class FileController {
     }
 
     /**
+     * Загружает файл на сервер.
+     * Формат запроса: multipart/form-data
+     */
+    public Object uploadFile(Request req, Response res) {
+        try {
+            // 1. Получаем ID пользователя из url
+            UUID userId = UUID.fromString(req.params(":id"));
+
+            // 2. Настраиваем загрузку файла
+            req.attribute("org.eclipse.jetty.multipartConfig",
+                    new MultipartConfigElement("/tmp"));
+
+            // 3. Получаем файл из запроса
+            Part filePart = req.raw().getPart("file");
+            if (filePart == null) {
+                return error(res, 400, "Файл не предоставлен");
+            }
+
+            // 4. Проверяем размер файла
+            if (filePart.getSize() > maxFileSize) {
+                return error(res, 413, "Файл слишком большой. Максимум: " +
+                        (maxFileSize / (1024 * 1024)) + " MB");
+            }
+
+            // 5. Загружаем файл через сервис
+            try (InputStream fileStream = filePart.getInputStream()) {
+                File file = fileService.uploadFile(
+                        userId,
+                        filePart.getSubmittedFileName(),
+                        fileStream,
+                        filePart.getSize(),
+                        filePart.getContentType()
+                );
+
+                // 7. Возвращаем успешный ответ
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("message", "Файл успешно загружен");
+                response.put("file", toFileMap(file));
+
+                res.status(201); // 201 Created
+                res.type("application/json");
+                return gson.toJson(response);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return error(res, 500, "Ошибка загрузки файла: " + e.getMessage());
+        }
+    }
+
+    /**
      * Скачивает файл.
      * GET /files/{id}/download
      */
     public Object downloadFile(Request req, Response res) {
         try {
-            UUID userId = UUID.fromString(req.cookie("user_id"));
-            UUID fileId = UUID.fromString(req.params(":id"));
+            // 1. Получаем ID пользователя из url
+            UUID userId = UUID.fromString(req.params(":id"));
+
+            // 2. получаем ID файла из url
+            UUID fileId = UUID.fromString(req.params(":fileId"));
 
             // Скачиваем файл через сервис
             InputStream fileStream = fileService.downloadFile(userId, fileId);
@@ -150,8 +148,10 @@ public class FileController {
      */
     public Object deleteFile(Request req, Response res) {
         try {
-            UUID userId = UUID.fromString(req.cookie("user_id"));
-            UUID fileId = UUID.fromString(req.params(":id"));
+            // 1. Получаем ID пользователя из url
+            UUID userId = UUID.fromString(req.params(":id"));
+
+            UUID fileId = UUID.fromString(req.params(":fileId"));
 
             fileService.deleteFile(userId, fileId);
 
@@ -173,10 +173,10 @@ public class FileController {
         map.put("size", file.getSize());
         map.put("formattedSize", file.getFormattedSize());
         map.put("mimeType", file.getMimeType());
-        map.put("isPublic", file.getIsPublic());
-        map.put("description", file.getDescription());
-        map.put("uploadedAt", file.getUploadedAt());
-        map.put("updatedAt", file.getUpdatedAt());
+//        map.put("isPublic", file.getIsPublic());
+//        map.put("description", file.getDescription());
+//        map.put("uploadedAt", file.getUploadedAt());
+//        map.put("updatedAt", file.getUpdatedAt());
         map.put("downloadUrl", "/files/" + file.getId() + "/download");
         return map;
     }

@@ -4,6 +4,7 @@ import com.MWS.model.File;
 import com.MWS.model.UserEntity;
 import com.MWS.storage.Database;
 
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +101,7 @@ public class FileRepositoryJDBC implements FileRepository {
     }
 
     @Override
-    public Optional<File> findByS3Key(String s3Key) {
+    public InputStream findByS3Key(String s3Key) {
         String sql = """
             SELECT f.*, u.id as user_id, u.name, u.email, u.phone_number, u.password
             FROM files f

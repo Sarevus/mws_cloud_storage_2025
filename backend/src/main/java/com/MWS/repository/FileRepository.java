@@ -2,9 +2,8 @@ package com.MWS.repository;
 
 import com.MWS.model.File;
 
-import java.util.List;
+import java.io.InputStream;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Интерфейс для работы с файлами в хранилище.
@@ -21,7 +20,7 @@ public interface FileRepository {
     /**
      * Находит файл по ключу в S3.
      */
-    Optional<File> findByS3Key(String s3Key);
+    InputStream findByS3Key(String s3Key);
 
     /**
      * Удаляет файл по по ключу в S3.

@@ -1,5 +1,6 @@
 package com.MWS.model;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 /**
@@ -12,6 +13,7 @@ public class File {
     private String originalName;    // Оригинальное имя файла
     private Long size;              // Размер в байтах
     private String mimeType;        // MIME-тип (image/jpeg, application/pdf и т.д.)
+    private InputStream fileStream;         // содержимое файла
     //private Boolean isPublic;       // Публичный ли файл
     //private String description;     // Описание файла
     //private LocalDateTime uploadedAt;    // Дата загрузки
@@ -43,6 +45,7 @@ public class File {
 
 
     public void setId(UUID id) { this.id = id; }
+    public void setFileStream(InputStream fileStream){this.fileStream = fileStream;}
     public void setUser(UserEntity user) { this.user = user; }
     public void setS3Key(String s3Key) { this.s3Key = s3Key; }
     public void setOriginalName(String originalName) { this.originalName = originalName; }

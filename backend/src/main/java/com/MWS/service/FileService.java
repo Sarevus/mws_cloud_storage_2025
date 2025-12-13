@@ -47,6 +47,12 @@ public class FileService {
         }
     }
 
+    public List<File> getUserFiles(UUID userId){
+        List<File> files = userRepository.getUserFiles(userId);
+
+        return files;
+    }
+
     public File uploadFile(
             UUID userId,
             String originalFilename,
@@ -64,10 +70,16 @@ public class FileService {
         // 2. Генерируем уникальный ключ для S3
         String s3Key = generateS3Key(userId, originalFilename);
 
-        // 4. Сохраняем файл в S3
+        // 3. Создаём файл
         File file = new File(user, originalFilename, fileSize, mimeType);
         file.setS3Key(s3Key);
 
+        // 4. сохраняем в postgreSQL
+        userRepository.saveFileMeta(userId, file);
+
+        file.setFileStream(fileStream);
+
+        // 5. сохраняем в S3
         return fileRepository.save(file);
     }
 
