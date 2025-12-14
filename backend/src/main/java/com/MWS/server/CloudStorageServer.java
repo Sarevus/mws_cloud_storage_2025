@@ -57,13 +57,13 @@ public class CloudStorageServer {
                     Config.getMaxFileSize()  // Используем конфигурацию из Config
             );
 
-            // Настройка статических файлов
-            staticFiles.location("/public");
-
             // Настройка порта сервера
             int serverPort = Config.getServerPort();
             port(serverPort);
             logger.info("Сервер запускается на порту {}", serverPort);
+
+            // Настройка статических файлов
+            staticFiles.location("/public");
 
             // Включаем CORS для API запросов
             enableCORS();
@@ -113,6 +113,12 @@ public class CloudStorageServer {
             put("/user/:id/", (req, res) -> userController.updateUser(req, res));
 
             // ==================== FILE ROUTES ====================
+
+            // тестовый маршрут для проверки
+            get("/api/test", (req, res) -> {
+                res.type("application/json");
+                return "{\"status\": \"API работает\", \"timestamp\": \"" + new java.util.Date() + "\", \"port\": " + serverPort + "}";
+            });
 
             // Страница файлов
             get("/files", (req, res) -> {

@@ -1,0 +1,274 @@
+/* Стили для управления файлами */
+
+.file-stats {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+#total-files {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.refresh-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(180deg);
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.category-header h2 {
+    margin: 0;
+}
+
+.category-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-select-all, .btn-delete-selected {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.btn-select-all:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-delete-selected {
+    background: rgba(255, 0, 0, 0.2);
+    border-color: rgba(255, 0, 0, 0.3);
+}
+
+.btn-delete-selected:hover {
+    background: rgba(255, 0, 0, 0.3);
+}
+
+/* Кнопки действий с файлами */
+.file-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.btn-download, .btn-rename, .btn-delete {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    font-weight: 500;
+    flex: 1;
+    min-width: 80px;
+}
+
+.btn-download {
+    background: rgba(79, 172, 254, 0.2);
+    color: white;
+    border: 1px solid rgba(79, 172, 254, 0.3);
+}
+
+.btn-download:hover:not(:disabled) {
+    background: rgba(79, 172, 254, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-rename {
+    background: rgba(255, 193, 7, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.btn-rename:hover:not(:disabled) {
+    background: rgba(255, 193, 7, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-delete {
+    background: rgba(244, 67, 54, 0.2);
+    color: white;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.btn-delete:hover:not(:disabled) {
+    background: rgba(244, 67, 54, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-download:disabled,
+.btn-rename:disabled,
+.btn-delete:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Прогресс загрузки */
+.upload-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+}
+
+.upload-progress svg {
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Индикатор загрузки */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    display: none;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: #4facfe;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-overlay p {
+    color: white;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* Выбор файлов */
+.file-card.selected {
+    background: rgba(79, 172, 254, 0.15);
+    border-color: rgba(79, 172, 254, 0.4);
+}
+
+.file-checkbox {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* Анимации */
+.file-card {
+    position: relative;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .category-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .btn-select-all, .btn-delete-selected {
+        flex: 1;
+        text-align: center;
+    }
+
+    .file-actions {
+        flex-direction: column;
+    }
+
+    .btn-download, .btn-rename, .btn-delete {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .file-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .refresh-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .file-card {
+        padding: 15px;
+    }
+}

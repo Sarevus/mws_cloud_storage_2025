@@ -20,7 +20,6 @@ import java.util.UUID;
  * Контроллер для работы с файлами через HTTP API
  */
 public class FileController {
-
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
     private final FileService fileService;
     private final long maxFileSize;
@@ -73,9 +72,13 @@ public class FileController {
      */
     public String uploadFile(Request req, Response res) {
         try {
-            // Настройка для работы с multipart/form-data
+            // НАИБОЛЕЕ ПРОСТОЕ РЕШЕНИЕ: используем пустую строку для in-memory хранения
+            // ИЛИ системную временную директорию
+            String tempDir = System.getProperty("java.io.tmpdir");
+            logger.info("Используем временную директорию: {}", tempDir);
+
             req.attribute("org.eclipse.jetty.multipartConfig",
-                    new MultipartConfigElement("/temp", maxFileSize, maxFileSize, 1024 * 1024));
+                    new MultipartConfigElement(tempDir, maxFileSize, maxFileSize, 1024));
 
             // Получаем userId из query параметров
             String userIdStr = req.queryParams("userId");
@@ -116,6 +119,9 @@ public class FileController {
                     fileSize,
                     mimeType
             );
+
+            // Закрываем поток
+            fileStream.close();
 
             res.type("application/json");
             res.status(201);
