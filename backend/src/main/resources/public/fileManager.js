@@ -472,7 +472,7 @@ class FileManager {
             <div class="file-icon">
                 ${iconSVG}
             </div>
-            <div class="file-info">
+            <div class="file-info" style="overflow:hidden;">
                 <h4 class="file-name">${fileName}</h4>
                 <p>${fileType === 'image' ? 'Изображение' : 
                     fileType === 'video' ? 'Видеофайл' : 
