@@ -7,88 +7,227 @@
     <link rel="stylesheet" href="./styles/index.css">
     <link rel="stylesheet" href="./styles/profile.css">
     <link rel="stylesheet" href="./styles/edit-profile.css">
-
+    <link rel="stylesheet" href="./styles/file-manager.css">
 </head>
 <body>
-    <div class="overlay"></div>
-    <div class="background-circles">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
+<div class="overlay"></div>
+<div class="background-circles">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+</div>
+
+<!-- Шапка профиля -->
+<header class="profile-header">
+    <div class="header-content">
+        <h1>Мой кабинет</h1>
+        <div class="user-info">
+            <div class="user-avatar">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="white"/>
+                    <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="white"/>
+                </svg>
+            </div>
+            <div class="user-details">
+                <h2 id="user-name"></h2>
+                <p id="user-email"></p>
+                <p id="user-number"></p>
+                <!-- Добавляем кнопку редактирования -->
+                <button class="edit-profile-btn" id="edit-profile-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    Редактировать профиль
+                </button>
+            </div>
+        </div>
     </div>
-    
-    <!-- Шапка профиля -->
-    <header class="profile-header">
-        <div class="header-content">
-            <h1>Мой кабинет</h1>
-            <div class="user-info">
-                <div class="user-avatar">
-                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="white"/>
-                        <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="white"/>
-                    </svg>
-                </div>
-                <div class="user-details">
-                    <h2 id="user-name"></h2>
-                    <p id="user-email"></p>
-                    <p id = user-number></p>
-                    <!-- Добавляем кнопку редактирования -->
-                    <button class="edit-profile-btn" id="edit-profile-btn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                        Редактировать профиль
-                    </button>
-                </div>
+</header>
+
+<!-- Основной контент -->
+<main class="profile-main">
+    <div class="actions-container">
+        <div class="action-card">
+            <div class="action-icon">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 17L17 7M17 7H7M17 7V17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
+            <h3>Обмен файлами</h3>
+            <p>Начните хранить свои файлы в безопасности или получите доступ к общим файлам</p>
+            <button class="action-btn exchange-btn" id="go-to-files">Начать обмен</button>
         </div>
-    </header>
-    
-    <!-- Основной контент -->
-    <main class="profile-main">
-        <div class="actions-container">
-            <div class="action-card">
-                <div class="action-icon">
-                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 17L17 7M17 7H7M17 7V17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <h3>Обмен файлами</h3>
-                <p>Начните хранить свои файлы в безопасности или получите доступ к общим файлам</p>
-                <button class="action-btn exchange-btn" onclick="location.href='fileExchange.html'">Начать обмен</button>
-            </div>
-        </div>
-        
-        <!-- Список файлов -->
-        <div class="files-section">
+    </div>
+
+    <!-- Список файлов -->
+    <div class="files-section">
+        <div class="files-header">
             <h2>Недавние файлы</h2>
-            <div class="files-grid">
-                <div class="file-item">
+            <button id="refresh-recent-files" class="refresh-btn-small" title="Обновить">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white">
+                    <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+            </button>
+        </div>
+        <div class="files-grid" id="recent-files-grid">
+            <!-- Файлы будут загружены динамически -->
+            <div class="loading-files">
+                <p>Загрузка файлов...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-navigation">
+        <a href="index.html" class="nav-link">Выйти из профиля</a>
+    </div>
+</main>
+
+<script src="scriptUser.js" type="module"></script>
+<script type="module">
+    import FileManager from './fileManager.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const fileManager = new FileManager();
+        const goToFilesBtn = document.getElementById('go-to-files');
+        const refreshBtn = document.getElementById('refresh-recent-files');
+
+        // Загружаем последние файлы
+        // Загружаем последние файлы
+        async function loadRecentFiles() {
+            const filesGrid = document.getElementById('recent-files-grid');
+            const recentFiles = await fileManager.getRecentFiles(5); // Используем новый метод
+
+            if (recentFiles.length === 0) {
+                filesGrid.innerHTML = `
+                    <div class="empty-files">
+                        <p>У вас пока нет файлов</p>
+                        <button class="action-btn" onclick="location.href='fileExchange.html?id=${fileManager.currentUserId}'">
+                            Загрузить первый файл
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            filesGrid.innerHTML = '';
+
+            recentFiles.forEach(file => {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'file-item';
+
+                const fileId = file.id || file.fileId;
+                const fileName = file.originalName || file.name || file.fileName || 'Без имени';
+                const fileSize = fileManager.formatFileSize(file.size || file.fileSize || 0);
+
+                fileElement.innerHTML = `
                     <div class="file-icon">
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M14 2V8H20" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M16 13H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M16 17H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M10 9H9H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
                     <div class="file-info">
-                        <h4>Документ.docx</h4>
+                        <h4>${fileName}</h4>
+                        <p>${fileSize}</p>
                     </div>
                     <div class="file-actions">
-                        <button class="file-btn download-file">Скачать</button>
+                        <button class="file-btn download-file" data-file-id="${fileId}" data-file-name="${fileName}">Скачать</button>
                     </div>
-                </div>
-            </div>
-        </div>
+                `;
 
-        <div class="profile-navigation">
-            <a href="index.html" class="nav-link">Выйти из профиля</a>
-        </div>
-    </main>
-        <script src="scriptUser.js" type="module"></script>
+                filesGrid.appendChild(fileElement);
+            });
+
+            // Добавляем обработчики для скачивания
+            document.querySelectorAll('.download-file').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const fileId = btn.dataset.fileId;
+                    const fileName = btn.dataset.fileName;
+
+                    btn.textContent = '...';
+                    btn.disabled = true;
+
+                    await fileManager.downloadFile(fileId, fileName);
+
+                    btn.textContent = 'Скачать';
+                    btn.disabled = false;
+                });
+            });
+        }
+
+        // Кнопка перехода к файлам
+        goToFilesBtn.addEventListener('click', () => {
+            window.location.href = `fileExchange.html?id=${fileManager.currentUserId}`;
+        });
+
+        // Кнопка обновления
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.style.transform = 'rotate(360deg)';
+            refreshBtn.style.transition = 'transform 0.5s ease';
+
+            await loadRecentFiles();
+
+            setTimeout(() => {
+                refreshBtn.style.transform = 'rotate(0deg)';
+            }, 500);
+        });
+
+        // Загружаем файлы при загрузке страницы
+        loadRecentFiles();
+    });
+</script>
+
+<style>
+    .files-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .files-header h2 {
+        margin: 0;
+    }
+
+    .refresh-btn-small {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .refresh-btn-small:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(180deg);
+    }
+
+    .loading-files {
+        text-align: center;
+        padding: 40px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .empty-files {
+        text-align: center;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+    }
+
+    .empty-files p {
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+    }
+</style>
 </body>
 </html>

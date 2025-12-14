@@ -6,237 +6,232 @@
     <title>Обмен файлами - Cloud Storage</title>
     <link rel="stylesheet" href="./styles/index.css">
     <link rel="stylesheet" href="./styles/file-exchange.css">
+    <link rel="stylesheet" href="./styles/file-manager.css">
 </head>
 <body>
-    <div class="overlay"></div>
-    <div class="background-circles">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
+<div class="overlay"></div>
+<div class="background-circles">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+</div>
+
+<div class="exchange-container">
+    <a href="myProfile.html" class="back-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Назад в профиль
+    </a>
+
+    <div class="exchange-header">
+        <h1>Облачное хранилище</h1>
+        <div class="file-stats">
+            <span id="total-files">0 файлов</span>
+            <button id="refresh-files" class="refresh-btn" title="Обновить список">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white">
+                    <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+            </button>
+        </div>
     </div>
-    
-    <div class="exchange-container">
-        <a href="myProfile.html" class="back-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Назад в профиль
-        </a>
-        
-        <div class="exchange-header">
-            <h1>Облачное хранилище</h1>
-        </div>
-        
-        <!-- Лента категорий -->
-        <div class="categories-tabs">
-            <button class="category-tab active" data-category="photos">Фото</button>
-            <button class="category-tab" data-category="videos">Видео</button>
-            <button class="category-tab" data-category="documents">Документы</button>
-            <button class="category-tab" data-category="music">Музыка</button>
-            <button class="category-tab" data-category="shared">Общие файлы</button>
-        </div>
-        
-        <!-- Контент категории Фото -->
-        <div class="category-content active" id="photos-content">
+
+    <!-- Лента категорий -->
+    <div class="categories-tabs">
+        <button class="category-tab active" data-category="image">Фото</button>
+        <button class="category-tab" data-category="videos">Видео</button>
+        <button class="category-tab" data-category="documents">Документы</button>
+        <button class="category-tab" data-category="music">Музыка</button>
+        <button class="category-tab" data-category="shared">Все файлы</button>
+    </div>
+
+    <!-- Контент категории Фото -->
+    <div class="category-content active" id="image-content">
+        <div class="category-header">
             <h2>Фотографии</h2>
-            <div class="files-grid">
-                <!-- Пример файлов -->
-                <div class="file-card">
-                    <div class="file-icon">
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                            <polyline points="21 15 16 10 5 21"/>
-                        </svg>
-                    </div>
-                    <div class="file-info">
-                        <h4>Пейзаж.jpg</h4>
-                        <p>Изображение высокого качества</p>
-                        <div class="file-meta">
-                            <span>2.4 МБ</span>
-                            <span>2 дня назад</span>
-                        </div>
-                    </div>
-                    <div class="file-actions">
-                        <button class="btn-download">Скачать</button>
-                    </div>
-                </div>
-                
-                <div class="file-card">
-                    <div class="file-icon">
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                            <polyline points="21 15 16 10 5 21"/>
-                        </svg>
-                    </div>
-                    <div class="file-info">
-                        <h4>Портрет.png</h4>
-                        <p>Фотография в формате PNG</p>
-                        <div class="file-meta">
-                            <span>1.8 МБ</span>
-                            <span>5 дней назад</span>
-                        </div>
-                    </div>
-                    <div class="file-actions">
-                        <button class="btn-download">Скачать</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Область загрузки -->
-            <div class="upload-area" onclick="document.getElementById('photos-upload').click()">
-                <div class="upload-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                </div>
-                <h3>Загрузить новые фото</h3>
-                <p>Перетащите файлы сюда или нажмите для выбора</p>
-                <input type="file" id="photos-upload" multiple accept="image/*" style="display: none;">
+            <div class="category-actions">
+                <button class="btn-select-all">Выбрать все</button>
+                <button class="btn-delete-selected">Удалить выбранные</button>
             </div>
         </div>
-        
-        <!-- Контент категории Видео -->
-        <div class="category-content" id="videos-content">
-            <h2>Видеофайлы</h2>
-            <div class="empty-state">
-                <h3>Пока нет видеофайлов</h3>
-                <p>Загрузите видео для хранения</p>
-            </div>
-            
-            <!-- Область загрузки -->
-            <div class="upload-area" onclick="document.getElementById('videos-upload').click()">
-                <div class="upload-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                </div>
-                <h3>Загрузить видео</h3>
-                <p>Перетащите файлы сюда или нажмите для выбора</p>
-                <input type="file" id="videos-upload" multiple accept="video/*" style="display: none;">
-            </div>
+        <div class="files-grid">
+            <!-- Файлы будут добавляться динамически -->
         </div>
-        
-        <!-- Контент категории Документы -->
-        <div class="category-content" id="documents-content">
-            <h2>Документы</h2>
-            <div class="empty-state">
-                <h3>Пока нет документов</h3>
-                <p>Загрузите документы для хранения</p>
+
+        <!-- Область загрузки -->
+        <div class="upload-area" onclick="document.getElementById('image-upload').click()">
+            <div class="upload-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
             </div>
-            
-            <!-- Область загрузки -->
-            <div class="upload-area" onclick="document.getElementById('documents-upload').click()">
-                <div class="upload-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                </div>
-                <h3>Загрузить документы</h3>
-                <p>Перетащите файлы сюда или нажмите для выбора</p>
-                <input type="file" id="documents-upload" multiple accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx" style="display: none;">
-            </div>
-        </div>
-        
-        <!-- Контент категории Музыка -->
-        <div class="category-content" id="music-content">
-            <h2>Музыка</h2>
-            <div class="empty-state">
-                <h3>Пока нет музыкальных файлов</h3>
-                <p>Загрузите музыку для хранения</p>
-            </div>
-            
-            <!-- Область загрузки -->
-            <div class="upload-area" onclick="document.getElementById('music-upload').click()">
-                <div class="upload-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                </div>
-                <h3>Загрузить музыку</h3>
-                <p>Перетащите файлы сюда или нажмите для выбора</p>
-                <input type="file" id="music-upload" multiple accept="audio/*" style="display: none;">
-            </div>
-        </div>
-        
-        <!-- Контент категории Общие файлы -->
-        <div class="category-content" id="shared-content">
-            <h2>Общие файлы</h2>
-            <div class="empty-state">
-                <h3>Нет общих файлов</h3>
-                <p>Все сохранённые файлы здесь</p>
-            </div>
-            
-            <!-- Область загрузки -->
-            <div class="upload-area" onclick="document.getElementById('shared-upload').click()">
-                <div class="upload-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                </div>
-                <h3>Загрузить файлы</h3>
-                <p>Перетащите файлы сюда или нажмите для выбора</p>
-                <input type="file" id="shared-upload" multiple style="display: none;">
-            </div>
+            <h3>Загрузить новые фото</h3>
+            <p>Перетащите файлы сюда или нажмите для выбора</p>
+            <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
         </div>
     </div>
-    
-    <script>
+
+    <!-- Контент категории Видео -->
+    <div class="category-content" id="videos-content">
+        <div class="category-header">
+            <h2>Видеофайлы</h2>
+            <div class="category-actions">
+                <button class="btn-select-all">Выбрать все</button>
+                <button class="btn-delete-selected">Удалить выбранные</button>
+            </div>
+        </div>
+        <div class="files-grid">
+            <!-- Файлы будут добавляться динамически -->
+        </div>
+
+        <!-- Область загрузки -->
+        <div class="upload-area" onclick="document.getElementById('videos-upload').click()">
+            <div class="upload-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+            <h3>Загрузить видео</h3>
+            <p>Перетащите файлы сюда или нажмите для выбора</p>
+            <input type="file" id="videos-upload" multiple accept="video/*" style="display: none;">
+        </div>
+    </div>
+
+    <!-- Контент категории Документы -->
+    <div class="category-content" id="documents-content">
+        <div class="category-header">
+            <h2>Документы</h2>
+            <div class="category-actions">
+                <button class="btn-select-all">Выбрать все</button>
+                <button class="btn-delete-selected">Удалить выбранные</button>
+            </div>
+        </div>
+        <div class="files-grid">
+            <!-- Файлы будут добавляться динамически -->
+        </div>
+
+        <!-- Область загрузки -->
+        <div class="upload-area" onclick="document.getElementById('documents-upload').click()">
+            <div class="upload-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+            <h3>Загрузить документы</h3>
+            <p>Перетащите файлы сюда или нажмите для выбора</p>
+            <input type="file" id="documents-upload" multiple accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx" style="display: none;">
+        </div>
+    </div>
+
+    <!-- Контент категории Музыка -->
+    <div class="category-content" id="music-content">
+        <div class="category-header">
+            <h2>Музыка</h2>
+            <div class="category-actions">
+                <button class="btn-select-all">Выбрать все</button>
+                <button class="btn-delete-selected">Удалить выбранные</button>
+            </div>
+        </div>
+        <div class="files-grid">
+            <!-- Файлы будут добавляться динамически -->
+        </div>
+
+        <!-- Область загрузки -->
+        <div class="upload-area" onclick="document.getElementById('music-upload').click()">
+            <div class="upload-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+            <h3>Загрузить музыку</h3>
+            <p>Перетащите файлы сюда или нажмите для выбора</p>
+            <input type="file" id="music-upload" multiple accept="audio/*" style="display: none;">
+        </div>
+    </div>
+
+    <!-- Контент категории Общие файлы -->
+    <div class="category-content" id="shared-content">
+        <div class="category-header">
+            <h2>Все файлы</h2>
+            <div class="category-actions">
+                <button class="btn-select-all">Выбрать все</button>
+                <button class="btn-delete-selected">Удалить выбранные</button>
+            </div>
+        </div>
+        <div class="files-grid">
+            <!-- Файлы будут добавляться динамически -->
+        </div>
+
+        <!-- Область загрузки -->
+        <div class="upload-area" onclick="document.getElementById('shared-upload').click()">
+            <div class="upload-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+            <h3>Загрузить файлы</h3>
+            <p>Перетащите файлы сюда или нажмите для выбора</p>
+            <input type="file" id="shared-upload" multiple style="display: none;">
+        </div>
+    </div>
+</div>
+
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Загрузка файлов...</p>
+</div>
+
+<script type="module">
+    import FileManager from './fileManager.js';
+
+    // Инициализация FileManager
+    const fileManager = new FileManager();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fileManager.init();
+
+        // Кнопка обновления
+        document.getElementById('refresh-files').addEventListener('click', async () => {
+            const btn = document.getElementById('refresh-files');
+            btn.style.transform = 'rotate(360deg)';
+            btn.style.transition = 'transform 0.5s ease';
+
+            await fileManager.updateFileDisplay();
+
+            setTimeout(() => {
+                btn.style.transform = 'rotate(0deg)';
+            }, 500);
+        });
+
         // Переключение категорий
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.category-tab').forEach(t => {
                     t.classList.remove('active');
                 });
-                
+
                 this.classList.add('active');
-                
+
                 document.querySelectorAll('.category-content').forEach(content => {
                     content.classList.remove('active');
                 });
-                
+
                 const categoryId = this.getAttribute('data-category');
                 document.getElementById(`${categoryId}-content`).classList.add('active');
             });
         });
-        function setupFileUpload(inputId) {
-            const input = document.getElementById(inputId);
-            if (input) {
-                input.addEventListener('change', function(e) {
-                    const files = e.target.files;
-                    if (files.length > 0) {
-                        const category = inputId.split('-')[0];
-                        const categoryNames = {
-                            'photos': 'фото',
-                            'videos': 'видео',
-                            'documents': 'документы',
-                            'music': 'музыка',
-                            'shared': 'файлы'
-                        };
-                        alert(`Выбрано ${files.length} ${categoryNames[category]} для загрузки`);
-                        // Здесь будет логика загрузки файлов на сервер
-                    }
-                });
-            }
-        }
-        
-        setupFileUpload('photos-upload');
-        setupFileUpload('videos-upload');
-        setupFileUpload('documents-upload');
-        setupFileUpload('music-upload');
-        setupFileUpload('shared-upload');
-    </script>
+    });
+</script>
 </body>
 </html>
