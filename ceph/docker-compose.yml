@@ -17,7 +17,7 @@ services:
       - ceph-conf:/etc/ceph
       - ceph-mon-data:/var/lib/ceph/mon
       - ceph-bootstrap:/var/lib/ceph/bootstrap-osd
-    entrypoint: /entrypoint.sh
+    entrypoint: ["bash", "/entrypoint.sh"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "ceph", "-s"]
@@ -45,7 +45,7 @@ services:
       - "9283:9283"  # Prometheus metrics
     depends_on:
       - mon
-    entrypoint: /entrypoint.sh
+    entrypoint: ["bash", "/entrypoint.sh"]
     restart: unless-stopped
 
   osd:
@@ -66,7 +66,7 @@ services:
       - ceph-bootstrap:/var/lib/ceph/bootstrap-osd
     depends_on:
       - mon
-    entrypoint: /entrypoint.sh
+    entrypoint: ["bash", "/entrypoint.sh"]
     restart: unless-stopped
     privileged: true
 
@@ -93,7 +93,7 @@ services:
     depends_on:
       mon:
         condition: service_healthy
-    entrypoint: /entrypoint.sh
+    entrypoint: ["bash", "/entrypoint.sh"]
     restart: on-failure:5
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000"]
