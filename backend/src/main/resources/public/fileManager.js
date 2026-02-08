@@ -121,6 +121,45 @@ class FileManager {
     }
 
     /**
+     * Определяет категорию файла на основе MIME-типа или расширения
+     */
+    detectCategoryFromFile(file) {
+        const mimeType = file.type.toLowerCase();
+        const fileName = file.name.toLowerCase();
+
+        // Изображения
+        if (mimeType.startsWith('image/') ||
+            fileName.match(/\.(jpg|jpeg|png|gif|bmp|webp|svg|tiff)$/)) {
+            return 'photos';
+        }
+
+        // Видео
+        if (mimeType.startsWith('video/') ||
+            fileName.match(/\.(mp4|avi|mov|wmv|flv|mkv|webm|mpeg|mpg)$/)) {
+            return 'videos';
+        }
+
+        // Аудио
+        if (mimeType.startsWith('audio/') ||
+            fileName.match(/\.(mp3|wav|flac|aac|ogg|wma|m4a)$/)) {
+            return 'music';
+        }
+
+        // Документы
+        if (mimeType.includes('pdf') ||
+            mimeType.includes('msword') ||
+            mimeType.includes('excel') ||
+            mimeType.includes('presentation') ||
+            fileName.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|rtf|csv)$/)) {
+            return 'documents';
+        }
+
+        // Если не удалось определить - оставляем "shared"
+        console.warn(`Не удалось определить категорию для файла: ${file.name} (${file.type})`);
+        return 'shared';
+    }
+
+    /**
      * Загружает файл на сервер С КАТЕГОРИЕЙ
      */
     async uploadFile(file, category = null) {
@@ -140,11 +179,18 @@ class FileManager {
         formData.append('file', file);
 
         try {
+            // ✅ ОПРЕДЕЛЯЕМ КАТЕГОРИЮ ЕСЛИ ОНА НЕ УКАЗАНА (для загрузки из "Все файлы")
+            let finalCategory = category;
+            if (!finalCategory || finalCategory === 'shared') {
+                finalCategory = this.detectCategoryFromFile(file);
+                console.log(`Автоматически определена категория: "${finalCategory}"`);
+            }
+
             // ✅ ПЕРЕДАЁМ КАТЕГОРИЮ В ЗАПРОСЕ
             let url = `${this.baseUrl}/api/files/upload?userId=${this.currentUserId}`;
-            if (category && category !== 'shared') {
-                url += `&category=${encodeURIComponent(category)}`;
-                console.log(`Передаём категорию на сервер: "${category}"`);
+            if (finalCategory && finalCategory !== 'shared') {
+                url += `&category=${encodeURIComponent(finalCategory)}`;
+                console.log(`Передаём категорию на сервер: "${finalCategory}"`);
             }
 
             console.log('Upload URL:', url);
@@ -168,7 +214,7 @@ class FileManager {
             }
 
             console.log('✅ Файл успешно загружен:', result.file);
-            alert(`Файл "${file.name}" успешно загружен!`);
+            alert(`Файл "${file.name}" успешно загружен в категорию "${finalCategory}"!`);
             return result.file;
 
         } catch (error) {
@@ -614,12 +660,17 @@ class FileManager {
             `;
 
             let successCount = 0;
+            let uploadedCategories = {};
 
             for (const file of files) {
                 try {
-                    const uploadedFile = await this.uploadFile(file, categoryId);
+                    // ✅ Для категории "shared" передаем null, чтобы определилась автоматически
+                    const uploadCategory = categoryId === 'shared' ? null : categoryId;
+                    const uploadedFile = await this.uploadFile(file, uploadCategory);
                     if (uploadedFile) {
                         successCount++;
+                        const cat = this.getFileCategory(uploadedFile);
+                        uploadedCategories[cat] = (uploadedCategories[cat] || 0) + 1;
                     }
                 } catch (error) {
                     console.error(`Error uploading ${file.name}:`, error);
@@ -631,6 +682,12 @@ class FileManager {
 
             if (successCount > 0) {
                 console.log(`✅ Успешно загружено ${successCount} файлов`);
+
+                // Показываем информацию о распределении по категориям
+                const categoriesList = Object.entries(uploadedCategories)
+                    .map(([cat, count]) => `${cat}: ${count}`)
+                    .join(', ');
+                console.log(`📊 Распределение по категориям: ${categoriesList}`);
             } else {
                 alert('Не удалось загрузить файлы. Проверьте подключение к серверу.');
             }
