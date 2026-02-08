@@ -46,4 +46,8 @@ public interface FileRepository {
      * Обновляет информацию о файле.
      */
     File update(File file);
+
+    List<File> findByUserIdAndCategory(UUID userId, String category);
+
+    List<String> findDistinctCategoriesByUser(UUID userId);
 }

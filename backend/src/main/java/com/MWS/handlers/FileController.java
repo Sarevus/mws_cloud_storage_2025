@@ -38,6 +38,8 @@ public class FileController {
     public String listFiles(Request req, Response res) {
         try {
             String userIdStr = req.queryParams("userId");
+            String category = req.queryParams("category");
+
             if (userIdStr == null || userIdStr.isEmpty()) {
                 res.status(400);
                 return errorResponse("Параметр userId обязателен");
@@ -51,7 +53,8 @@ public class FileController {
             return gson.toJson(Map.of(
                     "success", true,
                     "files", files,
-                    "count", files.size()
+                    "count", files.size(),
+                    "category", category != null ? category : "general"
             ));
 
         } catch (IllegalArgumentException e) {
@@ -108,8 +111,15 @@ public class FileController {
             String mimeType = filePart.getContentType();
             InputStream fileStream = filePart.getInputStream();
 
+            String category = req.queryParams("category");
+            if (category == null) {
+                category = req.queryParamOrDefault("category", "general");
+            }
+
+            logger.info("Загрузка файла в категорию: {}", category);
+
             logger.info("Загрузка файла: {}, размер: {} байт, тип: {}",
-                    originalFilename, fileSize, mimeType);
+                    originalFilename, fileSize, mimeType, category);
 
             // Загружаем файл через сервис
             File uploadedFile = fileService.uploadFile(
@@ -117,7 +127,8 @@ public class FileController {
                     originalFilename,
                     fileStream,
                     fileSize,
-                    mimeType
+                    mimeType,
+                    category
             );
 
             // Закрываем поток
@@ -338,5 +349,31 @@ public class FileController {
         error.put("success", false);
         error.put("error", message);
         return gson.toJson(error);
+    }
+
+    public String getUserCategories(Request req, Response res) {
+        try {
+            String userIdStr = req.queryParams("userId");
+
+            if (userIdStr == null || userIdStr.isEmpty()) {
+                res.status(400);
+                return errorResponse("Параметр userId обязателен");
+            }
+
+            UUID userId = UUID.fromString(userIdStr);
+            List<String> categories = fileService.getUserCategories(userId);
+
+            res.type("application/json");
+            res.status(200);
+            return gson.toJson(Map.of(
+                    "success", true,
+                    "categories", categories,
+                    "count", categories.size()
+            ));
+        } catch (Exception e) {
+            logger.error("Ошибка при получении категорий", e);
+            res.status(500);
+            return errorResponse("Ошибка сервера: " + e.getMessage());
+        }
     }
 }

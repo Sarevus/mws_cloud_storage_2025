@@ -39,7 +39,7 @@
 
     <!-- Лента категорий -->
     <div class="categories-tabs">
-        <button class="category-tab active" data-category="image">Фото</button>
+        <button class="category-tab active" data-category="photos">Фото</button>
         <button class="category-tab" data-category="videos">Видео</button>
         <button class="category-tab" data-category="documents">Документы</button>
         <button class="category-tab" data-category="music">Музыка</button>
@@ -47,7 +47,7 @@
     </div>
 
     <!-- Контент категории Фото -->
-    <div class="category-content active" id="image-content">
+    <div class="category-content active" id="photos-content">
         <div class="category-header">
             <h2>Фотографии</h2>
             <div class="category-actions">
@@ -60,7 +60,7 @@
         </div>
 
         <!-- Область загрузки -->
-        <div class="upload-area" onclick="document.getElementById('image-upload').click()">
+        <div class="upload-area" onclick="document.getElementById('photos-upload').click()">
             <div class="upload-icon">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -70,7 +70,7 @@
             </div>
             <h3>Загрузить новые фото</h3>
             <p>Перетащите файлы сюда или нажмите для выбора</p>
-            <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
+            <input type="file" id="photos-upload" multiple accept="image/*" style="display: none;">
         </div>
     </div>
 

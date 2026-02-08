@@ -127,6 +127,21 @@ public class CloudStorageServer {
                 return null;
             });
 
+            // ==================== FILE ROUTES ====================
+
+            // Основные маршруты (поддерживают параметр category в query)
+            get("/api/files", fileController::listFiles);
+            post("/api/files/upload", fileController::uploadFile);
+
+            // Новые маршруты для категорий
+            get("/api/files/categories", fileController::getUserCategories); // Список категорий
+
+            // Остальные маршруты (оставить как есть)
+            get("/api/files/:id", fileController::getFileMetadata);
+            get("/api/files/:id/download", fileController::downloadFile);
+            delete("/api/files/:id", fileController::deleteFile);
+            put("/api/files/:id", fileController::updateFileMetadata);
+
             // API для работы с файлами
             get("/api/files", fileController::listFiles);                      // Получить список файлов
             post("/api/files/upload", fileController::uploadFile);             // Загрузить файл

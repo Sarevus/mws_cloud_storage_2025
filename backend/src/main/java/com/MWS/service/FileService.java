@@ -51,7 +51,8 @@ public class FileService {
             String originalFilename,
             InputStream fileStream,
             long fileSize,
-            String mimeType
+            String mimeType,
+            String category
     ) {
         logger.info("Начало загрузки файла '{}' для пользователя {}", originalFilename, userId);
 
@@ -68,7 +69,12 @@ public class FileService {
             String fileUrl = s3Storage.uploadFile(s3Key, fileStream, fileSize, mimeType);
             logger.info("Файл загружен в S3: {}", fileUrl);
 
-            File file = new File(user, originalFilename, fileSize, mimeType);
+            String originalCategory = category;
+            if (originalCategory == null || originalCategory.isBlank()) {
+                originalCategory = CategoryDetector.detectCategory(mimeType, originalFilename);
+            }
+
+            File file = new File(user, originalFilename, fileSize, mimeType, originalCategory);
             file.setS3Key(s3Key);
 
             File savedFile = fileRepository.save(file);
@@ -202,5 +208,19 @@ public class FileService {
 
     public boolean fileExistsInStorage(String s3Key) {
         return s3Storage.fileExists(s3Key);
+    }
+
+    public List<String> getUserCategories(UUID userId) {
+        logger.debug("Получение категорий пользователя {}", userId);
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        List<String> categories = fileRepository.findDistinctCategoriesByUser(userId);
+        if (categories.isEmpty()) {
+            categories.add("general");
+        }
+
+        return categories;
     }
 }
