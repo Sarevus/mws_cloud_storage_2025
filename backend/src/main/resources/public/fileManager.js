@@ -6,16 +6,14 @@ class FileManager {
     constructor() {
         this.baseUrl = 'http://localhost:6969';
         this.currentUserId = this.getUserIdFromUrl();
-
-        // ✅ КАТЕГОРИИ ДОЛЖНЫ СОВПАДАТЬ С HTML:
-        // HTML использует: 'photos', 'videos', 'documents', 'music', 'shared'
+        // Категории из fileExchange.html
         this.categories = ['photos', 'videos', 'documents', 'music', 'shared'];
 
         console.log('FileManager создан для пользователя:', this.currentUserId);
     }
 
     /**
-     * Получает ID пользователя из URL
+     * Извлекает параметр ID пользователя из URL
      */
     getUserIdFromUrl() {
         const params = new URLSearchParams(window.location.search);
@@ -60,7 +58,7 @@ class FileManager {
             return [];
         }
 
-        console.log('✅ Server is alive, fetching files...');
+        console.log('Server is alive, fetching files...');
 
         try {
             const url = `${this.baseUrl}/api/files?userId=${this.currentUserId}`;
@@ -90,7 +88,7 @@ class FileManager {
             const files = result.files || [];
             console.log(`✅ Получено ${files.length} файлов`);
 
-            // ✅ ЛОГИРУЕМ КАТЕГОРИИ ИЗ БД ДЛЯ ОТЛАДКИ
+            // Логирование каждого полученного файла
             files.forEach((file, index) => {
                 console.log(`Файл ${index + 1}: "${file.originalName}"`, {
                     категорияИзБД: file.category,
@@ -112,7 +110,7 @@ class FileManager {
      * Получает категорию файла ИЗ ДАННЫХ СЕРВЕРА (из БД)
      */
     getFileCategory(file) {
-        // ✅ ПРОСТО БЕРЁМ КАТЕГОРИЮ ИЗ ОТВЕТА СЕРВЕРА
+        // категория с сервера, которая хранится в БД
         const categoryFromServer = file.category;
 
         console.log(`Файл "${file.originalName}": категория "${categoryFromServer}"`);
@@ -162,6 +160,9 @@ class FileManager {
     /**
      * Загружает файл на сервер С КАТЕГОРИЕЙ
      */
+    /**
+     * Загружает файл на сервер С КАТЕГОРИЕЙ
+     */
     async uploadFile(file, category = null) {
         if (!this.currentUserId) {
             alert('Ошибка: ID пользователя не найден');
@@ -179,20 +180,20 @@ class FileManager {
         formData.append('file', file);
 
         try {
-            // ✅ ОПРЕДЕЛЯЕМ КАТЕГОРИЮ ЕСЛИ ОНА НЕ УКАЗАНА (для загрузки из "Все файлы")
+            // Определяем финальную категорию
             let finalCategory = category;
+
+            // Если категория не указана или это 'shared' - определяем автоматически
             if (!finalCategory || finalCategory === 'shared') {
                 finalCategory = this.detectCategoryFromFile(file);
                 console.log(`Автоматически определена категория: "${finalCategory}"`);
             }
 
-            // ✅ ПЕРЕДАЁМ КАТЕГОРИЮ В ЗАПРОСЕ
+            // Всегда передаем категорию на сервер (даже если это 'shared')
             let url = `${this.baseUrl}/api/files/upload?userId=${this.currentUserId}`;
-            if (finalCategory && finalCategory !== 'shared') {
-                url += `&category=${encodeURIComponent(finalCategory)}`;
-                console.log(`Передаём категорию на сервер: "${finalCategory}"`);
-            }
+            url += `&category=${encodeURIComponent(finalCategory)}`;
 
+            console.log(`Передаём категорию на сервер: "${finalCategory}"`);
             console.log('Upload URL:', url);
 
             const response = await fetch(url, {
@@ -214,7 +215,7 @@ class FileManager {
             }
 
             console.log('✅ Файл успешно загружен:', result.file);
-            alert(`Файл "${file.name}" успешно загружен в категорию "${finalCategory}"!`);
+            alert(`Файл "${file.name}" успешно загружен!`);
             return result.file;
 
         } catch (error) {
@@ -498,7 +499,7 @@ class FileManager {
                 totalFilesEl.textContent = `${files.length} файл${files.length % 10 === 1 ? '' : files.length % 10 >= 2 && files.length % 10 <= 4 ? 'а' : 'ов'}`;
             }
 
-            // ✅ ОБНОВЛЯЕМ КАЖДУЮ КАТЕГОРИЮ
+            // обновляем категории
             this.categories.forEach(categoryName => {
                 console.log(`🔍 Обновляем категорию: "${categoryName}"`);
 
