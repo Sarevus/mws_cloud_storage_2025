@@ -740,14 +740,20 @@ class FileManager {
                     event.preventDefault();
                     event.stopPropagation();
 
-                    console.log(`Кнопка ${btnId} нажата - удаление ВСЕХ файлов`);
+                    const category = btnId.replace('delete-all-', '');
+                    console.log(`Кнопка ${btnId} нажата - категория: ${category}`);
 
                     const originalText = btn.textContent;
                     btn.textContent = 'Удаление...';
                     btn.disabled = true;
 
-                    // Вызываем удаление ВСЕХ файлов (категория 'shared' = все файлы)
-                    const result = await this.deleteAllFiles('shared');
+                    let result;
+                    if (category === 'shared') {
+                        await this.deleteAllFiles();
+                    } else {
+                        await this.deleteFilesByCategory(category);
+                    }
+
                     console.log('Результат удаления всех файлов:', result);
 
                     btn.textContent = originalText;
@@ -811,89 +817,89 @@ class FileManager {
         }
     }
 
-        /**
-         * Удаляет файл
-         */
-        async deleteFile(fileId) {
-            if (!this.currentUserId) {
-                alert('Ошибка: ID пользователя не найден');
-                return false;
+    /**
+     * Удаляет файл
+     */
+    async deleteFile(fileId) {
+        if (!this.currentUserId) {
+            alert('Ошибка: ID пользователя не найден');
+            return false;
+        }
+
+        if (!confirm('Вы уверены, что хотите удалить этот файл?')) {
+            return false;
+        }
+
+        try {
+            const url = `${this.baseUrl}/api/files/${fileId}?userId=${this.currentUserId}`;
+            console.log('Deleting from:', url);
+
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            console.log('Delete response status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Delete failed: ${response.status} - ${errorText}`);
             }
 
-            if (!confirm('Вы уверены, что хотите удалить этот файл?')) {
-                return false;
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(`Delete failed: ${result.error || 'Unknown error'}`);
             }
 
-            try {
-                const url = `${this.baseUrl}/api/files/${fileId}?userId=${this.currentUserId}`;
-                console.log('Deleting from:', url);
+            console.log('✅ File deleted successfully');
+            alert('Файл успешно удалён!');
+            return true;
 
-                const response = await fetch(url, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
+        } catch (error) {
+            console.error('❌ Delete error:', error);
+            alert(`Ошибка удаления: ${error.message}`);
+            return false;
+        }
+    }
 
-                console.log('Delete response status:', response.status);
+    /**
+     * Удаляет все файлы
+     */
+    async deleteFilesByCategory(category) {
+        if (!this.currentUserId) {
+            alert('Ошибка: ID пользователя не найден');
+            return false;
+        }
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Delete failed: ${response.status} - ${errorText}`);
-                }
+        const categories = {
+            'photos': 'фотографии',
+            'videos': 'видео',
+            'documents': 'документы',
+            'music': 'музыку',
+            'shared': 'все файлы'
+        };
 
-                const result = await response.json();
+        if (!confirm(`Вы уверены, что хотите удалить все ${categories[category]}?`)) {
+            return false;
+        }
 
-                if (!result.success) {
-                    throw new Error(`Delete failed: ${result.error || 'Unknown error'}`);
-                }
+        try {
+            const url = `${this.baseUrl}/api/files?userId=${this.currentUserId}&category=${category}`;
+            const response = await fetch(url, { method: 'DELETE' });
+            const result = await response.json();
 
-                console.log('✅ File deleted successfully');
-                alert('Файл успешно удалён!');
+            if (result.success) {
+                await this.updateFileDisplay();
+                alert('✅ Удалено!');
                 return true;
-
-            } catch (error) {
-                console.error('❌ Delete error:', error);
-                alert(`Ошибка удаления: ${error.message}`);
-                return false;
             }
+            return false;
+        } catch (error) {
+            alert('Ошибка: ' + error.message);
+            return false;
         }
-
-        /**
-         * Удаляет все файлы
-         */
-        async deleteAllFiles(category) {
-            if (!this.currentUserId) {
-                alert('Ошибка: ID пользователя не найден');
-                return false;
-            }
-
-            const categories = {
-                'photos': 'фотографии',
-                'videos': 'видео',
-                'documents': 'документы',
-                'music': 'музыку',
-                'shared': 'все файлы'
-            };
-
-            if (!confirm('Вы уверены, что хотите удалить все ${categoryNames[category]}?')) {
-                return false;
-            }
-
-            try {
-                const url = `${this.baseUrl}/api/files/category/${category}?userId=${this.currentUserId}`;
-                const response = await fetch(url, { method: 'DELETE' });
-                const result = await response.json();
-
-                if (result.success) {
-                    await this.updateFileDisplay();
-                    alert('✅ Удалено!');
-                    return true;
-                }
-                return false;
-            } catch (error) {
-                alert('Ошибка: ' + error.message);
-                return false;
-            }
-        }
+    }
 
 }
 
