@@ -602,6 +602,7 @@ class FileManager {
      */
     initCategoryUpload(categoryId) {
         const uploadInput = document.getElementById(`${categoryId}-upload`);
+
         if (!uploadInput) {
             console.error(`❌ Элемент #${categoryId}-upload не найден!`);
             return;
@@ -609,14 +610,21 @@ class FileManager {
 
         console.log(`✅ Инициализация загрузчика для категории: "${categoryId}"`);
 
-        uploadInput.addEventListener('change', async (e) => {
+        const uploadArea = uploadInput.closest('.upload-area');
+        if (!uploadArea) {
+            console.error(`❌ .upload-area не найден для #${categoryId}-upload!`);
+            return;
+        }
+
+        document.addEventListener('change', async (e) => {
+            if (e.target.id !== `${categoryId}-upload`) return;
+
             const files = Array.from(e.target.files);
 
             if (files.length === 0) return;
 
             console.log(`Загрузка ${files.length} файлов в категорию "${categoryId}"`);
 
-            const uploadArea = uploadInput.closest('.upload-area');
             const originalHTML = uploadArea.innerHTML;
             uploadArea.innerHTML = `
                 <div class="upload-progress">
@@ -634,7 +642,6 @@ class FileManager {
 
             for (const file of files) {
                 try {
-                    // ✅ Для категории "shared" передаем null, чтобы определилась автоматически
                     const uploadCategory = categoryId === 'shared' ? null : categoryId;
                     const uploadedFile = await this.uploadFile(file, uploadCategory);
                     if (uploadedFile) {
@@ -662,7 +669,7 @@ class FileManager {
                 alert('Не удалось загрузить файлы. Проверьте подключение к серверу.');
             }
 
-            uploadInput.value = '';
+            e.target.value = '';
         });
     }
 
