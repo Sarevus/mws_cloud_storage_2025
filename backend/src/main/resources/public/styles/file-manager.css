@@ -92,6 +92,11 @@
     font-weight: 500;
     flex: 1;
     min-width: 80px;
+
+    /* Отцентровывает текст в кнопках */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-download {
