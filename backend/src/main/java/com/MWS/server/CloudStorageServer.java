@@ -149,6 +149,8 @@ public class CloudStorageServer {
             get("/api/files/:id/download", fileController::downloadFile);      // Скачать файл
             delete("/api/files/:id", fileController::deleteFile);              // Удалить файл
             put("/api/files/:id", fileController::updateFileMetadata);         // Обновить метаданные
+            delete("/api/files", fileController::deleteAllFiles);
+
 
             // ==================== ERROR HANDLING ====================
 

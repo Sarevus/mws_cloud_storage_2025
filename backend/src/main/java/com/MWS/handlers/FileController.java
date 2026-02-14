@@ -295,6 +295,51 @@ public class FileController {
     }
 
     /**
+     * Удалить все файлы или файлы определённой категории
+     * DELETE /api/files?userId={userId}&category={category}
+     */
+    public String deleteAllFiles(Request req, Response res) {
+        try {
+            String userIdStr = req.queryParams("userId");
+            String category = req.queryParams("category");
+
+            if (userIdStr == null || userIdStr.isEmpty()) {
+                res.status(400);
+                return errorResponse("Параметр userId обязателен");
+            }
+
+            UUID userId = UUID.fromString(userIdStr);
+
+            if (category != null && !category.isBlank() && !category.equals("shared")) {
+                fileService.deleteFilesByCategory(userId, category);
+            } else {
+                fileService.deleteAllFiles(userId);
+            }
+
+            res.type("application/json");
+            res.status(200);
+            return gson.toJson(Map.of(
+                    "success", true,
+                    "message", "Файлы успешно удалены"
+            ));
+
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return errorResponse("Неверный формат UUID");
+        } catch (SecurityException e) {
+            res.status(403);
+            return errorResponse("Доступ запрещен");
+        } catch (RuntimeException e) {
+            res.status(404);
+            return errorResponse(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Ошибка при удалении файлов", e);
+            res.status(500);
+            return errorResponse("Ошибка сервера: " + e.getMessage());
+        }
+    }
+
+    /**
      * Обновить метаданные файла
      * PUT /api/files/:id?userId={userId}
      * Body: {"newName": "new_filename.txt"}

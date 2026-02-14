@@ -160,9 +160,6 @@ class FileManager {
     /**
      * Загружает файл на сервер С КАТЕГОРИЕЙ
      */
-    /**
-     * Загружает файл на сервер С КАТЕГОРИЕЙ
-     */
     async uploadFile(file, category = null) {
         if (!this.currentUserId) {
             alert('Ошибка: ID пользователя не найден');
@@ -279,55 +276,9 @@ class FileManager {
     }
 
     /**
-     * Удаляет файл
-     */
-    async deleteFile(fileId) {
-        if (!this.currentUserId) {
-            alert('Ошибка: ID пользователя не найден');
-            return false;
-        }
-
-        if (!confirm('Вы уверены, что хотите удалить этот файл?')) {
-            return false;
-        }
-
-        try {
-            const url = `${this.baseUrl}/api/files/${fileId}?userId=${this.currentUserId}`;
-            console.log('Deleting from:', url);
-
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            console.log('Delete response status:', response.status);
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Delete failed: ${response.status} - ${errorText}`);
-            }
-
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(`Delete failed: ${result.error || 'Unknown error'}`);
-            }
-
-            console.log('✅ File deleted successfully');
-            alert('Файл успешно удалён!');
-            return true;
-
-        } catch (error) {
-            console.error('❌ Delete error:', error);
-            alert(`Ошибка удаления: ${error.message}`);
-            return false;
-        }
-    }
-
-    /**
      * Переименовывает файл
      */
-    async renameFile(fileId, newName) {
+    async renameFile(fileId, newName, originalFile) {
         if (!this.currentUserId) {
             alert('Ошибка: ID пользователя не найден');
             return null;
@@ -335,6 +286,14 @@ class FileManager {
 
         if (!newName || newName.trim() === '') {
             alert('Имя файла не может быть пустым');
+            return null;
+        }
+
+        const newType = newName.substring(newName.lastIndexOf(".") + 1).toLowerCase();
+        const currentType = originalFile.substring(originalFile.lastIndexOf(".") + 1).toLowerCase();
+
+        if (newType !== currentType) {
+            alert('Нельзя изменить расширение файла');
             return null;
         }
 
@@ -589,13 +548,23 @@ class FileManager {
                     btn.textContent = 'Сохранение...';
                     btn.disabled = true;
 
-                    const updatedFile = await this.renameFile(fileId, newName);
+                    const updatedFile = await this.renameFile(fileId, newName, currentName);
                     if (updatedFile) {
                         fileNameElement.textContent = updatedFile.originalName || newName;
-                        const downloadBtn = fileCard.querySelector('.btn-download');
-                        if (downloadBtn) {
-                            downloadBtn.dataset.fileName = updatedFile.originalName || newName;
-                        }
+
+                        const allFiles = document.querySelectorAll(`.file-card[data-file-id="${fileId}"]`);
+
+                        allFiles.forEach(card => {
+                            const name = card.querySelector('.file-name');
+                            if (name) {
+                                name.textContent = newName;
+                            }
+
+                            const downloadBtn = card.querySelector('.btn-download');
+                            if (downloadBtn) {
+                                downloadBtn.dataset.fileName = updatedFile.originalName || newName;
+                            }
+                        });
                     }
 
                     btn.textContent = 'Переименовать';
@@ -722,6 +691,8 @@ class FileManager {
         this.initAllUploaders();
         this.updateFileDisplay();
 
+        this.initDeleteAllButtons();
+
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 setTimeout(() => this.attachFileEventHandlers(), 100);
@@ -743,6 +714,187 @@ class FileManager {
 
         return allFiles.slice(0, limit);
     }
+
+
+    /**
+     * Инициализирует кнопки удаления ВСЕХ файлов
+     */
+    initDeleteAllButtons() {
+        // Все кнопки удаления всех файлов (в каждой категории)
+        const deleteAllButtons = [
+            'delete-all-photos',
+            'delete-all-videos',
+            'delete-all-documents',
+            'delete-all-music',
+            'delete-all-shared'
+        ];
+
+        deleteAllButtons.forEach(btnId => {
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                // Убираем старые обработчики
+                btn.onclick = null;
+
+                // Назначаем новый (все кнопки вызывают одну функцию)
+                btn.onclick = async (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    console.log(`Кнопка ${btnId} нажата - удаление ВСЕХ файлов`);
+
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Удаление...';
+                    btn.disabled = true;
+
+                    // Вызываем удаление ВСЕХ файлов (категория 'shared' = все файлы)
+                    const result = await this.deleteAllFiles('shared');
+                    console.log('Результат удаления всех файлов:', result);
+
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                };
+                console.log(`Обработчик для ${btnId} назначен (удаление всех файлов)`);
+            } else {
+                console.error(`Кнопка ${btnId} не найдена!`);
+            }
+        });
+    }
+
+    /**
+     * Удаляет все файлы пользователя
+     */
+    async deleteAllFiles() {
+        if (!this.currentUserId) {
+            alert('Ошибка: ID пользователя не найден');
+            return false;
+        }
+
+        // Запрашиваем подтверждение
+        if (!confirm('⚠️ ВНИМАНИЕ!\n\nВы действительно хотите удалить все свои файлы?\nЭто действие нельзя отменить!')) {
+            return false;
+        }
+
+        if (!confirm('Вы точно уверены? Все файлы будут безвозвратно удалены!')) {
+            return false;
+        }
+
+        try {
+            const url = `${this.baseUrl}/api/files?userId=${this.currentUserId}&category=shared`;
+            console.log('Deleting ALL files:', url);
+
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Delete failed: ${response.status} - ${errorText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                console.log('✅ Все файлы успешно удалены');
+                alert('✅ Все файлы успешно удалены!');
+
+                // Обновляем отображение
+                await this.updateFileDisplay();
+                return true;
+            } else {
+                throw new Error(result.error || 'Unknown error');
+            }
+        } catch (error) {
+            console.error('❌ Delete all error:', error);
+            alert(`Ошибка удаления: ${error.message}`);
+            return false;
+        }
+    }
+
+        /**
+         * Удаляет файл
+         */
+        async deleteFile(fileId) {
+            if (!this.currentUserId) {
+                alert('Ошибка: ID пользователя не найден');
+                return false;
+            }
+
+            if (!confirm('Вы уверены, что хотите удалить этот файл?')) {
+                return false;
+            }
+
+            try {
+                const url = `${this.baseUrl}/api/files/${fileId}?userId=${this.currentUserId}`;
+                console.log('Deleting from:', url);
+
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                console.log('Delete response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Delete failed: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(`Delete failed: ${result.error || 'Unknown error'}`);
+                }
+
+                console.log('✅ File deleted successfully');
+                alert('Файл успешно удалён!');
+                return true;
+
+            } catch (error) {
+                console.error('❌ Delete error:', error);
+                alert(`Ошибка удаления: ${error.message}`);
+                return false;
+            }
+        }
+
+        /**
+         * Удаляет все файлы
+         */
+        async deleteAllFiles(category) {
+            if (!this.currentUserId) {
+                alert('Ошибка: ID пользователя не найден');
+                return false;
+            }
+
+            const categories = {
+                'photos': 'фотографии',
+                'videos': 'видео',
+                'documents': 'документы',
+                'music': 'музыку',
+                'shared': 'все файлы'
+            };
+
+            if (!confirm('Вы уверены, что хотите удалить все ${categoryNames[category]}?')) {
+                return false;
+            }
+
+            try {
+                const url = `${this.baseUrl}/api/files/category/${category}?userId=${this.currentUserId}`;
+                const response = await fetch(url, { method: 'DELETE' });
+                const result = await response.json();
+
+                if (result.success) {
+                    await this.updateFileDisplay();
+                    alert('✅ Удалено!');
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+                return false;
+            }
+        }
+
 }
 
 // Экспорт для использования в других файлах

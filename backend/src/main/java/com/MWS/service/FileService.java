@@ -139,6 +139,18 @@ public class FileService {
         return files;
     }
 
+    public List<File> getFilesByCategory(UUID userId, String category) {
+        logger.debug("Получение списка файлов для пользователя {} категории {}", userId, category);
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        List<File> files = fileRepository.findByUserIdAndCategory(userId, category);
+        logger.info("Найдено {} файлов для пользователя {}", files.size(), userId);
+
+        return files;
+    }
+
 
     public void deleteFile(UUID userId, UUID fileId) {
         logger.info("Попытка удаления файла {} пользователем {}", fileId, userId);
@@ -222,5 +234,35 @@ public class FileService {
         }
 
         return categories;
+    }
+
+    public void deleteFilesByCategory(UUID userId, String category) {
+        logger.info("Удаление файлов пользователя {} в категории {}", userId, category);
+
+        List<File> listByCategory = getFilesByCategory(userId, category);
+
+        for (File file : listByCategory) {
+            try {
+                deleteFile(userId, file.getId());
+                logger.debug("Удален файл: {}", file.getOriginalName());
+            } catch (Exception e) {
+                logger.error("Ошибка при удалении файла {}: {}", file.getId(), e.getMessage());
+            }
+        }
+    }
+
+    public void deleteAllFiles(UUID userId) {
+        logger.info("Удаление файлов пользователя {}", userId);
+
+        List<File> files = getUserFiles(userId);
+
+        for (File file : files) {
+            try {
+                deleteFile(userId, file.getId());
+                logger.debug("Удален файл: {}", file.getOriginalName());
+            } catch (Exception e) {
+                logger.error("Ошибка при удалении файла {}: {}", file.getId(), e.getMessage());
+            }
+        }
     }
 }
