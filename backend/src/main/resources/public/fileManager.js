@@ -166,6 +166,17 @@ class FileManager {
             return null;
         }
 
+        const existingFiles = await this.getFiles();
+        const existingFile = existingFiles.find(f => f.originalName === file.name);
+
+        if (existingFile) {
+            if (!confirm(`Файл с таким именем уже существует. Хотите заменить его?`)) {
+                return null;
+            }
+
+            await this.deleteFile(existingFile.id, true);
+        }
+
         console.log('Загрузка файла:', {
             имя: file.name,
             категория: category,
@@ -211,9 +222,15 @@ class FileManager {
                 throw new Error(`Upload failed: ${result.error || 'Unknown error'}`);
             }
 
-            console.log('✅ Файл успешно загружен:', result.file);
-            alert(`Файл "${file.name}" успешно загружен!`);
-            return result.file;
+            if (!existingFile) {
+                console.log('✅ Файл успешно загружен:', result.file);
+                alert(`Файл "${file.name}" успешно загружен!`);
+                return result.file;
+            } else {
+                console.log('✅ Файл успешно обновлён:', result.file);
+                alert(`Файл "${file.name}" успешно обновлён!`);
+                return result.file;
+            }
 
         } catch (error) {
             console.error('❌ Upload error:', error);
@@ -665,8 +682,11 @@ class FileManager {
                     .map(([cat, count]) => `${cat}: ${count}`)
                     .join(', ');
                 console.log(`📊 Распределение по категориям: ${categoriesList}`);
-            } else {
-                alert('Не удалось загрузить файлы. Проверьте подключение к серверу.');
+
+            } else if (successCount === 0 && files.length > 0) {
+                if (!navigator.onLine) {
+                    alert('Не удалось загрузить файлы. Проверьте подключение к серверу.');
+                }
             }
 
             e.target.value = '';
@@ -827,13 +847,13 @@ class FileManager {
     /**
      * Удаляет файл
      */
-    async deleteFile(fileId) {
+    async deleteFile(fileId, skipConfirm = false) {
         if (!this.currentUserId) {
             alert('Ошибка: ID пользователя не найден');
             return false;
         }
 
-        if (!confirm('Вы уверены, что хотите удалить этот файл?')) {
+        if (!skipConfirm && !confirm('Вы уверены, что хотите удалить этот файл?')) {
             return false;
         }
 
@@ -859,8 +879,12 @@ class FileManager {
                 throw new Error(`Delete failed: ${result.error || 'Unknown error'}`);
             }
 
-            console.log('✅ File deleted successfully');
-            alert('Файл успешно удалён!');
+            if (!skipConfirm) {
+                console.log('✅ File deleted successfully');
+                alert('Файл успешно удалён!');
+                return true;
+            }
+
             return true;
 
         } catch (error) {
