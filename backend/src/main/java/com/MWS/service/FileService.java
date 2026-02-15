@@ -7,11 +7,14 @@ import com.MWS.repository.UserRepository;
 import com.MWS.storage.S3FileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class FileService {
 
     private static final Logger logger = LoggerFactory.getLogger(FileService.class);
@@ -20,6 +23,7 @@ public class FileService {
     private final UserRepository userRepository;
     private final S3FileStorage s3Storage;
 
+    @Autowired
     public FileService(
             FileRepository fileRepository,
             UserRepository userRepository,
