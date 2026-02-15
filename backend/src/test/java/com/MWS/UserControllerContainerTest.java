@@ -55,7 +55,7 @@ class UserControllerContainerTest {
                         postgres.getPassword()
                 ));
 
-        Thread serverThread = new Thread(() -> Main.main(new String[]{}));
+        Thread serverThread = new Thread(() -> CloudStorageApplication.main(new String[]{}));
         serverThread.setDaemon(true);
         serverThread.start();
 
