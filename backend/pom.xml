@@ -28,18 +28,10 @@
         <aws.sdk.version>2.20.0</aws.sdk.version>
         <postgresql.version>42.7.0</postgresql.version> <!-- Обновил версию для примера -->
         <hibernate.version>6.4.1.Final</hibernate.version>
-        <slf4j.version>2.0.7</slf4j.version>
         <hibernate.validator.version>8.0.0.Final</hibernate.validator.version>
     </properties>
 
     <dependencies>
-        <!-- Логирование -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
         <!-- JSON сериализация/десериализация -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
