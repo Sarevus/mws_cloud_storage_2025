@@ -12,10 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.MWS.security.HashPassword;
 
+import org.springframework.stereotype.Service;
+
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+@Service
 public class UserServiceRelease implements UserService {
     private final UserRepository userRepository;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceRelease.class);

@@ -4,11 +4,13 @@ import com.MWS.storage.Database;
 import com.MWS.model.UserEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class UserRepositoryJDBC implements UserRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(UserRepositoryJDBC.class);

@@ -4,17 +4,20 @@ import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
 import com.MWS.dto.login.LoginUserDTO;
 import com.MWS.service.UserService;
-import com.google.gson.Gson;
 import jakarta.persistence.EntityNotFoundException;
-import spark.Request;
-import spark.Response;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+//import spark.Request;
+//import spark.Response;
+
 
 import java.util.UUID;
 
+@RestController
 public class UserController {
 
     private final UserService userService;
-    private final Gson gson = new Gson();
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -23,95 +26,65 @@ public class UserController {
     /**
      * Обрабатывает запрос на создание нового пользователя.
      */
-    public Object register(Request request, Response response) {
-        response.type("application/json");
-        try {
-            CreateUserDTO dto = gson.fromJson(request.body(), CreateUserDTO.class);
-            GetSimpleUserDto createdUser = userService.createUser(dto);
-            response.status(201);
-            return gson.toJson(createdUser);
-        } catch (IllegalArgumentException ex) {
-            response.status(400);
-            return gson.toJson(new ErrorResponse(ex.getMessage()));
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public GetSimpleUserDto register(@RequestBody CreateUserDTO body) {
+        if (body != null) {
+            return userService.createUser(body);
         }
+        throw new IllegalArgumentException("не заполнены поля");
     }
 
-    public Object login(Request request, Response response) {
-        response.type("application/json");
-        try {
-            LoginUserDTO dto = gson.fromJson(request.body(), LoginUserDTO.class);
-            UUID userId = userService.loginUser(dto.email(), dto.password());
-
-            response.status(200);
-            return gson.toJson(new GetSimpleUserDto(
-                    userId, null, dto.email(), null
-            ));
-        } catch (IllegalArgumentException ex) {
-            response.status(400);
-            return gson.toJson(new ErrorResponse(ex.getMessage()));
-        }
+    /**
+     * Обрабатывает запрос на вход в страничку пользователя
+     */
+    @PostMapping("/login")
+    public GetSimpleUserDto login(@RequestBody LoginUserDTO body) {
+        UUID userId = userService.loginUser(body.email(), body.password());
+        return new GetSimpleUserDto(
+                userId, null, body.email(), null
+        );
     }
 
 
     /**
      * Обрабатывает запрос на получение пользователя по ID.
      */
-    public Object getUserById(Request request, Response response) {
-        response.type("application/json");
+    @GetMapping("/{id}")
+    public GetSimpleUserDto getUserById(@PathVariable("id") String id) {
         try {
-            UUID id = UUID.fromString(request.params(":id"));
-            GetSimpleUserDto user = userService.getUser(id);
-            response.status(200);
-            return gson.toJson(user);
-        } catch (EntityNotFoundException e) {
-            response.status(404);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
+            UUID uuid = UUID.fromString(id);
+            return userService.getUser(uuid);
         } catch (IllegalArgumentException e) {
-            response.status(400);
-            return gson.toJson(new ErrorResponse("Некорректный формат UUID"));
+            throw new IllegalArgumentException("Некорректный формат UUID");
         }
     }
+
 
     /**
      * Обрабатывает запрос на обновление данных пользователя.
      */
-    public Object updateUser(Request request, Response response) {
-        response.type("application/json");
+    @PutMapping("/{id}")
+    public GetSimpleUserDto updateUser(@PathVariable("id") String id,
+                                       @RequestBody CreateUserDTO body) {
         try {
-            UUID id = UUID.fromString(request.params(":id"));
-            CreateUserDTO dto = gson.fromJson(request.body(), CreateUserDTO.class);
-            GetSimpleUserDto updatedUser = userService.updateUser(id, dto);
-            return gson.toJson(updatedUser);
-        } catch (IllegalArgumentException ex) {
-            response.status(404);
-            return gson.toJson(new ErrorResponse(ex.getMessage()));
-        }
-    }
-
-    /**
-     * Обрабатывает запрос на удаление пользователя.
-     */
-    public Object deleteUser(Request request, Response response) {
-        response.type("application/json");
-        try {
-            UUID id = UUID.fromString(request.params(":id"));
-            userService.deleteUser(id);
-            response.status(204);
-            return "";
+            UUID uuid = UUID.fromString(id);
+            return userService.updateUser(uuid, body);
         } catch (IllegalArgumentException e) {
-            response.status(400);
-            return gson.toJson(new ErrorResponse("Некорректный формат UUID"));
-        } catch (EntityNotFoundException e) {
-            response.status(404);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
+            throw new IllegalArgumentException("Некорректный формат UUID");
         }
     }
 
-    private static class ErrorResponse {
-        private final String error;
-
-        public ErrorResponse(String error) {
-            this.error = error;
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable("id") String id) {
+        try {
+            UUID uuid = UUID.fromString(id);
+            userService.deleteUser(uuid);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Некорректный формат UUID");
         }
     }
+
+
 }
