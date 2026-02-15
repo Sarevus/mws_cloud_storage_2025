@@ -2,14 +2,15 @@ package com.MWS.handlers;
 
 import com.MWS.model.File;
 import com.MWS.service.FileService;
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Request;
-import spark.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.Part;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -19,52 +20,47 @@ import java.util.UUID;
 /**
  * Контроллер для работы с файлами через HTTP API
  */
+
+@RestController
+@RequestMapping("/api/files") // определяем базовый url для всех методов
 public class FileController {
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
+
     private final FileService fileService;
     private final long maxFileSize;
-    private final Gson gson;
 
+    @Autowired
     public FileController(FileService fileService, long maxFileSize) {
         this.fileService = fileService;
         this.maxFileSize = maxFileSize;
-        this.gson = new Gson();
     }
 
     /**
      * Получить список всех файлов пользователя
      * GET /api/files?userId={userId}
      */
-    public String listFiles(Request req, Response res) {
+    @GetMapping
+    public ResponseEntity<?> listFiles(@RequestParam UUID userId, @RequestParam(required = false) String category) {
         try {
-            String userIdStr = req.queryParams("userId");
-            String category = req.queryParams("category");
+            logger.debug("Получение списка файлов для пользователя: {}", userId);
 
-            if (userIdStr == null || userIdStr.isEmpty()) {
-                res.status(400);
-                return errorResponse("Параметр userId обязателен");
-            }
-
-            UUID userId = UUID.fromString(userIdStr);
             List<File> files = fileService.getUserFiles(userId);
 
-            res.type("application/json");
-            res.status(200);
-            return gson.toJson(Map.of(
-                    "success", true,
-                    "files", files,
-                    "count", files.size(),
-                    "category", category != null ? category : "general"
-            ));
+            Map<String, Object> response = new HashMap<>();
+
+            response.put("success", true);
+            response.put("files", files);
+            response.put("count", files.size());
+            response.put("category", category != null ? category : "general");
+
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
             logger.error("Неверный формат UUID", e);
-            res.status(400);
-            return errorResponse("Неверный формат userId");
+            return ResponseEntity.badRequest().body(errorResponse("Неверный формат userId"));
         } catch (Exception e) {
             logger.error("Ошибка при получении списка файлов", e);
-            res.status(500);
-            return errorResponse("Ошибка сервера: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse("Ошибка сервера: " + e.getMessage()));
         }
     }
 
@@ -73,53 +69,35 @@ public class FileController {
      * POST /api/files/upload
      * Content-Type: multipart/form-data
      */
-    public String uploadFile(Request req, Response res) {
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadFile(@RequestParam UUID userId,
+                                        @RequestParam(required = false) String category,
+                                        @RequestParam("file") MultipartFile file) {
         try {
-            // НАИБОЛЕЕ ПРОСТОЕ РЕШЕНИЕ: используем пустую строку для in-memory хранения
-            // ИЛИ системную временную директорию
-            String tempDir = System.getProperty("java.io.tmpdir");
-            logger.info("Используем временную директорию: {}", tempDir);
+            logger.info("Загрузка файла: {}, размер: {} байт, тип: {}",
+                    file.getOriginalFilename(), file.getSize(), file.getContentType());
 
-            req.attribute("org.eclipse.jetty.multipartConfig",
-                    new MultipartConfigElement(tempDir, maxFileSize, maxFileSize, 1024));
-
-            // Получаем userId из query параметров
-            String userIdStr = req.queryParams("userId");
-            if (userIdStr == null || userIdStr.isEmpty()) {
-                res.status(400);
-                return errorResponse("Параметр userId обязателен");
-            }
-            UUID userId = UUID.fromString(userIdStr);
-
-            // Получаем загруженный файл
-            Part filePart = req.raw().getPart("file");
-            if (filePart == null) {
-                res.status(400);
-                return errorResponse("Файл не найден в запросе");
+            // Проверяем, пустой ли файл
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(errorResponse("Файл не найден в запросе"));
             }
 
             // Проверяем размер файла
-            long fileSize = filePart.getSize();
+            long fileSize = file.getSize();
             if (fileSize > maxFileSize) {
-                res.status(413);
-                return errorResponse("Файл слишком большой. Максимальный размер: "
-                        + (maxFileSize / 1024 / 1024) + " MB");
+                return ResponseEntity.badRequest().body(errorResponse(
+                        "Файл слишком большой. Максимальный размер: "
+                                + (maxFileSize / 1024 / 1024) + " MB"
+                ));
             }
 
             // Получаем данные файла
-            String originalFilename = filePart.getSubmittedFileName();
-            String mimeType = filePart.getContentType();
-            InputStream fileStream = filePart.getInputStream();
+            String originalFilename = file.getOriginalFilename();
+            String mimeType = file.getContentType();
+            InputStream fileStream = file.getInputStream();
 
-            String category = req.queryParams("category");
-            if (category == null) {
-                category = req.queryParamOrDefault("category", "general");
-            }
-
-            logger.info("Загрузка файла в категорию: {}", category);
-
-            logger.info("Загрузка файла: {}, размер: {} байт, тип: {}",
-                    originalFilename, fileSize, mimeType, category);
+            String finalCategory = category != null ? category : "general";
+            logger.info("Загрузка файла в категорию: {}", finalCategory);
 
             // Загружаем файл через сервис
             File uploadedFile = fileService.uploadFile(
@@ -128,28 +106,28 @@ public class FileController {
                     fileStream,
                     fileSize,
                     mimeType,
-                    category
+                    finalCategory
             );
 
             // Закрываем поток
             fileStream.close();
 
-            res.type("application/json");
-            res.status(201);
-            return gson.toJson(Map.of(
-                    "success", true,
-                    "message", "Файл успешно загружен",
-                    "file", uploadedFile
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Файл успешно загружен");
+            response.put("file", uploadedFile);
+
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
             logger.error("Неверные параметры", e);
-            res.status(400);
-            return errorResponse(e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse(e.getMessage()));
+        } catch (IOException e) {
+            logger.error("Ошибка при чтении файла", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse("Ошибка чтения файла: " + e.getMessage()));
         } catch (Exception e) {
             logger.error("Ошибка при загрузке файла", e);
-            res.status(500);
-            return errorResponse("Ошибка загрузки: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse("Ошибка загрузки: " + e.getMessage()));
         }
     }
 
@@ -157,39 +135,30 @@ public class FileController {
      * Получить метаданные файла
      * GET /api/files/:id?userId={userId}
      */
-    public String getFileMetadata(Request req, Response res) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getFileMetadata(@PathVariable UUID fileId, @RequestParam UUID userId) {
         try {
-            UUID fileId = UUID.fromString(req.params(":id"));
-            String userIdStr = req.queryParams("userId");
-
-            if (userIdStr == null || userIdStr.isEmpty()) {
-                res.status(400);
-                return errorResponse("Параметр userId обязателен");
-            }
-            UUID userId = UUID.fromString(userIdStr);
+            logger.debug("Получение метаданных файла {} для пользователя {}", fileId, userId);
 
             File file = fileService.getFileMetadata(userId, fileId);
 
-            res.type("application/json");
-            res.status(200);
-            return gson.toJson(Map.of(
-                    "success", true,
-                    "file", file
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("file", file);
+
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
-            res.status(400);
-            return errorResponse("Неверный формат UUID");
+            return ResponseEntity.badRequest().body(errorResponse("Неверный формат UUID"));
         } catch (SecurityException e) {
-            res.status(403);
-            return errorResponse("Доступ запрещен");
+            // 403 - доступ запрещен
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse("Доступ запрещен"));
         } catch (RuntimeException e) {
-            res.status(404);
-            return errorResponse(e.getMessage());
+            // 404 - файл не найден
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse(e.getMessage()));
         } catch (Exception e) {
             logger.error("Ошибка при получении метаданных файла", e);
-            res.status(500);
-            return errorResponse("Ошибка сервера: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse("Ошибка сервера: " + e.getMessage()));
         }
     }
 
@@ -197,16 +166,10 @@ public class FileController {
      * Скачать файл
      * GET /api/files/:id/download?userId={userId}
      */
-    public Object downloadFile(Request req, Response res) {
+    @GetMapping("/{id}/download")
+    public ResponseEntity<?> downloadFile(@PathVariable UUID fileId, @RequestParam UUID userId) {
         try {
-            UUID fileId = UUID.fromString(req.params(":id"));
-            String userIdStr = req.queryParams("userId");
-
-            if (userIdStr == null || userIdStr.isEmpty()) {
-                res.status(400);
-                return errorResponse("Параметр userId обязателен");
-            }
-            UUID userId = UUID.fromString(userIdStr);
+            logger.info("Скачивание файла {} пользователем {}", fileId, userId);
 
             // Получаем метаданные файла
             File file = fileService.getFileMetadata(userId, fileId);
@@ -214,43 +177,26 @@ public class FileController {
             // Скачиваем файл из S3/Ceph
             InputStream fileStream = fileService.downloadFile(userId, fileId);
 
-            // Устанавливаем заголовки для скачивания
-            res.type(file.getMimeType());
-            res.header("Content-Disposition",
-                    "attachment; filename=\"" + file.getOriginalName() + "\"");
-            res.header("Content-Length", String.valueOf(file.getSize()));
+            byte[] buffer = fileStream.readAllBytes();
+            fileStream.close();
 
-            // Возвращаем поток файла
-            try {
-                byte[] buffer = fileStream.readAllBytes();
-                res.status(200);
+            logger.info("✅ Файл {} успешно отправлен пользователю {}", fileId, userId);
 
-                // Записываем данные в response
-                javax.servlet.ServletOutputStream output = res.raw().getOutputStream();
-                output.write(buffer);
-                output.flush();
-                output.close();
-
-                logger.info("✅ Файл {} успешно отправлен пользователю {}", fileId, userId);
-                return res.raw();
-
-            } finally {
-                fileStream.close();
-            }
+            return ResponseEntity.ok()
+                    .header("Content-Type", file.getMimeType())
+                    .header("Content-Disposition", "attachment; filename=\"" + file.getOriginalName() + "\"")
+                    .header("Content-Length", String.valueOf(file.getSize()))
+                    .body(buffer);
 
         } catch (IllegalArgumentException e) {
-            res.status(400);
-            return errorResponse("Неверный формат UUID");
+            return ResponseEntity.badRequest().body(errorResponse("Неверный формат UUID"));
         } catch (SecurityException e) {
-            res.status(403);
-            return errorResponse("Доступ запрещен");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse("Доступ запрещен"));
         } catch (RuntimeException e) {
-            res.status(404);
-            return errorResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse(e.getMessage()));
         } catch (Exception e) {
             logger.error("Ошибка при скачивании файла", e);
-            res.status(500);
-            return errorResponse("Ошибка сервера: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse("Ошибка сервера: " + e.getMessage()));
         }
     }
 
@@ -258,39 +204,28 @@ public class FileController {
      * Удалить файл
      * DELETE /api/files/:id?userId={userId}
      */
-    public String deleteFile(Request req, Response res) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteFile(@PathVariable UUID fileId, @RequestParam UUID userId) {
         try {
-            UUID fileId = UUID.fromString(req.params(":id"));
-            String userIdStr = req.queryParams("userId");
-
-            if (userIdStr == null || userIdStr.isEmpty()) {
-                res.status(400);
-                return errorResponse("Параметр userId обязателен");
-            }
-            UUID userId = UUID.fromString(userIdStr);
+            logger.info("Удаление файла {} пользователем {}", fileId, userId);
 
             fileService.deleteFile(userId, fileId);
 
-            res.type("application/json");
-            res.status(200);
-            return gson.toJson(Map.of(
-                    "success", true,
-                    "message", "Файл успешно удален"
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Файл успешно удален");
+
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
-            res.status(400);
-            return errorResponse("Неверный формат UUID");
+            return ResponseEntity.badRequest().body(errorResponse("Неверный формат UUID"));
         } catch (SecurityException e) {
-            res.status(403);
-            return errorResponse("Доступ запрещен");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse("Доступ запрещен"));
         } catch (RuntimeException e) {
-            res.status(404);
-            return errorResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse(e.getMessage()));
         } catch (Exception e) {
             logger.error("Ошибка при удалении файла", e);
-            res.status(500);
-            return errorResponse("Ошибка сервера: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse("Ошибка сервера: " + e.getMessage()));
         }
     }
 
@@ -298,17 +233,11 @@ public class FileController {
      * Удалить все файлы или файлы определённой категории
      * DELETE /api/files?userId={userId}&category={category}
      */
-    public String deleteAllFiles(Request req, Response res) {
+    @DeleteMapping
+    public ResponseEntity<?> deleteAllFiles(@RequestParam UUID userId, @RequestParam(required = false) String category) {
         try {
-            String userIdStr = req.queryParams("userId");
-            String category = req.queryParams("category");
-
-            if (userIdStr == null || userIdStr.isEmpty()) {
-                res.status(400);
-                return errorResponse("Параметр userId обязателен");
-            }
-
-            UUID userId = UUID.fromString(userIdStr);
+            logger.info("Массовое удаление файлов пользователя {} в категории {}",
+                    userId, category != null ? category : "все");
 
             if (category != null && !category.isBlank() && !category.equals("shared")) {
                 fileService.deleteFilesByCategory(userId, category);
@@ -316,26 +245,21 @@ public class FileController {
                 fileService.deleteAllFiles(userId);
             }
 
-            res.type("application/json");
-            res.status(200);
-            return gson.toJson(Map.of(
-                    "success", true,
-                    "message", "Файлы успешно удалены"
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Файлы успешно удалены");
+
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
-            res.status(400);
-            return errorResponse("Неверный формат UUID");
+            return ResponseEntity.badRequest().body(errorResponse("Неверный формат UUID"));
         } catch (SecurityException e) {
-            res.status(403);
-            return errorResponse("Доступ запрещен");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse("Доступ запрещен"));
         } catch (RuntimeException e) {
-            res.status(404);
-            return errorResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse(e.getMessage()));
         } catch (Exception e) {
             logger.error("Ошибка при удалении файлов", e);
-            res.status(500);
-            return errorResponse("Ошибка сервера: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse("Ошибка сервера: " + e.getMessage()));
         }
     }
 
@@ -344,81 +268,58 @@ public class FileController {
      * PUT /api/files/:id?userId={userId}
      * Body: {"newName": "new_filename.txt"}
      */
-    public String updateFileMetadata(Request req, Response res) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateFileMetadata(
+            @PathVariable UUID fileId, @RequestParam UUID userId,
+            @RequestBody Map<String, String> body
+    ) {
         try {
-            UUID fileId = UUID.fromString(req.params(":id"));
-            String userIdStr = req.queryParams("userId");
-
-            if (userIdStr == null || userIdStr.isEmpty()) {
-                res.status(400);
-                return errorResponse("Параметр userId обязателен");
-            }
-            UUID userId = UUID.fromString(userIdStr);
-
-            Map<String, String> body = gson.fromJson(req.body(), Map.class);
             String newName = body.get("newName");
-
-            if (newName == null || newName.trim().isEmpty()) {
-                res.status(400);
-                return errorResponse("Параметр newName обязателен");
-            }
 
             File updatedFile = fileService.updateFileMetadata(userId, fileId, newName);
 
-            res.type("application/json");
-            res.status(200);
-            return gson.toJson(Map.of(
-                    "success", true,
-                    "message", "Метаданные файла обновлены",
-                    "file", updatedFile
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Метаданные файла обновлены");
+            response.put("file", updatedFile);
+
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
-            res.status(400);
-            return errorResponse("Неверный формат данных");
+            return ResponseEntity.badRequest().body(errorResponse("Неверный формат данных"));
         } catch (SecurityException e) {
-            res.status(403);
-            return errorResponse("Доступ запрещен");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse("Доступ запрещен"));
         } catch (RuntimeException e) {
-            res.status(404);
-            return errorResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse(e.getMessage()));
         } catch (Exception e) {
             logger.error("Ошибка при обновлении метаданных", e);
-            res.status(500);
-            return errorResponse("Ошибка сервера: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse("Ошибка сервера: " + e.getMessage()));
         }
     }
 
-    private String errorResponse(String message) {
+    private Map<String, Object> errorResponse(String message) {
         Map<String, Object> error = new HashMap<>();
         error.put("success", false);
         error.put("error", message);
-        return gson.toJson(error);
+        return error;
     }
 
-    public String getUserCategories(Request req, Response res) {
+    @GetMapping("/categories")
+    public ResponseEntity<?> getUserCategories(@RequestParam UUID userId) {
         try {
-            String userIdStr = req.queryParams("userId");
+            logger.debug("Получение категорий пользователя {}", userId);
 
-            if (userIdStr == null || userIdStr.isEmpty()) {
-                res.status(400);
-                return errorResponse("Параметр userId обязателен");
-            }
-
-            UUID userId = UUID.fromString(userIdStr);
             List<String> categories = fileService.getUserCategories(userId);
 
-            res.type("application/json");
-            res.status(200);
-            return gson.toJson(Map.of(
-                    "success", true,
-                    "categories", categories,
-                    "count", categories.size()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("categories", categories);
+            response.put("count", categories.size());
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Ошибка при получении категорий", e);
-            res.status(500);
-            return errorResponse("Ошибка сервера: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse("Ошибка сервера: " + e.getMessage()));
         }
     }
 }
