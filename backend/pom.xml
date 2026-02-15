@@ -10,6 +10,13 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.1.5</version>
+        <relativePath/>
+    </parent>
+
     <properties>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
@@ -17,44 +24,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Версии библиотек -->
-        <spark.version>2.9.4</spark.version>
         <jackson.version>2.15.2</jackson.version>
         <aws.sdk.version>2.20.0</aws.sdk.version>
         <postgresql.version>42.7.0</postgresql.version> <!-- Обновил версию для примера -->
         <hibernate.version>6.4.1.Final</hibernate.version>
         <slf4j.version>2.0.7</slf4j.version>
-        <servlet.api.version>6.0.0</servlet.api.version>
         <hibernate.validator.version>8.0.0.Final</hibernate.validator.version>
-        <gson.version>2.13.2</gson.version>
     </properties>
 
-    <!-- !!! ЭТОТ БЛОК РЕШАЕТ ПРОБЛЕМУ С SLF4J !!! -->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
-        <!-- Spark Framework -->
-        <dependency>
-            <groupId>com.sparkjava</groupId>
-            <artifactId>spark-core</artifactId>
-            <version>${spark.version}</version>
-        </dependency>
-
-        <!-- Servlet API (необходим для Spark) -->
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>${servlet.api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Логирование -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -138,6 +116,20 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Библиотека для генерации/проверки одноразовых паролей -->
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-otp-java</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <!-- Для кодирования URL -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.15</version>
+        </dependency>
+
         <!-- GSON для преобразования в JSON и обратно java объектов -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -151,30 +143,56 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <version>1.19.3</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>1.19.3</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <version>1.19.3</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
             <version>5.2.0</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>cloud-storage</finalName>
@@ -189,28 +207,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Плагин для создания "fat jar" -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.MWS.server.CloudStorageServer</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -218,6 +214,11 @@
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
         </plugins>
