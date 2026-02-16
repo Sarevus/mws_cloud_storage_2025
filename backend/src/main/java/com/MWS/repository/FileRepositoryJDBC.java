@@ -83,7 +83,7 @@ public class FileRepositoryJDBC implements FileRepository {
                 SELECT 
                     f.id, f.user_id, f.link as s3_key, f.category,
                     m.original_name, m.size, m.mime_type, m.is_public,
-                    u.name, u.email, u.phonenumber, u.password
+                    u.name, u.email, u.phone_number, u.password
                 FROM files f
                 LEFT JOIN metadata m ON f.id = m.file_id
                 JOIN users u ON f.user_id = u.id
@@ -113,7 +113,7 @@ public class FileRepositoryJDBC implements FileRepository {
                 SELECT 
                     f.id, f.user_id, f.link as s3_key, f.category,
                     m.original_name, m.size, m.mime_type, m.is_public,
-                    u.name, u.email, u.phonenumber, u.password
+                    u.name, u.email, u.phone_number, u.password
                 FROM files f
                 LEFT JOIN metadata m ON f.id = m.file_id
                 JOIN users u ON f.user_id = u.id
@@ -147,7 +147,7 @@ public class FileRepositoryJDBC implements FileRepository {
                 SELECT 
                     f.id, f.user_id, f.link as s3_key, f.category,
                     m.original_name, m.size, m.mime_type, m.is_public,
-                    u.name, u.email, u.phonenumber, u.password
+                    u.name, u.email, u.phone_number, u.password
                 FROM files f
                 LEFT JOIN metadata m ON f.id = m.file_id
                 JOIN users u ON f.user_id = u.id
@@ -364,7 +364,7 @@ public class FileRepositoryJDBC implements FileRepository {
                 SELECT 
                     f.id, f.user_id, f.link as s3_key, f.category,
                     m.original_name, m.size, m.mime_type, m.is_public,
-                    u.name, u.email, u.phonenumber, u.password
+                    u.name, u.email, u.phone_number, u.password
                 FROM files f
                 LEFT JOIN metadata m ON f.id = m.file_id
                 JOIN users u ON f.user_id = u.id
@@ -419,7 +419,7 @@ public class FileRepositoryJDBC implements FileRepository {
         user.setId((UUID) rs.getObject("user_id"));
         user.setName(rs.getString("name"));
         user.setEmail(rs.getString("email"));
-        user.setPhoneNumber(rs.getString("phonenumber"));
+        user.setPhoneNumber(rs.getString("phone_number"));
         user.setPassword(rs.getString("password"));
 
         // Все поля читаются правильно благодаря алиасам в SQL

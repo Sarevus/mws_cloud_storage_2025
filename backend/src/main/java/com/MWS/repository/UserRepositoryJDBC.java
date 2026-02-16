@@ -22,17 +22,17 @@ public class UserRepositoryJDBC implements UserRepository {
         }
         String name = user.getName();
         String email = user.getEmail();
-        String phonenumber = user.getPhoneNumber();
+        String phone_number = user.getPhoneNumber();
         String password = user.getPassword();
 
-        String sql = "INSERT INTO users (id, name, email, phonenumber, password) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (id, name, email, phone_number, password) VALUES (?, ?, ?, ?, ?)";
         try (Connection con = Database.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setObject(1, user.getId());
             stmt.setString(2, name);
             stmt.setString(3, email);
-            stmt.setString(4, phonenumber);
+            stmt.setString(4, phone_number);
             stmt.setString(5, password);
             stmt.executeUpdate();
             logger.info("Пользователь сохранён: {}", user.getId());
@@ -43,6 +43,7 @@ public class UserRepositoryJDBC implements UserRepository {
             throw new RuntimeException("Не удалось сохранить пользователя", e);
         }
     }
+
     @Override
     public UserEntity update(UserEntity user) {
         if (user.getId() == null) {
@@ -50,18 +51,18 @@ public class UserRepositoryJDBC implements UserRepository {
         }
         String name = user.getName();
         String email = user.getEmail();
-        String phonenumber = user.getPhoneNumber();
+        String phone_number = user.getPhoneNumber();
         String password = user.getPassword();
         UUID id = user.getId();
 
-        String sql = "UPDATE users SET name = ?, email = ?, phonenumber = ?, password = ? WHERE id = ?";
+        String sql = "UPDATE users SET name = ?, email = ?, phone_number = ?, password = ? WHERE id = ?";
         try (Connection con = Database.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
 //            stmt.setObject(1, user.getId());
             stmt.setString(1, name);
             stmt.setString(2, email);
-            stmt.setString(3, phonenumber);
+            stmt.setString(3, phone_number);
             stmt.setString(4, password);
             stmt.setObject(5, id);
             stmt.executeUpdate();
@@ -76,7 +77,7 @@ public class UserRepositoryJDBC implements UserRepository {
 
     @Override
     public Optional<UserEntity> findById(UUID id) {
-        String sql = "SELECT id, name, email, phonenumber, password FROM users WHERE id = ?";
+        String sql = "SELECT id, name, email, phone_number, password FROM users WHERE id = ?";
 
         try (Connection con = Database.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -118,7 +119,7 @@ public class UserRepositoryJDBC implements UserRepository {
 
     @Override
     public Optional<UserEntity> findByEmail(String email) {
-        String sql = "SELECT id, name, email, phonenumber, password FROM users WHERE email = ?";
+        String sql = "SELECT id, name, email, phone_number, password FROM users WHERE email = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -143,7 +144,7 @@ public class UserRepositoryJDBC implements UserRepository {
         user.setId((UUID) rs.getObject("id"));
         user.setName(rs.getString("name"));
         user.setEmail(rs.getString("email"));
-        user.setPhoneNumber(rs.getString("phonenumber"));
+        user.setPhoneNumber(rs.getString("phone_number"));
         user.setPassword(rs.getString("password"));
         return user;
     }
