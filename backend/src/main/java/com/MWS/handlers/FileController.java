@@ -137,11 +137,11 @@ public class FileController {
      * GET /api/files/:id?userId={userId}
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getFileMetadata(@PathVariable UUID fileId, @RequestParam UUID userId) {
+    public ResponseEntity<?> getFileMetadata(@PathVariable UUID id, @RequestParam UUID userId) {
         try {
-            logger.debug("Получение метаданных файла {} для пользователя {}", fileId, userId);
+            logger.debug("Получение метаданных файла {} для пользователя {}", id, userId);
 
-            File file = fileService.getFileMetadata(userId, fileId);
+            File file = fileService.getFileMetadata(userId, id);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -168,20 +168,20 @@ public class FileController {
      * GET /api/files/:id/download?userId={userId}
      */
     @GetMapping("/{id}/download")
-    public ResponseEntity<?> downloadFile(@PathVariable UUID fileId, @RequestParam UUID userId) {
+    public ResponseEntity<?> downloadFile(@PathVariable UUID id, @RequestParam UUID userId) {
         try {
-            logger.info("Скачивание файла {} пользователем {}", fileId, userId);
+            logger.info("Скачивание файла {} пользователем {}", id, userId);
 
             // Получаем метаданные файла
-            File file = fileService.getFileMetadata(userId, fileId);
+            File file = fileService.getFileMetadata(userId, id);
 
             // Скачиваем файл из S3/Ceph
-            InputStream fileStream = fileService.downloadFile(userId, fileId);
+            InputStream fileStream = fileService.downloadFile(userId, id);
 
             byte[] buffer = fileStream.readAllBytes();
             fileStream.close();
 
-            logger.info("✅ Файл {} успешно отправлен пользователю {}", fileId, userId);
+            logger.info("✅ Файл {} успешно отправлен пользователю {}", id, userId);
 
             return ResponseEntity.ok()
                     .header("Content-Type", file.getMimeType())
@@ -206,11 +206,11 @@ public class FileController {
      * DELETE /api/files/:id?userId={userId}
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteFile(@PathVariable UUID fileId, @RequestParam UUID userId) {
+    public ResponseEntity<?> deleteFile(@PathVariable UUID id, @RequestParam UUID userId) {
         try {
-            logger.info("Удаление файла {} пользователем {}", fileId, userId);
+            logger.info("Удаление файла {} пользователем {}", id, userId);
 
-            fileService.deleteFile(userId, fileId);
+            fileService.deleteFile(userId, id);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -271,13 +271,13 @@ public class FileController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateFileMetadata(
-            @PathVariable UUID fileId, @RequestParam UUID userId,
+            @PathVariable UUID id, @RequestParam UUID userId,
             @RequestBody Map<String, String> body
     ) {
         try {
             String newName = body.get("newName");
 
-            File updatedFile = fileService.updateFileMetadata(userId, fileId, newName);
+            File updatedFile = fileService.updateFileMetadata(userId, id, newName);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
