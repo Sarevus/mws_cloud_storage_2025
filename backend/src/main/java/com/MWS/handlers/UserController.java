@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/user")
 public class UserController {
 
     private final UserService userService;
@@ -22,30 +23,6 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
-    /**
-     * Обрабатывает запрос на создание нового пользователя.
-     */
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public GetSimpleUserDto register(@RequestBody CreateUserDTO body) {
-        if (body != null) {
-            return userService.createUser(body);
-        }
-        throw new IllegalArgumentException("не заполнены поля");
-    }
-
-    /**
-     * Обрабатывает запрос на вход в страничку пользователя
-     */
-    @PostMapping("/login")
-    public GetSimpleUserDto login(@RequestBody LoginUserDTO body) {
-        UUID userId = userService.loginUser(body.email(), body.password());
-        return new GetSimpleUserDto(
-                userId, null, body.email(), null
-        );
-    }
-
 
     /**
      * Обрабатывает запрос на получение пользователя по ID.
