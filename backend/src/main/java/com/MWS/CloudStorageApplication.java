@@ -1,4 +1,5 @@
 package com.MWS;
+import com.MWS.config.Config;
 import com.MWS.storage.Database;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -27,6 +28,12 @@ public class CloudStorageApplication {
             logger.error("Не удалось подключиться к базе данных!");
             System.exit(1);
         }
+    }
+
+    @PostConstruct
+    public void logServerPort() {
+        logger.info("Сервер запущен на порту: {}", Config.getServerPort());
+        logger.info("API доступно по адресу: http://localhost:{}/api/test", Config.getServerPort());
     }
 
     /**
