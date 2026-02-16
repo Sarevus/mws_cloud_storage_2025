@@ -28,33 +28,11 @@ class FileManager {
     }
 
     /**
-     * Проверяет доступность сервера
-     */
-    async checkServerHealth() {
-        try {
-            const response = await fetch(`${this.baseUrl}/api/test`, {
-                method: 'GET'
-            });
-            return response.ok;
-        } catch (error) {
-            console.error('Server health check failed:', error);
-            return false;
-        }
-    }
-
-    /**
      * Получает список файлов пользователя
      */
     async getFiles() {
         if (!this.currentUserId) {
             console.error('Cannot get files: user ID not found');
-            return [];
-        }
-
-        const isServerAlive = await this.checkServerHealth();
-        if (!isServerAlive) {
-            console.error('Server is not responding');
-            alert('Сервер недоступен. Проверьте, запущен ли сервер на localhost:6969');
             return [];
         }
 
