@@ -3,6 +3,7 @@ package com.MWS.storage;
 import com.MWS.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -21,6 +22,7 @@ import java.util.List;
 /**
  * Класс для работы с S3-совместимым хранилищем (Ceph, MinIO и т.д.)
  */
+@Component
 public class S3FileStorage {
 
     private static final Logger logger = LoggerFactory.getLogger(S3FileStorage.class);
