@@ -1,9 +1,10 @@
-console.log("🔥 ЗАГРУЖЕН scriptRegistration.js (НОВАЯ ВЕРСИЯ)");
+console.log("script.js ЗАГРУЖЕН");
 
 const btn = document.getElementById('reg-button');
+console.log("btn =", btn);
 
 function sendRegisterRequest(event) {
-    event.preventDefault();
+    event.preventDefault(); // чтобы форма не перезагружала страницу
 
     console.log("Кнопка нажата");
     var usernameInput = document.getElementById("name");
@@ -25,41 +26,23 @@ function sendRegisterRequest(event) {
         },
         body: JSON.stringify({ name: username, email: email, phoneNumber: phone, password: password })
     })
-    .then(async response => {
-        console.log("Статус ответа /register:", response.status);
+        .then(async response => {
+            console.log("status:", response.status);
 
-        if (response.status === 201) {
-            const user = await response.json();
-            console.log("Создан пользователь:", user);
-            console.log("ID пользователя:", user.id);
-
-            if (!user.id) {
-                console.error("❌ ID пользователя пустой!");
+            if (response.status === 201) {
+                const user = await response.json();
+                console.log("Создан пользователь:", user);
+                window.location.href = `/myProfile.html?id=${encodeURIComponent(user.id)}`;
                 return;
             }
 
-            // ✅ ПРАВИЛЬНЫЙ URL
-            const redirectUrl = `/myProfile.html?id=${encodeURIComponent(user.id)}`;
-            console.log("✅ Редирект на:", redirectUrl);
-
-            localStorage.setItem('lastUserId', user.id);
-            console.log("✅ Сохранено в localStorage:", localStorage.getItem('lastUserId'));
-
-            window.location.href = redirectUrl;
-        } else {
             const error = await response.text();
-            console.error("❌ Ошибка:", error);
             alert(error);
-        }
-    })
-    .catch(err => {
-        console.error("❌ Ошибка fetch:", err);
-        alert("Ошибка сети");
-    });
+        })
+        .catch(err => console.error("Ошибка:", err));
 }
 
 btn.onclick = sendRegisterRequest;
-
 document.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
         sendRegisterRequest(event);
