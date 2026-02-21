@@ -6,11 +6,14 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 
 import java.util.Optional;
 import java.util.UUID;
 
+
+@Repository
 public class UserRepositoryPostgre implements UserRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(UserRepositoryPostgre.class);
@@ -73,7 +76,7 @@ public class UserRepositoryPostgre implements UserRepository {
 
     @Override
     public UserEntity update(UserEntity user) {
-        return user;
+        return save(user);
     }
 
     @Override

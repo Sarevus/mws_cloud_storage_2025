@@ -4,7 +4,7 @@ import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
 import com.MWS.model.UserEntity;
 import com.MWS.repository.UserRepository;
-import com.MWS.repository.UserRepositoryJDBC;
+import com.MWS.repository.UserRepositoryPostgre;
 import com.MWS.service.UserServiceRelease;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
@@ -52,7 +52,7 @@ public class UserServiceContainerTest {
                         postgres.getPassword()
                 ));
 
-        userRepository = new UserRepositoryJDBC();
+        userRepository = new UserRepositoryPostgre();
         userService = new UserServiceRelease(userRepository);
     }
 
