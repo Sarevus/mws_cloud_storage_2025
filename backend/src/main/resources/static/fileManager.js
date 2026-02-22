@@ -44,6 +44,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'GET',
+                credentials: 'include',
                 headers: { 'Accept': 'application/json' }
             });
 
@@ -184,6 +185,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'POST',
+                credentials: 'include',
                 body: formData
             });
 
@@ -298,6 +300,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'PUT',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ newName: newName.trim() })
             });
@@ -795,6 +798,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'DELETE',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
             });
 
@@ -841,6 +845,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'DELETE',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
             });
 
@@ -895,7 +900,7 @@ class FileManager {
 
         try {
             const url = `${this.baseUrl}/api/files?userId=${this.currentUserId}&category=${category}`;
-            const response = await fetch(url, { method: 'DELETE' });
+            const response = await fetch(url, { method: 'DELETE', credentials: 'include' });
             const result = await response.json();
 
             if (result.success) {

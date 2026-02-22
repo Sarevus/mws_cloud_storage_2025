@@ -6,11 +6,12 @@ function sendLoginRequest(event) {
     const email = document.getElementById("login-username").value.trim();
     const password = document.getElementById("login-password").value.trim();
 
-    fetch("/login", {
+    fetch("/api/auth/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
+        credentials: 'include',
         body: JSON.stringify({ email, password })
     })
     .then(async response => {

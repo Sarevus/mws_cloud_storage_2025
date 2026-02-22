@@ -19,11 +19,12 @@ function sendRegisterRequest(event) {
 
     console.log("Перед отправкой:", { username, email, phone, password });
 
-    fetch("/register", {
+    fetch("/api/auth/register", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
+        credentials: 'include',
         body: JSON.stringify({ name: username, email: email, phoneNumber: phone, password: password })
     })
         .then(async response => {
