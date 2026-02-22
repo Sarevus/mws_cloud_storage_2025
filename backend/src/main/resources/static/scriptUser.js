@@ -8,7 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("userId =", userId);
 
-    fetch("/api/user/" + encodeURIComponent(userId))
+    fetch("/api/user/" + encodeURIComponent(userId), {
+        credentials: 'include'
+    })
         .then(res => res.json())
         .then(user => {
             document.getElementById("user-name").textContent = user.name;
@@ -21,3 +23,17 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = `/editProfile.html?id=${encodeURIComponent(userId)}`;
     };
 });
+
+// Проверка сессии каждую минуту
+setInterval(() => {
+    fetch("/api/auth/me", { credentials: 'include' })
+        .then(res => {
+            if (!res.ok) {
+                console.log("Сессия истекла, редирект...");
+                window.location.href = "/login.html";
+            }
+        })
+        .catch(() => {
+            window.location.href = "/login.html";
+        });
+}, 60000);
