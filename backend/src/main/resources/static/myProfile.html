@@ -80,7 +80,7 @@
     </div>
 
     <div class="profile-navigation">
-        <a href="index.html" class="nav-link">Выйти из профиля</a>
+        <a href="index.html" class="nav-link" id="logout-btn">Выйти из профиля</a>
     </div>
 </main>
 
@@ -177,6 +177,26 @@
         // Загружаем файлы при загрузке страницы
         loadRecentFiles();
     });
+</script>
+
+<script>
+document.getElementById('logout-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+    })
+
+    .then(() => {
+        window.location.href = 'index.html';
+    })
+
+    .catch(err => {
+        console.error('Ошибка входа:', err);
+        window.location.href = 'index.html';
+    });
+});
 </script>
 
 <style>
