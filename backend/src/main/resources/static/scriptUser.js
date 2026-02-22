@@ -30,10 +30,10 @@ setInterval(() => {
         .then(res => {
             if (!res.ok) {
                 console.log("Сессия истекла, редирект...");
-                window.location.href = "/login.html";
+                window.location.href = "/loginIndex.html";
             }
         })
         .catch(() => {
-            window.location.href = "/login.html";
+            window.location.href = "/loginIndex.html";
         });
 }, 60000);
