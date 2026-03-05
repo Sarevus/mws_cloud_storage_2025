@@ -1,6 +1,7 @@
 package com.MWS.dto.create_update;
 
-import com.MWS.Validator.annotations.*;
+import com.MWS.Validator.annotations.NotNull;
+import com.MWS.Validator.annotations.Size;
 
 public record PutUserPasswordDto(
         @NotNull(message = "Пароль обязателен")

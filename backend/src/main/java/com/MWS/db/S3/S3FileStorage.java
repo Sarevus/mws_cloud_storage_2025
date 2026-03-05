@@ -1,4 +1,4 @@
-package com.MWS.storage;
+package com.MWS.db.S3;
 
 import com.MWS.config.Config;
 import org.slf4j.Logger;

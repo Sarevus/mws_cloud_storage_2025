@@ -1,17 +1,21 @@
 package com.MWS;
 
+import com.MWS.db.postgresql.Database;
+import com.MWS.db.postgresql.repository.UserRepository;
+import com.MWS.db.postgresql.repository.UserRepositoryImpl;
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
 import com.MWS.model.UserEntity;
-import com.MWS.repository.UserRepository;
-import com.MWS.repository.UserRepositoryPostgre;
 import com.MWS.service.UserServiceRelease;
 import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.mockito.MockedStatic;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -34,7 +38,7 @@ public class UserServiceContainerTest {
 
     private static UserServiceRelease userService;
     private static UserRepository userRepository;
-    private static MockedStatic<com.MWS.storage.Database> databaseMock;
+    private static MockedStatic<Database> databaseMock;
     private static boolean isDatabaseMigrated = false;
 
     @BeforeAll
@@ -44,15 +48,15 @@ public class UserServiceContainerTest {
             isDatabaseMigrated = true;
         }
 
-        databaseMock = mockStatic(com.MWS.storage.Database.class);
-        databaseMock.when(com.MWS.storage.Database::getConnection)
+        databaseMock = mockStatic(Database.class);
+        databaseMock.when(Database::getConnection)
                 .thenAnswer(invocation -> DriverManager.getConnection(
                         postgres.getJdbcUrl(),
                         postgres.getUsername(),
                         postgres.getPassword()
                 ));
 
-        userRepository = new UserRepositoryPostgre();
+        userRepository = new UserRepositoryImpl();
         userService = new UserServiceRelease(userRepository);
     }
 

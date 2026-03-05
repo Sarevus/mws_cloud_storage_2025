@@ -1,7 +1,5 @@
 package com.MWS.model;
 
-import java.lang.String;
-
 import com.MWS.Validator.annotations.Email;
 import com.MWS.Validator.annotations.NotNull;
 import com.MWS.Validator.annotations.PhoneNumber;

@@ -1,6 +1,9 @@
 package com.MWS.dto.create_update;
 
-import com.MWS.Validator.annotations.*;
+import com.MWS.Validator.annotations.Email;
+import com.MWS.Validator.annotations.NotNull;
+import com.MWS.Validator.annotations.PhoneNumber;
+import com.MWS.Validator.annotations.Size;
 
 public record PutUserDto(
         @NotNull(message = "Имя не может быть пустым")

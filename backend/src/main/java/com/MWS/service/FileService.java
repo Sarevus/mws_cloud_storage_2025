@@ -1,10 +1,10 @@
 package com.MWS.service;
 
+import com.MWS.db.S3.S3FileStorage;
+import com.MWS.db.postgresql.repository.FileRepository;
+import com.MWS.db.postgresql.repository.UserRepository;
 import com.MWS.model.File;
 import com.MWS.model.UserEntity;
-import com.MWS.repository.FileRepository;
-import com.MWS.repository.UserRepository;
-import com.MWS.storage.S3FileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

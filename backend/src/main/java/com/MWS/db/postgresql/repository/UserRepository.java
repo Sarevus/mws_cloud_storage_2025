@@ -1,9 +1,9 @@
-package com.MWS.repository;
+package com.MWS.db.postgresql.repository;
 
 import com.MWS.model.UserEntity;
 
+import java.util.Optional;
 import java.util.UUID;
-import java.util.Optional; // Используем Optional для методов, которые могут ничего не найти
 
 public interface UserRepository {
 

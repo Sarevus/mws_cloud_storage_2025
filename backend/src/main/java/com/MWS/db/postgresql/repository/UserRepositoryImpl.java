@@ -1,4 +1,4 @@
-package com.MWS.repository;
+package com.MWS.db.postgresql.repository;
 
 import com.MWS.model.UserEntity;
 import jakarta.persistence.EntityManager;
@@ -8,15 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-
 import java.util.Optional;
 import java.util.UUID;
 
 
 @Repository
-public class UserRepositoryPostgre implements UserRepository {
+public class UserRepositoryImpl implements UserRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserRepositoryPostgre.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserRepositoryImpl.class);
     private static final EntityManagerFactory emf =
             Persistence.createEntityManagerFactory("postgresql");
 

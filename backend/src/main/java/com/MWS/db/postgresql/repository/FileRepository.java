@@ -1,4 +1,4 @@
-package com.MWS.repository;
+package com.MWS.db.postgresql.repository;
 
 import com.MWS.model.File;
 

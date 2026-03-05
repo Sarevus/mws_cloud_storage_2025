@@ -1,12 +1,13 @@
 package com.MWS;
 
+import com.MWS.db.postgresql.Database;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
+import org.mockito.MockedStatic;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.mockito.MockedStatic;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -18,7 +19,7 @@ import java.sql.Statement;
 import java.util.UUID;
 
 import static java.lang.Thread.sleep;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mockStatic;
 
 @Testcontainers
@@ -37,7 +38,7 @@ class UserControllerContainerTest {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static MockedStatic<com.MWS.storage.Database> databaseMock;
+    private static MockedStatic<Database> databaseMock;
     private static boolean isDatabaseMigrated = false;
 
     @BeforeAll
@@ -47,8 +48,8 @@ class UserControllerContainerTest {
             isDatabaseMigrated = true;
         }
 
-        databaseMock = mockStatic(com.MWS.storage.Database.class);
-        databaseMock.when(com.MWS.storage.Database::getConnection)
+        databaseMock = mockStatic(Database.class);
+        databaseMock.when(Database::getConnection)
                 .thenAnswer(invocation -> DriverManager.getConnection(
                         postgres.getJdbcUrl(),
                         postgres.getUsername(),

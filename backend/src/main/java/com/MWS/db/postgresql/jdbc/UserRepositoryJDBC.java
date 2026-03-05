@@ -1,6 +1,6 @@
 //package com.MWS.repository;
 //
-//import com.MWS.storage.Database;
+//import com.MWS.db.postgresql.Database;
 //import com.MWS.model.UserEntity;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;

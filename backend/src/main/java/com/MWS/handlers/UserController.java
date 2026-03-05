@@ -2,15 +2,9 @@ package com.MWS.handlers;
 
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
-import com.MWS.dto.login.LoginUserDTO;
 import com.MWS.service.UserService;
-import jakarta.persistence.EntityNotFoundException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-//import spark.Request;
-//import spark.Response;
-
 
 import java.util.UUID;
 
