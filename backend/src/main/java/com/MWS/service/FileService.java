@@ -1,6 +1,7 @@
 package com.MWS.service;
 
 import com.MWS.model.File;
+import com.MWS.model.Roles;
 import com.MWS.model.UserEntity;
 import com.MWS.repository.FileRepository;
 import com.MWS.repository.UserRepository;
@@ -22,16 +23,19 @@ public class FileService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
     private final S3FileStorage s3Storage;
+    private final FilePermissionService filePermissionService;
 
     @Autowired
     public FileService(
             FileRepository fileRepository,
             UserRepository userRepository,
-            S3FileStorage s3Storage
+            S3FileStorage s3Storage,
+            FilePermissionService filePermissionService
     ) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.s3Storage = s3Storage;
+        this.filePermissionService = filePermissionService;
     }
 
     private String generateS3Key(UUID userId, String filename) {
@@ -42,8 +46,15 @@ public class FileService {
     }
 
 
-    private void checkFileAccess(UUID userId, File file) {
-        if (!file.getUser().getId().equals(userId)) {
+    private void checkFileAccess(UUID userId, File file, Roles role) {
+
+        if (file.getUser().getId().equals(userId)) {
+            return;
+        }
+
+        boolean hasAccess = filePermissionService.checkAccess(file.getId(), userId, role);
+
+        if (!hasAccess) {
             logger.warn("Попытка доступа к файлу {} пользователем {}", file.getId(), userId);
             throw new SecurityException("Доступ к файлу запрещён");
         }
@@ -103,7 +114,7 @@ public class FileService {
                         return new RuntimeException("Файл не найден");
                     });
 
-            checkFileAccess(userId, file);
+            checkFileAccess(userId, file, Roles.READER);
 
             InputStream fileStream = s3Storage.downloadFile(file.getS3Key());
             logger.info("✅ Файл {} успешно скачан", fileId);
@@ -126,7 +137,7 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("Файл не найден"));
 
-        checkFileAccess(userId, file);
+        checkFileAccess(userId, file, Roles.READER);
         return file;
     }
 
@@ -166,7 +177,7 @@ public class FileService {
                         return new RuntimeException("Файл не найден");
                     });
 
-            checkFileAccess(userId, file);
+            checkFileAccess(userId, file, Roles.OWNER);
 
             s3Storage.deleteFile(file.getS3Key());
             logger.info("Файл удален из S3: {}", file.getS3Key());
@@ -192,7 +203,7 @@ public class FileService {
             File file = fileRepository.findById(fileId)
                     .orElseThrow(() -> new RuntimeException("Файл не найден"));
 
-            checkFileAccess(userId, file);
+            checkFileAccess(userId, file, Roles.EDITOR);
 
             if (newName != null && !newName.trim().isEmpty()) {
                 file.setOriginalName(newName);
@@ -210,16 +221,6 @@ public class FileService {
             logger.error("❌ Ошибка при обновлении метаданных файла {}", fileId, e);
             throw new RuntimeException("Не удалось обновить метаданные: " + e.getMessage(), e);
         }
-    }
-
-    public File findByS3Key(UUID userId, String s3Key) {
-        logger.debug("Поиск файла по S3 ключу: {}", s3Key);
-
-        File file = fileRepository.findByS3Key(s3Key)
-                .orElseThrow(() -> new RuntimeException("Файл не найден"));
-
-        checkFileAccess(userId, file);
-        return file;
     }
 
     public boolean fileExistsInStorage(String s3Key) {
