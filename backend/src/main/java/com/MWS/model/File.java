@@ -1,18 +1,34 @@
 package com.MWS.model;
 
+import jakarta.persistence.*;
+
 import java.io.InputStream;
 import java.util.UUID;
 
 /**
  * Модель файла в облачном хранилище.
  */
+@Entity
+@Table(name = "files")
 public class File {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;                // Уникальный ID файла в БД
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;              // Владелец файла
+
+    @Column(name = "link", nullable = false)
     private String s3Key;           // Ключ в S3 (путь: user/{userId}/{timestamp}_{filename})
+
     private String originalName;    // Оригинальное имя файла
+
     private Long size;              // Размер в байтах
+
     private String mimeType;        // MIME-тип (image/jpeg, application/pdf и т.д.)
+
+    @Column(name = "category")
     private String category;
 
     /**
@@ -23,11 +39,9 @@ public class File {
      * - при upload передать поток в репозиторий (repo сам загрузит в S3),
      * - при download вернуть поток наружу.
      */
+
+    @Transient
     private transient InputStream contentStream;
-    //private Boolean isPublic;       // Публичный ли файл
-    //private String description;     // Описание файла
-    //private LocalDateTime uploadedAt;    // Дата загрузки
-    //private LocalDateTime updatedAt;     // Дата обновления
 
     public File() {
     }
