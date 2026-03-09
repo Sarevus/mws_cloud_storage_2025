@@ -6,7 +6,6 @@ import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
 import com.MWS.model.UserEntity;
 import com.MWS.repository.UserRepository;
-import com.MWS.repository.UserRepositoryJDBC;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

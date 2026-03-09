@@ -31,8 +31,7 @@ public class UserEntity {
     @NotNull(message = "Пароль не может быть null")
     @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
     private String password;
-
-    @Column(name = "phoneNumber", nullable = false)
+    @Column(name = "phone_number", nullable = false)
     @PhoneNumber(message = "Некорректный формат телефонного номера")
     private String phoneNumber;
 
@@ -94,4 +93,3 @@ public class UserEntity {
     }
 
 }
-
