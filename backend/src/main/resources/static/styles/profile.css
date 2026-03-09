@@ -94,6 +94,18 @@
     width: 100%;
 }
 
+.shared-files-btn {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%) !important;
+    border: none !important;
+    margin-top: 15px;
+}
+
+.shared-files-btn:hover {
+    background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 25px rgba(155, 89, 182, 0.4) !important;
+}
+
 .action-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 30px rgba(0,0,0,0.2);

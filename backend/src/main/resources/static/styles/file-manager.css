@@ -273,3 +273,26 @@
         padding: 15px;
     }
 }
+
+.btn-share {
+    background: rgba(155, 89, 182, 0.2);
+    color: white;
+    border: 1px solid rgba(155, 89, 182, 0.3);
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    font-weight: 500;
+    flex: 1;
+    min-width: 80px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-share:hover:not(:disabled) {
+    background: rgba(155, 89, 182, 0.3);
+    transform: translateY(-2px);
+}

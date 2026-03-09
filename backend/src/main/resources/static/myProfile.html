@@ -48,16 +48,34 @@
 
 <!-- Основной контент -->
 <main class="profile-main">
-    <div class="actions-container">
-        <div class="action-card">
+    <div class="actions-container" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+        <!-- Первая карточка - Обмен файлами -->
+        <div class="action-card" style="flex: 1; min-width: 280px;">
             <div class="action-icon">
                 <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M7 17L17 7M17 7H7M17 7V17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
             <h3>Обмен файлами</h3>
-            <p>Начните хранить свои файлы в безопасности или получите доступ к общим файлам</p>
+            <p>Начните хранить свои файлы в безопасности</p>
             <button class="action-btn exchange-btn" id="go-to-files">Начать обмен</button>
+        </div>
+
+        <!-- Вторая карточка - Общие файлы (КНОПКА ИСПРАВЛЕНА) -->
+        <div class="action-card" style="flex: 1; min-width: 280px;">
+            <div class="action-icon">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="white" stroke-width="2"/>
+                    <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="white" stroke-width="2"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="white" stroke-width="2"/>
+                </svg>
+            </div>
+            <h3>Общие файлы</h3>
+            <p>Файлы, к которым вам предоставили доступ</p>
+            <button class="action-btn" id="go-to-shared" onclick="window.location.href='shared-with-me.html?id=' + new URLSearchParams(window.location.search).get('id')" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                Просмотреть
+            </button>
         </div>
     </div>
 
@@ -94,10 +112,9 @@
         const refreshBtn = document.getElementById('refresh-recent-files');
 
         // Загружаем последние файлы
-        // Загружаем последние файлы
         async function loadRecentFiles() {
             const filesGrid = document.getElementById('recent-files-grid');
-            const recentFiles = await fileManager.getRecentFiles(5); // Используем новый метод
+            const recentFiles = await fileManager.getRecentFiles(5);
 
             if (recentFiles.length === 0) {
                 filesGrid.innerHTML = `
@@ -157,22 +174,26 @@
             });
         }
 
-        // Кнопка перехода к файлам
-        goToFilesBtn.addEventListener('click', () => {
-            window.location.href = `fileExchange.html?id=${fileManager.currentUserId}`;
-        });
+        // Кнопка перехода к своим файлам
+        if (goToFilesBtn) {
+            goToFilesBtn.addEventListener('click', () => {
+                window.location.href = `fileExchange.html?id=${fileManager.currentUserId}`;
+            });
+        }
 
         // Кнопка обновления
-        refreshBtn.addEventListener('click', async () => {
-            refreshBtn.style.transform = 'rotate(360deg)';
-            refreshBtn.style.transition = 'transform 0.5s ease';
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', async () => {
+                refreshBtn.style.transform = 'rotate(360deg)';
+                refreshBtn.style.transition = 'transform 0.5s ease';
 
-            await loadRecentFiles();
+                await loadRecentFiles();
 
-            setTimeout(() => {
-                refreshBtn.style.transform = 'rotate(0deg)';
-            }, 500);
-        });
+                setTimeout(() => {
+                    refreshBtn.style.transform = 'rotate(0deg)';
+                }, 500);
+            });
+        }
 
         // Загружаем файлы при загрузке страницы
         loadRecentFiles();
@@ -180,23 +201,23 @@
 </script>
 
 <script>
-document.getElementById('logout-btn').addEventListener('click', function(e) {
-    e.preventDefault();
+    document.getElementById('logout-btn').addEventListener('click', function(e) {
+        e.preventDefault();
 
-    fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-    })
+        fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        })
 
-    .then(() => {
-        window.location.href = 'index.html';
-    })
+        .then(() => {
+            window.location.href = 'index.html';
+        })
 
-    .catch(err => {
-        console.error('Ошибка входа:', err);
-        window.location.href = 'index.html';
+        .catch(err => {
+            console.error('Ошибка выхода:', err);
+            window.location.href = 'index.html';
+        });
     });
-});
 </script>
 
 <style>
