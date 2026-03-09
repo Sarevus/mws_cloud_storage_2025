@@ -9,7 +9,7 @@ import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 
 @Configuration
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 20)   // включает поддержку сессий через Redit
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 10000)   // включает поддержку сессий через Redit
 public class SessionConfig {
 
     @Bean
@@ -27,7 +27,7 @@ public class SessionConfig {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setCookieName("SESSION");
         serializer.setCookiePath("/");
-        serializer.setCookieMaxAge(20); // 7 дней
+        serializer.setCookieMaxAge(10000); // 7 дней
         serializer.setUseHttpOnlyCookie(true);
         return serializer;
     }
