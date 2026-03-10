@@ -21,7 +21,6 @@ public interface FileRepository {
      * Находит файл по ID.
      */
     Optional<File> findById(UUID id);
-
     /**
      * Находит файл по ключу в S3.
      */

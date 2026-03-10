@@ -1,5 +1,6 @@
 package com.MWS.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.UUID;
@@ -15,6 +16,7 @@ public class MetadataEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "file_id")
+    @JsonIgnore
     private File file;
 
     @Column(name = "original_name")

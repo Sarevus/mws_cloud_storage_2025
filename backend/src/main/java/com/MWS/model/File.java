@@ -24,8 +24,8 @@ public class File {
             cascade = CascadeType.ALL, orphanRemoval = true)
     private MetadataEntity metadata;
 
-    @Column(name = "s3_key")
-    private String s3Key;
+    @Column(name = "link")
+    private String link;
 
     private String category;
 
@@ -34,6 +34,7 @@ public class File {
 
     public File() {
     }
+
 
     public File(UserEntity user, String originalName, Long size, String mimeType, String category) {
         this.user = user;
@@ -56,8 +57,12 @@ public class File {
         return user;
     }
 
+    public String getLink() {
+        return link;
+    }
+
     public String getS3Key() {
-        return s3Key;
+        return link;
     }
 
 
@@ -89,12 +94,36 @@ public class File {
 //        this.id = id;
 //    }
 
+    public String getOriginalName() {
+        return metadata != null ? metadata.getOriginalName() : null;
+    }
+
+    public Long getSize() {
+        return metadata != null ? metadata.getSize() : null;
+    }
+
+    public String getMimeType() {
+        return metadata != null ? metadata.getMimeType() : null;
+    }
+
+    public Boolean getIsPublic() {
+        return metadata != null ? metadata.getIsPublic() : null;
+    }
+
     public void setUser(UserEntity user) {
         this.user = user;
     }
 
-    public void setS3Key(String s3Key) {
-        this.s3Key = s3Key;
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public void setS3Key(String link) {
+        this.link = link;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
 
@@ -140,4 +169,27 @@ public class File {
         return lastDot > 0 ? originalName.substring(lastDot + 1).toLowerCase() : "";
     }
 
+    public void setOriginalName(String originalName) {
+        if (metadata == null) {
+            metadata = new MetadataEntity();
+            metadata.setFile(this);
+        }
+        metadata.setOriginalName(originalName);
+    }
+
+    public void setSize(Long size) {
+        if (metadata == null) {
+            metadata = new MetadataEntity();
+            metadata.setFile(this);
+        }
+        metadata.setSize(size);
+    }
+
+    public void setMimeType(String mimeType) {
+        if (metadata == null) {
+            metadata = new MetadataEntity();
+            metadata.setFile(this);
+        }
+        metadata.setMimeType(mimeType);
+    }
 }
