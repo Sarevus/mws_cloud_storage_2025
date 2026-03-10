@@ -106,6 +106,7 @@ public class PermissionController {
 
         logger.info("Пользователь {} запрашивает список доступов к файлу {}", userId, fileId);
 
+        // УБИРАЕМ try-catch, пусть выбрасывает ошибку если не владелец
         return filePermissionService.getAllAccessors(fileId, userId);
     }
 

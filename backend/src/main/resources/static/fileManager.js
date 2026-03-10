@@ -336,6 +336,45 @@ class FileManager {
     }
 
     /**
+     * Обновляет прогресс-бар хранилища
+     */
+    async updateStorageInfo() {
+        if (!this.currentUserId) return;
+
+        try {
+            const response = await fetch(`${this.baseUrl}/api/storage/info`, {
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            const progressBar = document.getElementById('storage-progress');
+            const usedEl = document.getElementById('storage-used');
+            const totalEl = document.getElementById('storage-total');
+            const percentEl = document.getElementById('storage-percent');
+
+            if (progressBar && usedEl && totalEl && percentEl) {
+                progressBar.style.width = data.percent + '%';
+                usedEl.textContent = this.formatFileSize(data.used);
+                totalEl.textContent = this.formatFileSize(data.total);
+                percentEl.textContent = `(${data.percent}%)`;
+
+                console.log('✅ Прогресс-бар обновлён:', {
+                    used: this.formatFileSize(data.used),
+                    total: this.formatFileSize(data.total),
+                    percent: data.percent + '%'
+                });
+            }
+        } catch (error) {
+            console.error('❌ Ошибка загрузки информации о хранилище:', error);
+        }
+    }
+
+    /**
      * Создает HTML элемент файла
      */
     createFileElement(file) {
@@ -457,6 +496,9 @@ class FileManager {
         try {
             const files = await this.getFiles();
             console.log('📁 Всего файлов:', files.length);
+
+            // Обновляем информацию о хранилище
+            await this.updateStorageInfo();
 
             const totalFilesEl = document.getElementById('total-files');
             if (totalFilesEl) {
@@ -702,7 +744,7 @@ class FileManager {
     /**
      * Инициализирует FileManager
      */
-    init() {
+    async init() {
         if (!this.currentUserId) {
             console.error('FileManager: User ID not found');
             alert('Ошибка: ID пользователя не найден в URL');
@@ -712,7 +754,8 @@ class FileManager {
         console.log('Initializing FileManager for user:', this.currentUserId);
 
         this.initAllUploaders();
-        this.updateFileDisplay();
+        await this.updateStorageInfo();
+        await this.updateFileDisplay();
 
         this.initDeleteAllButtons();
 

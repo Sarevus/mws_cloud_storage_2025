@@ -33,7 +33,6 @@
                 <h2 id="user-name"></h2>
                 <p id="user-email"></p>
                 <p id="user-number"></p>
-                <!-- Добавляем кнопку редактирования -->
                 <button class="edit-profile-btn" id="edit-profile-btn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -41,6 +40,20 @@
                     </svg>
                     Редактировать профиль
                 </button>
+            </div>
+        </div>
+
+        <!-- ПРОГРЕСС-БАР ХРАНИЛИЩА (ДОБАВЛЕНО) -->
+        <div class="storage-section">
+            <h3>Хранилище</h3>
+            <div class="storage-bar-container">
+                <div class="storage-bar">
+                    <div class="storage-progress" id="storage-progress" style="width: 0%;"></div>
+                </div>
+                <div class="storage-stats">
+                    <span id="storage-used">0 MB</span> из <span id="storage-total">1 GB</span>
+                    <span id="storage-percent">(0%)</span>
+                </div>
             </div>
         </div>
     </div>

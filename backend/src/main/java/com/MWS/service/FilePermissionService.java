@@ -99,7 +99,7 @@ public class FilePermissionService {
         }
     }
 
-    public boolean checkAccess(UUID fileId, UUID userId, Roles role) {
+    public boolean checkAccess(UUID fileId, UUID userId, Roles requiredRole) {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("File not found"));
 
@@ -107,7 +107,19 @@ public class FilePermissionService {
             return true;
         }
 
-        return permissionRepository.hasPermission(fileId, userId, role);
+        boolean hasAccess = false;
+        if (requiredRole == Roles.READER) {
+            hasAccess = permissionRepository.hasPermission(fileId, userId, Roles.READER) ||
+                    permissionRepository.hasPermission(fileId, userId, Roles.EDITOR);
+        } else {
+            hasAccess = permissionRepository.hasPermission(fileId, userId, requiredRole);
+        }
+
+        if (!hasAccess) {
+            throw new SecurityException("Доступ к файлу запрещён");
+        }
+
+        return hasAccess;
     }
 
     @Transactional

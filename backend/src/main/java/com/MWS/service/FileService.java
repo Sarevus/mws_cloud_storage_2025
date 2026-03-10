@@ -1,5 +1,6 @@
 package com.MWS.service;
 
+import com.MWS.dto.UserStorageDtoInfo;
 import com.MWS.model.File;
 import com.MWS.model.Roles;
 import com.MWS.model.UserEntity;
@@ -24,18 +25,20 @@ public class FileService {
     private final UserRepository userRepository;
     private final S3FileStorage s3Storage;
     private final FilePermissionService filePermissionService;
+    private final UserStorageService userStorageService;
 
     @Autowired
     public FileService(
             FileRepository fileRepository,
             UserRepository userRepository,
             S3FileStorage s3Storage,
-            FilePermissionService filePermissionService
+            FilePermissionService filePermissionService, UserStorageService userStorageService
     ) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.s3Storage = s3Storage;
         this.filePermissionService = filePermissionService;
+        this.userStorageService = userStorageService;
     }
 
     private String generateS3Key(UUID userId, String filename) {
@@ -69,6 +72,10 @@ public class FileService {
             String mimeType,
             String category
     ) {
+        if (!userStorageService.hasEnoughSpace(userId, fileSize)) {
+            throw new RuntimeException("Недостаточно места в хранилище");
+        }
+
         logger.info("Начало загрузки файла '{}' для пользователя {}", originalFilename, userId);
 
         try {
