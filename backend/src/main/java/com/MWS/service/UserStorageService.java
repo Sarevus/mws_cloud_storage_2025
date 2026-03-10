@@ -21,32 +21,22 @@ public class UserStorageService {
         this.userStorageRepository = userStorageRepository;
     }
 
-    /**
-     * Получить информацию о хранилище пользователя
-     */
     public UserStorageDtoInfo getUserStorage(UUID userId) {
         return userStorageRepository.getUserStorage(userId)
                 .orElse(new UserStorageDtoInfo(userId, 0));
     }
 
-    /**
-     * Получить используемое место в байтах
-     */
+    //используемое место в байтах
     public long getUsedBytes(UUID userId) {
         return getUserStorage(userId).usedBytes();
     }
 
-    /**
-     * Получить свободное место в байтах
-     */
+    //свободное место в байтах
     public long getFreeBytes(UUID userId) {
         long used = getUsedBytes(userId);
         return maxStoragePerUser - used;
     }
 
-    /**
-     * Проверить, достаточно ли места для загрузки файла
-     */
     public boolean hasEnoughSpace(UUID userId, long fileSize) {
         return getFreeBytes(userId) >= fileSize;
     }
@@ -62,9 +52,6 @@ public class UserStorageService {
         return new StorageInfo(used, maxStoragePerUser, percent);
     }
 
-    /**
-     * Внутренний класс для данных прогресс-бара
-     */
     public record StorageInfo(long used, long total, int percent) {
     }
 }

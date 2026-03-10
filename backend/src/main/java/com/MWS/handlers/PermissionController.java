@@ -36,16 +36,10 @@ public class PermissionController {
     @ResponseStatus(HttpStatus.CREATED)
     public FilePermissionDto shareFile(@RequestBody ShareRequestDto shareRequest, HttpSession session) {
 
-        System.out.println("=== DEBUG: shareFile called ===");
-        System.out.println("=== DEBUG: fileId = " + shareRequest.fileId());
-        System.out.println("=== DEBUG: userEmail = " + shareRequest.userEmail());
-        System.out.println("=== DEBUG: role = " + shareRequest.role());
-
         UUID userId = (UUID) session.getAttribute("userId");
         if (userId == null) {
             throw new IllegalArgumentException("No such user");
         }
-        System.out.println("=== DEBUG: ownerId from session = " + userId);
 
         logger.info("Пользователь {} делится файлом {} с пользователем {}", userId, shareRequest.fileId(), shareRequest.userEmail());
 
@@ -106,7 +100,6 @@ public class PermissionController {
 
         logger.info("Пользователь {} запрашивает список доступов к файлу {}", userId, fileId);
 
-        // УБИРАЕМ try-catch, пусть выбрасывает ошибку если не владелец
         return filePermissionService.getAllAccessors(fileId, userId);
     }
 
