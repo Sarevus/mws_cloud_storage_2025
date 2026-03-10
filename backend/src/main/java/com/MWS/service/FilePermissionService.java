@@ -85,7 +85,7 @@ public class FilePermissionService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("File not found"));
 
-        if (!file.getUser().getId().equals(userId)) {
+        if (!file.getUser().getId().equals(ownerId)) {
             throw new SecurityException("Only owner can share files");
         }
 
