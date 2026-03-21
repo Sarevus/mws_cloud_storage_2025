@@ -22,7 +22,8 @@ public class DefaultEmailService implements EmailService {
     public void sendTextEmail(String toAddress, String subject, String message) {
 
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        simpleMailMessage.setTo(toAddress);
+        simpleMailMessage.setTo(toAddress.trim());
+        simpleMailMessage.setFrom("CloudStorageMIPT@yandex.com");
         simpleMailMessage.setSubject(subject);
         simpleMailMessage.setText(message);
         emailSender.send(simpleMailMessage);
