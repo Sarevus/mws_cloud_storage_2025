@@ -6,6 +6,7 @@ import com.MWS.dto.get.GetSimpleUserDto;
 import java.util.UUID;
 
 public interface UserService {
+    void validateRegistrationRequest(CreateUserDTO userDTO);
 
     GetSimpleUserDto createUser(CreateUserDTO userDTO);
 

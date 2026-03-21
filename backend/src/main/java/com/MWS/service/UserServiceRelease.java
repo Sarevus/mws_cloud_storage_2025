@@ -6,15 +6,13 @@ import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
 import com.MWS.model.UserEntity;
 import com.MWS.repository.UserRepository;
+import com.MWS.security.HashPassword;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.MWS.security.HashPassword;
-
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,6 +24,21 @@ public class UserServiceRelease implements UserService {
         this.userRepository = userRepository;
     }
 
+    public void validateRegistrationRequest(CreateUserDTO userDTO) {
+        ValidationResult validationResult = Validator.validate(userDTO);
+        if (!validationResult.isValid() || !validationResult.getErrors().isEmpty()) {
+            String message = String.join("; ", validationResult.getErrors());
+            logger.warn("Ошибка валидации данных пользователя: {}", message);
+            throw new IllegalArgumentException("Некорректные данные пользователя: " + message);
+        }
+        String email = userDTO.email();
+
+        // Проверяем есть ли в бд пользователь с таким же email
+        userRepository.findByEmail(email).ifPresent(existingUser -> {
+            logger.warn("Пользователь с email {} уже существует.", email);
+            throw new IllegalArgumentException("Email " + email + " уже занят.");
+        });
+    }
 
     /**
      * Регистрация пользователя
@@ -35,26 +48,13 @@ public class UserServiceRelease implements UserService {
     @Override
     public GetSimpleUserDto createUser(CreateUserDTO userDTO) {
         // проверка на валидность вводимых данных
-        ValidationResult validationResult = Validator.validate(userDTO);
-        if (!validationResult.isValid() || !validationResult.getErrors().isEmpty()) {
-            String message = String.join("; ", validationResult.getErrors());
-            logger.warn("Ошибка валидации данных пользователя: {}", message);
-            throw new IllegalArgumentException("Некорректные данные пользователя: " + message);
-        }
-
+        validateRegistrationRequest(userDTO);
 
         // Заполняем переменные значениями из dto. Пароль переводим в хэшированный
         String email = userDTO.email();
         String name = userDTO.name();
         String phoneNumber = userDTO.phoneNumber();
         String password = HashPassword.createPasswordHash(userDTO.password());
-
-
-        // Проверяем есть ли в бд пользователь с таким же email
-        userRepository.findByEmail(email).ifPresent(existingUser -> {
-            logger.warn("Пользователь с email {} уже существует.", email);
-            throw new IllegalArgumentException("Email " + email + " уже занят.");
-        });
 
 
         // заполняем UserEntity
