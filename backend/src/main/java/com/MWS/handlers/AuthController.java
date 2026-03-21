@@ -25,6 +25,7 @@ public class AuthController {
     private final EmailService emailService;
     private final VerificationCodeService verificationCodeService;
 
+
     @Autowired
     public AuthController(UserService userService, EmailService emailService, VerificationCodeService verificationCodeService) {
         this.userService = userService;
@@ -35,6 +36,7 @@ public class AuthController {
 
     @PostMapping("/register/request")
     public void requestRegister(@RequestBody CreateUserDTO body) {
+        userService.validateRegistrationRequest(body);
         int code = (int) (Math.random() * 900000) + 100000;
 
         emailService.sendTextEmail(body.email(), "Код подтверждения", "Ваш код: " + code);

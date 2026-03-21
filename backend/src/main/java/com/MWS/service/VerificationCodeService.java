@@ -20,6 +20,7 @@ public class VerificationCodeService {
     public CreateUserDTO getPendingUser(String email) {
         return pendingRegistrations.get(email);
     }
+
     public void saveCode(String email, int code) {
         codes.put(email, code);
     }
