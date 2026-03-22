@@ -4,13 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Вход - Cloud Storage</title>
+    <link rel="stylesheet" href="./styles/index.css">
 </head>
 
 <body>
-    <input id="verification-code" type="text" placeholder="Введите код">
-    <button id="verify-button">Подтвердить</button>
-    <p id="email-label"></p>
+     <div class="log-in">
+        <h1 class="title">Введите код подтверждения</h1>
+        
+        <form class="field-form">
+            <div class="field">
+
+                     <input class="field_input" id="verification-code" type="text" placeholder="Введите код">
+            </div>
+        </form>
+          <button type="button" class="button" id="verify-button">Подтвердить</button>
+          <p id="email-label"></p>
+     </div>
+   
+  
+    
 </body>
 <script src="verificationPage.js"></script>
 </html>

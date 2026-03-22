@@ -35,7 +35,7 @@ function verifyCode(event) {
         });
 }
 
-verifyBtn.onclick = verifyCode;
+verifyBtn.addEventListener("click", verifyCode);
 
 document.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
