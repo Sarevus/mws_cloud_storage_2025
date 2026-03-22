@@ -17,19 +17,14 @@ class FileManager {
      */
     getUserIdFromUrl() {
         const params = new URLSearchParams(window.location.search);
-        // Пробуем получить id (для fileExchange и myProfile)
         let userId = params.get('id');
-
-        // Если нет id, пробуем получить userId (для share.html)
         if (!userId) {
             userId = params.get('userId');
         }
-
         if (!userId) {
             console.error('User ID not found in URL');
             return null;
         }
-
         return userId;
     }
 
@@ -37,7 +32,6 @@ class FileManager {
      * Загружает email пользователя из сессии
      */
     async loadUserEmail() {
-        // Сначала пробуем из sessionStorage
         let email = sessionStorage.getItem('userEmail');
         if (email) {
             this.currentUserEmail = email;
@@ -45,7 +39,6 @@ class FileManager {
             return email;
         }
 
-        // Если нет, получаем через API
         try {
             console.log('Получаем email из сессии через API...');
             const response = await fetch(`${this.baseUrl}/api/auth/me`, {
@@ -112,7 +105,6 @@ class FileManager {
             const files = result.files || [];
             console.log(`✅ Получено ${files.length} файлов`);
 
-            // Логирование каждого полученного файла
             files.forEach((file, index) => {
                 console.log(`Файл ${index + 1}: "${file.originalName}"`, {
                     категорияИзБД: file.category,
@@ -134,11 +126,8 @@ class FileManager {
      * Получает категорию файла ИЗ ДАННЫХ СЕРВЕРА (из БД)
      */
     getFileCategory(file) {
-        // категория с сервера, которая хранится в БД
         const categoryFromServer = file.category;
-
         console.log(`Файл "${file.originalName}": категория "${categoryFromServer}"`);
-
         return categoryFromServer || "general";
     }
 
@@ -149,25 +138,18 @@ class FileManager {
         const mimeType = file.type.toLowerCase();
         const fileName = file.name.toLowerCase();
 
-        // Изображения
         if (mimeType.startsWith('image/') ||
             fileName.match(/\.(jpg|jpeg|png|gif|bmp|webp|svg|tiff)$/)) {
             return 'photos';
         }
-
-        // Видео
         if (mimeType.startsWith('video/') ||
             fileName.match(/\.(mp4|avi|mov|wmv|flv|mkv|webm|mpeg|mpg)$/)) {
             return 'videos';
         }
-
-        // Аудио
         if (mimeType.startsWith('audio/') ||
             fileName.match(/\.(mp3|wav|flac|aac|ogg|wma|m4a)$/)) {
             return 'music';
         }
-
-        // Документы
         if (mimeType.includes('pdf') ||
             mimeType.includes('msword') ||
             mimeType.includes('excel') ||
@@ -175,14 +157,12 @@ class FileManager {
             fileName.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|rtf|csv)$/)) {
             return 'documents';
         }
-
-        // Если не удалось определить - оставляем "shared"
         console.warn(`Не удалось определить категорию для файла: ${file.name} (${file.type})`);
         return 'shared';
     }
 
     /**
-     * Загружает файл на сервер С КАТЕГОРИЕЙ
+     * Загружает файл на сервер
      */
     async uploadFile(file, category = null) {
         if (!this.currentUserId) {
@@ -197,7 +177,6 @@ class FileManager {
             if (!confirm(`Файл с таким именем уже существует. Хотите заменить его?`)) {
                 return null;
             }
-
             await this.deleteFile(existingFile.id, true);
         }
 
@@ -212,16 +191,12 @@ class FileManager {
         formData.append('file', file);
 
         try {
-            // Определяем финальную категорию
             let finalCategory = category;
-
-            // Если категория не указана или это 'shared' - определяем автоматически
             if (!finalCategory || finalCategory === 'shared') {
                 finalCategory = this.detectCategoryFromFile(file);
                 console.log(`Автоматически определена категория: "${finalCategory}"`);
             }
 
-            // Всегда передаем категорию на сервер (даже если это 'shared')
             let url = `${this.baseUrl}/api/files/upload?userId=${this.currentUserId}`;
             url += `&category=${encodeURIComponent(finalCategory)}`;
 
@@ -264,22 +239,14 @@ class FileManager {
         }
     }
 
-    /**
-     * Форматирует размер файла в читаемый вид
-     */
     formatFileSize(bytes) {
         if (bytes === 0 || !bytes) return '0 Bytes';
-
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    /**
-     * Скачивает файл
-     */
     async downloadFile(fileId, fileName) {
         if (!this.currentUserId) {
             alert('Ошибка: ID пользователя не найден');
@@ -317,9 +284,6 @@ class FileManager {
         }
     }
 
-    /**
-     * Переименовывает файл
-     */
     async renameFile(fileId, newName, originalFile) {
         if (!this.currentUserId) {
             alert('Ошибка: ID пользователя не найден');
@@ -374,9 +338,6 @@ class FileManager {
         }
     }
 
-    /**
-     * Обновляет прогресс-бар хранилища
-     */
     async updateStorageInfo() {
         if (!this.currentUserId) return;
 
@@ -413,9 +374,6 @@ class FileManager {
         }
     }
 
-    /**
-     * Создает HTML элемент файла
-     */
     createFileElement(file) {
         const fileId = file.id || file.fileId;
         const fileName = file.originalName || file.name || file.fileName || 'Без имени';
@@ -445,58 +403,30 @@ class FileManager {
 
         switch(fileCategory) {
             case 'photos':
-                iconSVG = `
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
-                    </svg>`;
+                iconSVG = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
                 fileTypeName = 'Изображение';
                 break;
             case 'videos':
-                iconSVG = `
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <polygon points="10 8 16 12 10 16 10 8"/>
-                    </svg>`;
+                iconSVG = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`;
                 fileTypeName = 'Видеофайл';
                 break;
             case 'music':
-                iconSVG = `
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M9 17H5V9H9V17Z"/>
-                        <path d="M19 17H15V5H19V17Z"/>
-                        <circle cx="7" cy="18" r="3"/>
-                        <circle cx="17" cy="18" r="3"/>
-                    </svg>`;
+                iconSVG = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 17H5V9H9V17Z"/><path d="M19 17H15V5H19V17Z"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="18" r="3"/></svg>`;
                 fileTypeName = 'Аудиофайл';
                 break;
             case 'documents':
-                iconSVG = `
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 2V8H20" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M16 13H8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M16 17H8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M10 9H9H8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>`;
+                iconSVG = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 13H8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 17H8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 9H9H8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
                 fileTypeName = 'Документ';
                 break;
             default:
-                iconSVG = `
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 2V8H20" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>`;
+                iconSVG = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
                 fileTypeName = 'Файл';
         }
 
         fileElement.innerHTML = `
-            <div class="file-icon">
-                ${iconSVG}
-            </div>
+            <div class="file-icon">${iconSVG}</div>
             <div class="file-info" style="overflow:hidden;">
-                <h4 class="file-name">${fileName}</h4>
+                <h4 class="file-name">${this.escapeHtml(fileName)}</h4>
                 <p>${fileTypeName}</p>
                 <div class="file-meta">
                     <span>${fileSize}</span>
@@ -504,25 +434,25 @@ class FileManager {
                 </div>
             </div>
             <div class="file-actions">
-                <button class="btn-download" data-file-id="${fileId}" data-file-name="${fileName}">
-                    Скачать
-                </button>
-                <button class="btn-rename" data-file-id="${fileId}">
-                    Переименовать
-                </button>
+                <button class="btn-download" data-file-id="${fileId}" data-file-name="${fileName}">Скачать</button>
+                <button class="btn-rename" data-file-id="${fileId}">Переименовать</button>
                 <button class="btn-share" data-file-id="${fileId}" data-file-name="${fileName}">Поделиться</button>
-                <button class="btn-delete" data-file-id="${fileId}">
-                    Удалить
-                </button>
+                <button class="btn-delete" data-file-id="${fileId}">Удалить</button>
             </div>
         `;
-
         return fileElement;
     }
 
-    /**
-     * Обновляет отображение файлов
-     */
+    escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
     async updateFileDisplay() {
         if (!this.currentUserId) {
             console.error('Cannot update files: user ID not found');
@@ -536,7 +466,6 @@ class FileManager {
             const files = await this.getFiles();
             console.log('📁 Всего файлов:', files.length);
 
-            // Обновляем информацию о хранилище
             await this.updateStorageInfo();
 
             const totalFilesEl = document.getElementById('total-files');
@@ -544,20 +473,19 @@ class FileManager {
                 totalFilesEl.textContent = `${files.length} файл${files.length % 10 === 1 ? '' : files.length % 10 >= 2 && files.length % 10 <= 4 ? 'а' : 'ов'}`;
             }
 
-            // обновляем категории
-            this.categories.forEach(categoryName => {
+            for (const categoryName of this.categories) {
                 console.log(`🔍 Обновляем категорию: "${categoryName}"`);
 
                 const contentElement = document.getElementById(`${categoryName}-content`);
                 if (!contentElement) {
                     console.error(`❌ Элемент #${categoryName}-content не найден!`);
-                    return;
+                    continue;
                 }
 
                 const filesGrid = contentElement.querySelector('.files-grid');
                 if (!filesGrid) {
                     console.error(`❌ .files-grid внутри #${categoryName}-content не найден!`);
-                    return;
+                    continue;
                 }
 
                 filesGrid.innerHTML = '';
@@ -568,9 +496,7 @@ class FileManager {
                 } else {
                     categoryFiles = files.filter(file => {
                         const fileCategory = this.getFileCategory(file);
-                        const matches = fileCategory === categoryName;
-                        console.log(`  - "${file.originalName}": ${fileCategory} === ${categoryName} ? ${matches}`);
-                        return matches;
+                        return fileCategory === categoryName;
                     });
                 }
 
@@ -579,18 +505,14 @@ class FileManager {
                 if (categoryFiles.length === 0) {
                     const emptyState = document.createElement('div');
                     emptyState.className = 'empty-state';
-                    emptyState.innerHTML = `
-                        <h3>Пока нет файлов</h3>
-                        <p>Загрузите файлы для хранения</p>
-                    `;
+                    emptyState.innerHTML = '<h3>Пока нет файлов</h3><p>Загрузите файлы для хранения</p>';
                     filesGrid.appendChild(emptyState);
                 } else {
                     categoryFiles.forEach(file => {
-                        const fileElement = this.createFileElement(file);
-                        filesGrid.appendChild(fileElement);
+                        filesGrid.appendChild(this.createFileElement(file));
                     });
                 }
-            });
+            }
 
             this.attachFileEventHandlers();
 
@@ -601,9 +523,6 @@ class FileManager {
         }
     }
 
-    /**
-     * Добавляет обработчики событий
-     */
     attachFileEventHandlers() {
         document.querySelectorAll('.btn-download').forEach(btn => {
             btn.addEventListener('click', async (e) => {
@@ -639,17 +558,11 @@ class FileManager {
                         fileNameElement.textContent = updatedFile.originalName || newName;
 
                         const allFiles = document.querySelectorAll(`.file-card[data-file-id="${fileId}"]`);
-
                         allFiles.forEach(card => {
                             const name = card.querySelector('.file-name');
-                            if (name) {
-                                name.textContent = newName;
-                            }
-
+                            if (name) name.textContent = newName;
                             const downloadBtn = card.querySelector('.btn-download');
-                            if (downloadBtn) {
-                                downloadBtn.dataset.fileName = updatedFile.originalName || newName;
-                            }
+                            if (downloadBtn) downloadBtn.dataset.fileName = updatedFile.originalName || newName;
                         });
                     }
 
@@ -691,9 +604,6 @@ class FileManager {
         });
     }
 
-    /**
-     * Инициализирует загрузку файлов для категории
-     */
     initCategoryUpload(categoryId) {
         const uploadInput = document.getElementById(`${categoryId}-upload`);
 
@@ -714,38 +624,19 @@ class FileManager {
             if (e.target.id !== `${categoryId}-upload`) return;
 
             const files = Array.from(e.target.files);
-
             if (files.length === 0) return;
 
             console.log(`Загрузка ${files.length} файлов в категорию "${categoryId}"`);
 
             const originalHTML = uploadArea.innerHTML;
-            uploadArea.innerHTML = `
-                <div class="upload-progress">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <circle cx="12" cy="12" r="10" stroke-opacity="0.3"/>
-                        <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
-                    </svg>
-                    <h3>Загрузка ${files.length} файлов...</h3>
-                    <p>Пожалуйста, подождите</p>
-                </div>
-            `;
+            uploadArea.innerHTML = `<div class="upload-progress"><h3>Загрузка ${files.length} файлов...</h3><p>Пожалуйста, подождите</p></div>`;
 
             let successCount = 0;
-            let uploadedCategories = {};
 
             for (const file of files) {
-                try {
-                    const uploadCategory = categoryId === 'shared' ? null : categoryId;
-                    const uploadedFile = await this.uploadFile(file, uploadCategory);
-                    if (uploadedFile) {
-                        successCount++;
-                        const cat = this.getFileCategory(uploadedFile);
-                        uploadedCategories[cat] = (uploadedCategories[cat] || 0) + 1;
-                    }
-                } catch (error) {
-                    console.error(`Error uploading ${file.name}:`, error);
-                }
+                const uploadCategory = categoryId === 'shared' ? null : categoryId;
+                const uploadedFile = await this.uploadFile(file, uploadCategory);
+                if (uploadedFile) successCount++;
             }
 
             uploadArea.innerHTML = originalHTML;
@@ -753,26 +644,12 @@ class FileManager {
 
             if (successCount > 0) {
                 console.log(`✅ Успешно загружено ${successCount} файлов`);
-
-                // Показываем информацию о распределении по категориям
-                const categoriesList = Object.entries(uploadedCategories)
-                    .map(([cat, count]) => `${cat}: ${count}`)
-                    .join(', ');
-                console.log(`📊 Распределение по категориям: ${categoriesList}`);
-
-            } else if (successCount === 0 && files.length > 0) {
-                if (!navigator.onLine) {
-                    alert('Не удалось загрузить файлы. Проверьте подключение к серверу.');
-                }
             }
 
             e.target.value = '';
         });
     }
 
-    /**
-     * Инициализирует все загрузчики файлов
-     */
     initAllUploaders() {
         console.log('Инициализация загрузчиков для категорий:', this.categories);
         this.categories.forEach(category => {
@@ -780,9 +657,6 @@ class FileManager {
         });
     }
 
-    /**
-     * Инициализирует FileManager
-     */
     async init() {
         if (!this.currentUserId) {
             console.error('FileManager: User ID not found');
@@ -791,21 +665,12 @@ class FileManager {
         }
 
         console.log('Initializing FileManager for user:', this.currentUserId);
-
-        // Загружаем email пользователя
         await this.loadUserEmail();
-
         console.log('User email:', this.currentUserEmail);
-
-        // Проверяем, что email получен
-        if (!this.currentUserEmail) {
-            console.warn('⚠️ ВНИМАНИЕ: Email не получен. Привязка файлов к папкам может не работать!');
-        }
 
         this.initAllUploaders();
         await this.updateStorageInfo();
         await this.updateFileDisplay();
-
         this.initDeleteAllButtons();
 
         document.querySelectorAll('.category-tab').forEach(tab => {
@@ -817,199 +682,86 @@ class FileManager {
         console.log('FileManager initialized successfully');
     }
 
-    /**
-     * Получает последние N файлов
-     */
-    async getRecentFiles(limit = 5) {
-        const allFiles = await this.getFiles();
-
-        if (allFiles.length === 0) {
-            return [];
-        }
-
-        return allFiles.slice(0, limit);
+    getRecentFiles(limit = 5) {
+        return this.getFiles().then(files => files.slice(0, limit));
     }
 
-
-    /**
-     * Инициализирует кнопки удаления ВСЕХ файлов
-     */
     initDeleteAllButtons() {
-        // Все кнопки удаления всех файлов (в каждой категории)
         const deleteAllButtons = [
-            'delete-all-photos',
-            'delete-all-videos',
-            'delete-all-documents',
-            'delete-all-music',
-            'delete-all-shared'
+            'delete-all-photos', 'delete-all-videos', 'delete-all-documents',
+            'delete-all-music', 'delete-all-shared'
         ];
 
         deleteAllButtons.forEach(btnId => {
             const btn = document.getElementById(btnId);
             if (btn) {
-                // Убираем старые обработчики
-                btn.onclick = null;
-
-                // Назначаем новый (все кнопки вызывают одну функцию)
                 btn.onclick = async (event) => {
                     event.preventDefault();
                     event.stopPropagation();
-
                     const category = btnId.replace('delete-all-', '');
-                    console.log(`Кнопка ${btnId} нажата - категория: ${category}`);
-
                     const originalText = btn.textContent;
                     btn.textContent = 'Удаление...';
                     btn.disabled = true;
 
-                    let result;
                     if (category === 'shared') {
                         await this.deleteAllFiles();
                     } else {
                         await this.deleteFilesByCategory(category);
                     }
 
-                    console.log('Результат удаления всех файлов:', result);
-
                     btn.textContent = originalText;
                     btn.disabled = false;
                 };
-                console.log(`Обработчик для ${btnId} назначен (удаление всех файлов)`);
-            } else {
-                console.error(`Кнопка ${btnId} не найдена!`);
             }
         });
     }
 
-    /**
-     * Удаляет все файлы пользователя
-     */
     async deleteAllFiles() {
-        if (!this.currentUserId) {
-            alert('Ошибка: ID пользователя не найден');
-            return false;
-        }
-
-        // Запрашиваем подтверждение
-        if (!confirm('⚠️ ВНИМАНИЕ!\n\nВы действительно хотите удалить все свои файлы?\nЭто действие нельзя отменить!')) {
-            return false;
-        }
-
-        if (!confirm('Вы точно уверены? Все файлы будут безвозвратно удалены!')) {
-            return false;
-        }
+        if (!this.currentUserId) return false;
+        if (!confirm('⚠️ ВНИМАНИЕ! Удалить все файлы?')) return false;
+        if (!confirm('Вы точно уверены?')) return false;
 
         try {
             const url = `${this.baseUrl}/api/files?userId=${this.currentUserId}&category=shared`;
-            console.log('Deleting ALL files:', url);
-
-            const response = await fetch(url, {
-                method: 'DELETE',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Delete failed: ${response.status} - ${errorText}`);
-            }
-
+            const response = await fetch(url, { method: 'DELETE', credentials: 'include' });
             const result = await response.json();
-
             if (result.success) {
-                console.log('✅ Все файлы успешно удалены');
-                alert('✅ Все файлы успешно удалены!');
-
-                // Обновляем отображение
                 await this.updateFileDisplay();
+                alert('✅ Все файлы удалены');
                 return true;
-            } else {
-                throw new Error(result.error || 'Unknown error');
             }
+            return false;
         } catch (error) {
             console.error('❌ Delete all error:', error);
-            alert(`Ошибка удаления: ${error.message}`);
             return false;
         }
     }
 
-    /**
-     * Удаляет файл
-     */
     async deleteFile(fileId, skipConfirm = false) {
-        if (!this.currentUserId) {
-            alert('Ошибка: ID пользователя не найден');
-            return false;
-        }
-
-        if (!skipConfirm && !confirm('Вы уверены, что хотите удалить этот файл?')) {
-            return false;
-        }
+        if (!this.currentUserId) return false;
+        if (!skipConfirm && !confirm('Вы уверены, что хотите удалить этот файл?')) return false;
 
         try {
             const url = `${this.baseUrl}/api/files/${fileId}?userId=${this.currentUserId}`;
-            console.log('Deleting from:', url);
-
-            const response = await fetch(url, {
-                method: 'DELETE',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            console.log('Delete response status:', response.status);
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Delete failed: ${response.status} - ${errorText}`);
-            }
-
+            const response = await fetch(url, { method: 'DELETE', credentials: 'include' });
             const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(`Delete failed: ${result.error || 'Unknown error'}`);
-            }
-
-            if (!skipConfirm) {
-                console.log('✅ File deleted successfully');
-                alert('Файл успешно удалён!');
-                return true;
-            }
-
-            return true;
-
+            return result.success;
         } catch (error) {
             console.error('❌ Delete error:', error);
-            alert(`Ошибка удаления: ${error.message}`);
             return false;
         }
     }
 
-    /**
-     * Удаляет все файлы
-     */
     async deleteFilesByCategory(category) {
-        if (!this.currentUserId) {
-            alert('Ошибка: ID пользователя не найден');
-            return false;
-        }
+        if (!this.currentUserId) return false;
 
-        const categories = {
-            'photos': 'фотографии',
-            'videos': 'видео',
-            'documents': 'документы',
-            'music': 'музыку',
-            'shared': 'все файлы'
-        };
-
-        if (!confirm(`Вы уверены, что хотите удалить все ${categories[category]}?`)) {
-            return false;
-        }
+        const categories = { 'photos': 'фотографии', 'videos': 'видео', 'documents': 'документы', 'music': 'музыку', 'shared': 'все файлы' };
+        if (!confirm(`Вы уверены, что хотите удалить все ${categories[category]}?`)) return false;
 
         try {
             const url = `${this.baseUrl}/api/files?userId=${this.currentUserId}&category=${category}`;
             const response = await fetch(url, { method: 'DELETE', credentials: 'include' });
             const result = await response.json();
-
             if (result.success) {
                 await this.updateFileDisplay();
                 alert('✅ Удалено!');
@@ -1022,76 +774,32 @@ class FileManager {
         }
     }
 
-    /**
-     * Получает список пользователей, имеющих доступ к файлу
-     */
     async getFileAccessors(fileId) {
-        if (!this.currentUserId) {
-            console.error('Cannot get accessors: user ID not found');
-            return [];
-        }
-
+        if (!this.currentUserId) return [];
         try {
-            const url = `${this.baseUrl}/api/permission/${fileId}/accessors`;
-            console.log('Fetching accessors from:', url);
-
-            const response = await fetch(url, {
+            const response = await fetch(`${this.baseUrl}/api/permission/${fileId}/accessors`, {
                 method: 'GET',
-                credentials: 'include',
-                headers: { 'Accept': 'application/json' }
+                credentials: 'include'
             });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
-            }
-
-            const result = await response.json();
-            console.log('Accessors response:', result);
-
-            return result || [];
-
+            return await response.json();
         } catch (error) {
             console.error('❌ Error fetching accessors:', error);
             return [];
         }
     }
 
-    /**
-     * Предоставляет доступ к файлу другому пользователю
-     */
     async shareFile(fileId, targetUserEmail, role) {
-        if (!this.currentUserId) {
-            alert('Ошибка: ID пользователя не найден');
-            return false;
-        }
-
+        if (!this.currentUserId) return false;
         try {
-            const url = `${this.baseUrl}/api/permission/share`;
-            console.log('Sharing file:', {fileId, targetUserEmail, role});
-
-            const response = await fetch(url, {
+            const response = await fetch(`${this.baseUrl}/api/permission/share`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    fileId: fileId,
-                    userEmail: targetUserEmail,
-                    role: role
-                })
+                body: JSON.stringify({ fileId, userEmail: targetUserEmail, role })
             });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
-            }
-
-            const result = await response.json();
-            console.log('Share response:', result);
-
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             alert('✅ Доступ предоставлен');
             return true;
-
         } catch (error) {
             console.error('❌ Error sharing file:', error);
             alert(`Ошибка: ${error.message}`);
@@ -1099,141 +807,96 @@ class FileManager {
         }
     }
 
-    /**
-     * Отзывает доступ
-     */
     async revokeAccess(fileId, targetUserId) {
-        if (!this.currentUserId) {
-            alert('Ошибка: ID пользователя не найден');
-            return false;
-        }
-
+        if (!this.currentUserId) return false;
         try {
-            const url = `${this.baseUrl}/api/permission/${fileId}/revoke/${targetUserId}`;
-            console.log('Revoking access:', url);
-
-            const response = await fetch(url, {
+            const response = await fetch(`${this.baseUrl}/api/permission/${fileId}/revoke/${targetUserId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
-            }
-
-            console.log('Access revoked successfully');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             alert('✅ Доступ отозван');
             return true;
-
         } catch (error) {
             console.error('❌ Error revoking access:', error);
-            alert(`Ошибка: ${error.message}`);
             return false;
         }
     }
 
-    /**
-     * Получает файлы, доступные текущему пользователю (которыми поделились)
-     */
     async getSharedWithMe() {
-        if (!this.currentUserId) {
-            console.error('Cannot get shared files: user ID not found');
-            return [];
-        }
-
+        if (!this.currentUserId) return [];
         try {
-            const url = `${this.baseUrl}/api/permission/shared-with-me`;
-            console.log('Fetching shared files from:', url);
-
-            const response = await fetch(url, {
+            const response = await fetch(`${this.baseUrl}/api/permission/shared-with-me`, {
                 method: 'GET',
-                credentials: 'include',
-                headers: { 'Accept': 'application/json' }
+                credentials: 'include'
             });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
-            }
-
-            const result = await response.json();
-            console.log('Shared files response:', result);
-
-            return result || [];
-
+            return await response.json();
         } catch (error) {
             console.error('❌ Error fetching shared files:', error);
             return [];
         }
     }
 
+    async getUnattachedFiles(userId) {
+        try {
+            const response = await fetch(`${this.baseUrl}/api/files?userId=${userId}&unattached=true`, {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            return data.files || [];
+        } catch (error) {
+            console.error('❌ Error fetching unattached files:', error);
+            return [];
+        }
+    }
+
     /**
-     * Загружает файл и сразу привязывает к папке
+     * Привязывает существующий файл к папке (БЕЗ ПОВТОРНОЙ ЗАГРУЗКИ)
      */
-    async uploadFileToFolder(file, folderId) {
-        console.log('=== uploadFileToFolder START ===');
-        console.log('File name:', file.name);
+    async bindFileToFolder(fileId, folderId) {
+        console.log('=== bindFileToFolder START ===');
+        console.log('File ID:', fileId);
         console.log('Folder ID:', folderId);
         console.log('Current user email:', this.currentUserEmail);
 
         if (!folderId) {
             console.error('❌ Не указан folderId');
-            return null;
+            return false;
         }
 
         if (!this.currentUserEmail) {
-            console.log('Email отсутствует, загружаем...');
             await this.loadUserEmail();
             if (!this.currentUserEmail) {
                 console.error('❌ Не удалось получить email');
-                alert('Ошибка: не удалось получить email пользователя');
-                return null;
+                return false;
             }
         }
 
         try {
-            console.log('📤 Шаг 1: Загрузка файла на сервер...');
-            const uploadedFile = await this.uploadFile(file, null);
-
-            if (!uploadedFile || !uploadedFile.id) {
-                throw new Error('Файл не загружен');
-            }
-
-            console.log(`✅ Файл загружен, ID: ${uploadedFile.id}, имя: ${uploadedFile.originalName}`);
-
-            console.log('📁 Шаг 2: Привязка к папке...');
+            console.log('📁 Привязка файла к папке...');
             const response = await fetch(`${this.baseUrl}/api/folders/${folderId}/files`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    fileIds: [uploadedFile.id],
+                    fileIds: [fileId],
                     addedBy: this.currentUserEmail
                 })
             });
 
-            console.log('Response status:', response.status);
-
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('Ошибка привязки:', errorText);
-                throw new Error(`Ошибка привязки к папке: ${response.status} - ${errorText}`);
+                throw new Error(`Ошибка привязки: ${response.status} - ${errorText}`);
             }
 
-            console.log(`✅ Файл "${uploadedFile.originalName}" успешно привязан к папке ${folderId}`);
-            return uploadedFile;
+            console.log(`✅ Файл ${fileId} привязан к папке ${folderId}`);
+            return true;
 
         } catch (error) {
-            console.error('❌ Ошибка в uploadFileToFolder:', error);
-            throw error;
+            console.error('❌ Ошибка привязки файла к папке:', error);
+            return false;
         }
     }
-
-
-
-
 }
 
-// Экспорт для использования в других файлах
 export default FileManager;

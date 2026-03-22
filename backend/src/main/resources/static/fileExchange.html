@@ -611,144 +611,119 @@
             loadingOverlay.classList.add('active');
 
             try {
-                // Получаем все существующие файлы пользователя
-                const allFiles = await fileManager.getFiles();
-                console.log('Все файлы пользователя:', allFiles);
-
-                // Группируем файлы по именам для быстрого поиска
+                // Получаем существующие файлы
+                const existingFiles = await fileManager.getFiles();
                 const filesByName = {};
-                allFiles.forEach(file => {
-                    filesByName[file.originalName] = file;
-                });
+                existingFiles.forEach(f => { filesByName[f.originalName] = f; });
 
-                // Получаем все пути файлов и группируем по папкам
+                // Группируем по папкам
                 const filesByPath = {};
-
                 for (const file of files) {
                     const relativePath = file.webkitRelativePath;
                     const pathParts = relativePath.split('/');
                     const rootFolderName = pathParts[0];
                     const subPath = pathParts.slice(1).join('/');
 
-                    if (!filesByPath[rootFolderName]) {
-                        filesByPath[rootFolderName] = [];
-                    }
-                    filesByPath[rootFolderName].push({
-                        fileName: file.name,
-                        subPath: subPath
-                    });
+                    if (!filesByPath[rootFolderName]) filesByPath[rootFolderName] = [];
+                    filesByPath[rootFolderName].push({ file, subPath });
                 }
 
-                // Для каждой корневой папки создаём структуру
+                // Для каждой корневой папки
                 for (const [rootFolderName, folderFiles] of Object.entries(filesByPath)) {
-                    console.log(`Обработка папки: ${rootFolderName}, файлов: ${folderFiles.length}`);
+                    console.log(`Обработка папки: ${rootFolderName}`);
 
                     // Создаём корневую папку
                     const createResponse = await fetch('/api/folders', {
                         method: 'POST',
                         credentials: 'include',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            folderName: rootFolderName,
-                            parentId: null
-                        })
+                        body: JSON.stringify({ folderName: rootFolderName, parentId: null })
                     });
-
-                    if (!createResponse.ok) {
-                        throw new Error(`Не удалось создать папку ${rootFolderName}`);
-                    }
-
+                    if (!createResponse.ok) throw new Error(`Не удалось создать папку ${rootFolderName}`);
                     const rootFolder = await createResponse.json();
                     const rootFolderId = rootFolder.id;
 
-                    // Привязываем файлы, создавая вложенные папки
-                    for (const {fileName, subPath} of folderFiles) {
+                    // Обрабатываем файлы
+                    for (const { file, subPath } of folderFiles) {
                         try {
                             let targetFolderId = rootFolderId;
 
-                            // Если файл во вложенной папке, создаём структуру
+                            // Создаём вложенные папки
                             if (subPath && subPath !== '') {
                                 const subPathParts = subPath.split('/');
-                                const folderPath = subPathParts.slice(0, -1); // убираем имя файла
-
+                                const folderPath = subPathParts.slice(0, -1);
                                 let currentParentId = rootFolderId;
 
                                 for (const folderName of folderPath) {
-                                    // Создаём вложенную папку
-                                    const folderResponse = await fetch('/api/folders', {
-                                        method: 'POST',
-                                        credentials: 'include',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            folderName: folderName,
-                                            parentId: currentParentId
-                                        })
-                                    });
+                                    // Ищем или создаём подпапку
+                                    const foldersResp = await fetch(`/api/folders?userId=${fileManager.currentUserId}`, { credentials: 'include' });
+                                    const allFolders = await foldersResp.json();
+                                    let existing = allFolders.find(f => f.name === folderName && f.parentId === currentParentId);
 
-                                    if (folderResponse.ok) {
-                                        const newFolder = await folderResponse.json();
-                                        currentParentId = newFolder.id;
-                                    } else if (folderResponse.status === 409) {
-                                        // Папка уже существует, ищем её
-                                        const foldersResponse = await fetch(`/api/folders?userId=${fileManager.currentUserId}`, {
-                                            credentials: 'include'
-                                        });
-                                        const allFolders = await foldersResponse.json();
-                                        const existingFolder = allFolders.find(f =>
-                                            f.name === folderName && f.parentId === currentParentId
-                                        );
-                                        if (existingFolder) {
-                                            currentParentId = existingFolder.id;
-                                        }
+                                    if (existing) {
+                                        currentParentId = existing.id;
                                     } else {
-                                        throw new Error(`Не удалось создать папку ${folderName}`);
+                                        const newFolderResp = await fetch('/api/folders', {
+                                            method: 'POST',
+                                            credentials: 'include',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ folderName: folderName, parentId: currentParentId })
+                                        });
+                                        if (!newFolderResp.ok) throw new Error(`Не удалось создать папку ${folderName}`);
+                                        const newFolder = await newFolderResp.json();
+                                        currentParentId = newFolder.id;
                                     }
                                 }
                                 targetFolderId = currentParentId;
                             }
 
-                            // Находим существующий файл по имени
-                            const existingFile = filesByName[fileName];
-                            if (!existingFile) {
-                                console.warn(`Файл не найден: ${fileName}`);
-                                continue;
+                            // Проверяем, существует ли файл
+                            let fileId;
+                            if (filesByName[file.name]) {
+                                fileId = filesByName[file.name].id;
+                                console.log(`Файл ${file.name} уже существует, ID: ${fileId}`);
+                            } else {
+                                // Загружаем новый файл без добавления в категории
+                                console.log(`Загружаем новый файл: ${file.name}`);
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                // Используем специальную категорию для папок
+                                const uploadUrl = `${fileManager.baseUrl}/api/files/upload?userId=${fileManager.currentUserId}&category=folder_files`;
+                                const uploadResp = await fetch(uploadUrl, {
+                                    method: 'POST',
+                                    credentials: 'include',
+                                    body: formData
+                                });
+                                const uploadResult = await uploadResp.json();
+                                if (!uploadResult.success) throw new Error(`Ошибка загрузки: ${uploadResult.error}`);
+                                fileId = uploadResult.file.id;
+                                filesByName[file.name] = uploadResult.file;
                             }
 
                             // Привязываем файл к папке
-                            console.log(`📁 Привязываем файл ${fileName} (ID: ${existingFile.id}) к папке ${targetFolderId}`);
-
                             const bindResponse = await fetch(`${fileManager.baseUrl}/api/folders/${targetFolderId}/files`, {
                                 method: 'POST',
                                 credentials: 'include',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    fileIds: [existingFile.id],
-                                    addedBy: fileManager.currentUserEmail
-                                })
+                                body: JSON.stringify({ fileIds: [fileId], addedBy: fileManager.currentUserEmail })
                             });
-
-                            if (!bindResponse.ok) {
-                                const errorText = await bindResponse.text();
-                                console.error(`Ошибка привязки файла ${fileName}:`, errorText);
+                            if (bindResponse.ok) {
+                                console.log(`✅ Файл ${file.name} привязан к папке`);
                             } else {
-                                console.log(`✅ Файл ${fileName} привязан к папке`);
+                                const errText = await bindResponse.text();
+                                console.error(`Ошибка привязки ${file.name}:`, errText);
                             }
 
                         } catch (error) {
-                            console.error(`Ошибка обработки файла ${fileName}:`, error);
+                            console.error(`Ошибка обработки ${file.name}:`, error);
                         }
                     }
                 }
 
-                // Обновляем отображение
                 await loadFolders();
                 await fileManager.updateFileDisplay();
-
-                setTimeout(() => {
-                    fileManager.attachFileEventHandlers();
-                }, 100);
-
-                alert('✅ Папка успешно загружена! Все файлы привязаны к папкам.');
+                setTimeout(() => fileManager.attachFileEventHandlers(), 100);
+                alert('✅ Папка загружена! Файлы привязаны.');
 
             } catch (error) {
                 console.error('Ошибка загрузки папки:', error);
@@ -761,9 +736,7 @@
 
         const uploadFolderArea = document.getElementById('upload-folder-area');
         if (uploadFolderArea) {
-            uploadFolderArea.onclick = () => {
-                folderInput.click();
-            };
+            uploadFolderArea.onclick = () => folderInput.click();
         }
     }
 
