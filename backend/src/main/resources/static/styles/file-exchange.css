@@ -285,24 +285,24 @@
     .files-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
-    
+
     .categories-tabs {
         padding-bottom: 5px;
     }
-    
+
     .category-tab {
         padding: 10px 20px;
         font-size: 0.9rem;
     }
-    
+
     .exchange-container {
         padding: 0 15px;
     }
-    
+
     .exchange-header h1 {
         font-size: 2rem;
     }
-    
+
     .upload-area {
         padding: 30px 20px;
     }
@@ -312,29 +312,29 @@
     .files-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .file-actions {
         flex-direction: column;
     }
-    
+
     .category-tab {
         padding: 8px 16px;
         font-size: 0.85rem;
     }
-    
+
     .upload-area {
         padding: 25px 15px;
     }
-    
+
     .exchange-header h1 {
         font-size: 1.8rem;
     }
-    
+
     .upload-icon {
         width: 60px;
         height: 60px;
     }
-    
+
     .upload-area h3 {
         font-size: 1.1rem;
     }

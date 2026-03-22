@@ -5,6 +5,7 @@ import com.MWS.model.File;
 import com.MWS.model.Roles;
 import com.MWS.model.UserEntity;
 import com.MWS.repository.FileRepository;
+import com.MWS.repository.FolderManagerRepository;
 import com.MWS.repository.UserRepository;
 import com.MWS.storage.S3FileStorage;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FileService {
@@ -26,19 +28,21 @@ public class FileService {
     private final S3FileStorage s3Storage;
     private final FilePermissionService filePermissionService;
     private final UserStorageService userStorageService;
+    private final FolderManagerRepository folderManagerRepository;
 
     @Autowired
     public FileService(
             FileRepository fileRepository,
             UserRepository userRepository,
             S3FileStorage s3Storage,
-            FilePermissionService filePermissionService, UserStorageService userStorageService
+            FilePermissionService filePermissionService, UserStorageService userStorageService, FolderManagerRepository folderManagerRepository
     ) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.s3Storage = s3Storage;
         this.filePermissionService = filePermissionService;
         this.userStorageService = userStorageService;
+        this.folderManagerRepository = folderManagerRepository;
     }
 
     private String generateS3Key(UUID userId, String filename) {
@@ -216,7 +220,7 @@ public class FileService {
                 file.setOriginalName(newName);
             }
 
-            File updatedFile = fileRepository.update(file);
+            File updatedFile = fileRepository.save(file);
             logger.info("✅ Метаданные файла {} обновлены", fileId);
 
             return updatedFile;
@@ -276,5 +280,14 @@ public class FileService {
                 logger.error("Ошибка при удалении файла {}: {}", file.getId(), e.getMessage());
             }
         }
+    }
+
+    public List<File> getUnattachedFiles(UUID userId) {
+        List<File> allFiles = fileRepository.findByUserId(userId);
+
+        // Фильтруем файлы, которые не привязаны к папкам
+        return allFiles.stream()
+                .filter(file -> folderManagerRepository.findFolderIdsByFileId(file.getId()).isEmpty())
+                .collect(Collectors.toList());
     }
 }

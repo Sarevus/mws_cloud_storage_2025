@@ -1,6 +1,9 @@
 package com.MWS.repository;
 
 import com.MWS.model.File;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,18 +13,8 @@ import java.util.UUID;
  * Интерфейс для работы с файлами в хранилище.
  * Реализацию сделает другой разработчик (БД, файловая система и т.д.)
  */
-public interface FileRepository {
-
-    /**
-     * Сохраняет файл.
-     */
-    File save(File file);
-
-    /**
-     * Находит файл по ID.
-     */
-    Optional<File> findById(UUID id);
-
+@Repository
+public interface FileRepository extends JpaRepository<File, UUID> {
     /**
      * Находит файл по ключу в S3.
      */
@@ -33,16 +26,6 @@ public interface FileRepository {
     List<File> findByUserId(UUID userId);
 
     /**
-     * Удаляет файл по ID.
-     */
-    void deleteById(UUID id);
-
-    /**
-     * Удаляет все файлы.
-     */
-    void deleteAll();
-
-    /**
      * Удаляет файл по ключу в S3.
      */
     void deleteByS3Key(String s3Key);
@@ -50,9 +33,8 @@ public interface FileRepository {
     /**
      * Обновляет информацию о файле.
      */
-    File update(File file);
-
     List<File> findByUserIdAndCategory(UUID userId, String category);
 
+    @Query("SELECT DISTINCT f.category FROM File f WHERE f.user.id = :userId ORDER BY f.category")
     List<String> findDistinctCategoriesByUser(UUID userId);
 }

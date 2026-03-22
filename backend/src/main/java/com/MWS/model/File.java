@@ -1,35 +1,50 @@
 package com.MWS.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
  * Модель файла в облачном хранилище.
  */
+@Getter
 @Entity
 @Table(name = "files")
 public class File {
+    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;                // Уникальный ID файла в БД
 
+    @Setter
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;              // Владелец файла
 
+    @Setter
     @Column(name = "link", nullable = false)
     private String s3Key;           // Ключ в S3 (путь: user/{userId}/{timestamp}_{filename})
 
+    @Setter
     private String originalName;    // Оригинальное имя файла
 
+    @Setter
     private Long size;              // Размер в байтах
 
+    @Setter
     private String mimeType;        // MIME-тип (image/jpeg, application/pdf и т.д.)
 
     @Column(name = "category")
     private String category;
+
+    @Getter
+    @Setter
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     /**
      * Контент файла.
@@ -40,6 +55,7 @@ public class File {
      * - при download вернуть поток наружу.
      */
 
+    @Setter
     @Transient
     private transient InputStream contentStream;
 
@@ -53,88 +69,15 @@ public class File {
         this.size = size;
         this.mimeType = mimeType;
         this.category = category != null ? category : "general";
-        //this.isPublic = false;
-        //this.uploadedAt = LocalDateTime.now();
-        //this.updatedAt = LocalDateTime.now();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public String getS3Key() {
-        return s3Key;
-    }
-
-    public String getOriginalName() {
-        return originalName;
-    }
-
-    public Long getSize() {
-        return size;
-    }
-
-    public String getMimeType() {
-        return mimeType;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public InputStream getContentStream() {
-        return contentStream;
-    }
-//    public Boolean getIsPublic() { return isPublic; }
-//    public String getDescription() { return description; }
-//    public LocalDateTime getUploadedAt() { return uploadedAt; }
-//    public LocalDateTime getUpdatedAt() { return updatedAt; }
-
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
-    }
-
-    public void setS3Key(String s3Key) {
-        this.s3Key = s3Key;
-    }
-
-    public void setOriginalName(String originalName) {
-        this.originalName = originalName;
-    }
-
-    public void setSize(Long size) {
-        this.size = size;
-    }
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
+        this.createdAt = LocalDateTime.now();
     }
 
     public void setCategory(String category) {
         this.category = category != null ? category : "general";
     }
 
-    public void setContentStream(InputStream contentStream) {
-        this.contentStream = contentStream;
-    }
-//    public void setIsPublic(Boolean isPublic) { this.isPublic = isPublic; }
-//    public void setDescription(String description) { this.description = description; }
-//    public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
-//    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-
     /**
      * Возвращает удобочитаемый размер файла.
-     * нужно, чтобы во фронте не ебаться
      */
     public String getFormattedSize() {
         if (size == null) return "0 B";

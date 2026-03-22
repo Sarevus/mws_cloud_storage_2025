@@ -5,7 +5,8 @@ CREATE TABLE files (
     original_name VARCHAR(255) NOT NULL,
     size BIGINT,
     mime_type VARCHAR(100),
-    category VARCHAR(50) DEFAULT 'general'
+    category VARCHAR(50) DEFAULT 'general',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE files
@@ -17,3 +18,4 @@ ADD CONSTRAINT fk_files_users_id
 CREATE INDEX IF NOT EXISTS idx_files_category ON files(category);
 CREATE INDEX IF NOT EXISTS idx_files_user_category ON files(user_id, category);
 CREATE INDEX IF NOT EXISTS idx_files_user_id ON files(user_id);
+CREATE INDEX IF NOT EXISTS idx_files_created_at ON files(created_at);

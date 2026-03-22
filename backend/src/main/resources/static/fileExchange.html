@@ -37,7 +37,7 @@
         </div>
     </div>
 
-    <!-- Добавьте прогресс-бар здесь -->
+    <!-- Прогресс-бар -->
     <div class="storage-section" style="margin-bottom: 30px;">
         <h3>Хранилище</h3>
         <div class="storage-bar-container">
@@ -58,6 +58,7 @@
         <button class="category-tab" data-category="documents">Документы</button>
         <button class="category-tab" data-category="music">Музыка</button>
         <button class="category-tab" data-category="shared">Все файлы</button>
+        <button class="category-tab" data-category="folders">Папки</button>
     </div>
 
     <!-- Контент категории Фото -->
@@ -68,11 +69,7 @@
                 <button id="delete-all-photos" class="btn-delete-all">Удалить все файлы</button>
             </div>
         </div>
-        <div class="files-grid">
-            <!-- Файлы будут добавляться динамически -->
-        </div>
-
-        <!-- Область загрузки -->
+        <div class="files-grid"></div>
         <div class="upload-area" onclick="document.getElementById('photos-upload').click()">
             <div class="upload-icon">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -95,11 +92,7 @@
                 <button id="delete-all-videos" class="btn-delete-all">Удалить все файлы</button>
             </div>
         </div>
-        <div class="files-grid">
-            <!-- Файлы будут добавляться динамически -->
-        </div>
-
-        <!-- Область загрузки -->
+        <div class="files-grid"></div>
         <div class="upload-area" onclick="document.getElementById('videos-upload').click()">
             <div class="upload-icon">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -122,11 +115,7 @@
                 <button id="delete-all-documents" class="btn-delete-all">Удалить все файлы</button>
             </div>
         </div>
-        <div class="files-grid">
-            <!-- Файлы будут добавляться динамически -->
-        </div>
-
-        <!-- Область загрузки -->
+        <div class="files-grid"></div>
         <div class="upload-area" onclick="document.getElementById('documents-upload').click()">
             <div class="upload-icon">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -149,11 +138,7 @@
                 <button id="delete-all-music" class="btn-delete-all">Удалить все файлы</button>
             </div>
         </div>
-        <div class="files-grid">
-            <!-- Файлы будут добавляться динамически -->
-        </div>
-
-        <!-- Область загрузки -->
+        <div class="files-grid"></div>
         <div class="upload-area" onclick="document.getElementById('music-upload').click()">
             <div class="upload-icon">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -168,7 +153,7 @@
         </div>
     </div>
 
-    <!-- Контент категории Общие файлы -->
+    <!-- Контент категории Все файлы -->
     <div class="category-content" id="shared-content">
         <div class="category-header">
             <h2>Все файлы</h2>
@@ -176,11 +161,7 @@
                 <button id="delete-all-shared" class="btn-delete-all">Удалить все файлы</button>
             </div>
         </div>
-        <div class="files-grid">
-            <!-- Файлы будут добавляться динамически -->
-        </div>
-
-        <!-- Область загрузки -->
+        <div class="files-grid"></div>
         <div class="upload-area" onclick="document.getElementById('shared-upload').click()">
             <div class="upload-icon">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -194,11 +175,52 @@
             <input type="file" id="shared-upload" multiple style="display: none;">
         </div>
     </div>
+
+    <!-- Контент категории Папки -->
+    <div class="category-content" id="folders-content">
+        <div class="category-header">
+            <h2>Мои папки</h2>
+            <div class="category-actions">
+                <button id="create-folder-btn" class="btn-create-folder">+ Новая папка</button>
+                <button id="delete-all-folders" class="btn-delete-all">Удалить все папки</button>
+            </div>
+        </div>
+        <div class="folders-grid" id="folders-grid">
+            <div class="loading">Загрузка папок...</div>
+        </div>
+
+        <!-- Загрузка целой папки с компьютера -->
+        <div class="upload-folder-area" id="upload-folder-area">
+            <div class="upload-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <path d="M8 4v16M16 4v16M4 12h16"/>
+                </svg>
+            </div>
+            <h3>Загрузить папку с компьютера</h3>
+            <p>Нажмите, чтобы выбрать папку (сохранится структура вложенности)</p>
+            <input type="file" id="folder-upload-input" webkitdirectory directory multiple style="display: none;">
+        </div>
+
+        <!-- Загрузка отдельных файлов в папку -->
+        <div class="upload-area" onclick="document.getElementById('folders-upload').click()">
+            <div class="upload-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+            <h3>Загрузить файлы в папку</h3>
+            <p>Сначала выберите папку, затем загрузите файлы</p>
+            <input type="file" id="folders-upload" multiple style="display: none;">
+        </div>
+    </div>
 </div>
 
 <div id="loading-overlay" class="loading-overlay">
     <div class="loading-spinner"></div>
-    <p>Загрузка файлов...</p>
+    <p>Загрузка...</p>
 </div>
 
 <script>
@@ -211,43 +233,828 @@
 <script type="module">
     import FileManager from './fileManager.js';
 
-    // Инициализация FileManager
     const fileManager = new FileManager();
+    let selectedFolderId = null;
+
+    // ========== РАБОТА С ПАПКАМИ ==========
+
+    async function deleteFolder(folderId) {
+        if (!confirm('⚠️ Удалить папку ВМЕСТЕ со всем содержимым? Действие необратимо!')) return;
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        loadingOverlay.classList.add('active');
+
+        try {
+            const response = await fetch(`/api/folders/${folderId}/recursive`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                if (selectedFolderId === folderId) {
+                    selectedFolderId = null;
+                }
+                await loadFolders();
+                await fileManager.updateFileDisplay();
+                alert('✅ Папка и всё её содержимое удалены');
+            } else {
+                const error = await response.text();
+                throw new Error(error);
+            }
+        } catch (error) {
+            console.error('Ошибка удаления папки:', error);
+            alert('Ошибка: ' + error.message);
+        } finally {
+            loadingOverlay.classList.remove('active');
+        }
+    }
+
+    async function deleteAllFolders() {
+        if (!confirm('⚠️ ВНИМАНИЕ! Это удалит ВСЕ папки ВМЕСТЕ с содержимым. Действие необратимо!')) return;
+        if (!confirm('Вы точно уверены? Все папки и файлы внутри них будут безвозвратно удалены!')) return;
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        loadingOverlay.classList.add('active');
+
+        try {
+            const response = await fetch(`/api/folders?userId=${fileManager.currentUserId}`, {
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error('Не удалось получить список папок');
+
+            const folders = await response.json();
+
+            if (folders.length === 0) {
+                alert('Нет папок для удаления');
+                loadingOverlay.classList.remove('active');
+                return;
+            }
+
+            let deletedCount = 0;
+
+            for (const folder of folders) {
+                try {
+                    const deleteResponse = await fetch(`/api/folders/${folder.id}/recursive`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+
+                    if (deleteResponse.ok) {
+                        deletedCount++;
+                    }
+                } catch (err) {
+                    console.error(`Ошибка удаления ${folder.name}:`, err);
+                }
+            }
+
+            selectedFolderId = null;
+            await loadFolders();
+            await fileManager.updateFileDisplay();
+            alert(`✅ Удалено ${deletedCount} из ${folders.length} папок`);
+
+        } catch (error) {
+            console.error('Ошибка удаления всех папок:', error);
+            alert('Ошибка: ' + error.message);
+        } finally {
+            loadingOverlay.classList.remove('active');
+        }
+    }
+
+    async function loadFolders() {
+        const foldersGrid = document.getElementById('folders-grid');
+        if (!foldersGrid) return;
+
+        foldersGrid.innerHTML = '<div class="loading">Загрузка папок...</div>';
+
+        try {
+            const response = await fetch(`/api/folders?userId=${fileManager.currentUserId}`, {
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error('Ошибка загрузки папок');
+
+            const folders = await response.json();
+
+            if (folders.length === 0) {
+                foldersGrid.innerHTML = '<div class="empty-state"><h3>Нет папок</h3><p>Создайте первую папку</p></div>';
+                return;
+            }
+
+            foldersGrid.innerHTML = folders.map(folder => `
+                <div class="folder-card ${selectedFolderId === folder.id ? 'selected' : ''}" data-folder-id="${folder.id}">
+                    <div class="folder-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <path d="M8 4v16M16 4v16M4 12h16"/>
+                        </svg>
+                    </div>
+                    <div class="folder-name">${escapeHtml(folder.name)}</div>
+                    <div class="folder-stats">${folder.filesQuantity || 0} файлов, ${folder.foldersQuantity || 0} папок</div>
+                    <div class="folder-actions">
+                        <button class="btn-select-folder" data-folder-id="${folder.id}" data-folder-name="${escapeHtml(folder.name)}">Выбрать</button>
+                        <button class="btn-rename-folder" data-folder-id="${folder.id}" data-folder-name="${escapeHtml(folder.name)}">Переименовать</button>
+                        <button class="btn-download-folder" data-folder-id="${folder.id}" data-folder-name="${escapeHtml(folder.name)}">Скачать</button>
+                        <button class="btn-delete-folder" data-folder-id="${folder.id}">Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+
+            attachFolderEvents();
+
+        } catch (error) {
+            console.error('Ошибка загрузки папок:', error);
+            foldersGrid.innerHTML = '<div class="empty-state"><h3>Ошибка загрузки</h3><p>Попробуйте обновить страницу</p></div>';
+        }
+    }
+
+    async function createFolder() {
+        const name = prompt('Введите название папки:');
+        if (!name || name.trim() === '') return;
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        loadingOverlay.classList.add('active');
+
+        try {
+            const response = await fetch('/api/folders', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ folderName: name.trim(), parentId: null })
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(error);
+            }
+
+            await loadFolders();
+            alert('✅ Папка создана');
+
+        } catch (error) {
+            console.error('Ошибка создания папки:', error);
+            alert('Ошибка: ' + error.message);
+        } finally {
+            loadingOverlay.classList.remove('active');
+        }
+    }
+
+    async function renameFolder(folderId, currentName) {
+        const newName = prompt('Введите новое имя папки:', currentName);
+        if (!newName || newName === currentName) return;
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        loadingOverlay.classList.add('active');
+
+        try {
+            const response = await fetch(`/api/folders/${folderId}`, {
+                method: 'PATCH',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newName: newName.trim() })
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(error);
+            }
+
+            await loadFolders();
+            alert('✅ Папка переименована');
+
+        } catch (error) {
+            console.error('Ошибка переименования папки:', error);
+            alert('Ошибка: ' + error.message);
+        } finally {
+            loadingOverlay.classList.remove('active');
+        }
+    }
+
+    async function downloadFolder(folderId, folderName) {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        loadingOverlay.classList.add('active');
+
+        try {
+            const response = await fetch(`/api/folders/${folderId}/download`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${folderName}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                alert(`✅ Папка "${folderName}" скачивается...`);
+            } else {
+                const error = await response.text();
+                throw new Error(error);
+            }
+        } catch (error) {
+            console.error('Ошибка скачивания папки:', error);
+            alert('Ошибка: ' + error.message);
+        } finally {
+            loadingOverlay.classList.remove('active');
+        }
+    }
+
+    async function uploadFilesToFolder(files) {
+        if (!selectedFolderId) {
+            alert('Сначала выберите папку (нажмите "Выбрать" на папке)');
+            return false;
+        }
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        loadingOverlay.classList.add('active');
+
+        let successCount = 0;
+
+        for (const file of files) {
+            try {
+                const uploadedFile = await fileManager.uploadFileToFolder(file, selectedFolderId);
+                if (uploadedFile) {
+                    successCount++;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки файла:', error);
+            }
+        }
+
+        loadingOverlay.classList.remove('active');
+
+        if (successCount > 0) {
+            alert(`✅ Загружено ${successCount} из ${files.length} файлов в выбранную папку`);
+            await loadFolders();
+            await fileManager.updateFileDisplay();
+
+            // 👇 ДОБАВЬТЕ ЭТО 👇
+            setTimeout(() => {
+                fileManager.attachFileEventHandlers();
+            }, 100);
+
+        } else if (successCount === 0 && files.length > 0) {
+            alert('❌ Не удалось загрузить файлы');
+        }
+
+        return successCount > 0;
+    }
+
+    function attachFolderEvents() {
+        document.querySelectorAll('.btn-select-folder').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectedFolderId = btn.dataset.folderId;
+                const folderName = btn.dataset.folderName;
+
+                document.querySelectorAll('.folder-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                const folderCard = btn.closest('.folder-card');
+                if (folderCard) folderCard.classList.add('selected');
+
+                alert(`✅ Выбрана папка: "${folderName}"\nТеперь загружайте файлы — они попадут в эту папку`);
+            });
+        });
+
+        document.querySelectorAll('.btn-rename-folder').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const folderId = btn.dataset.folderId;
+                const folderName = btn.dataset.folderName;
+                await renameFolder(folderId, folderName);
+            });
+        });
+
+        document.querySelectorAll('.btn-download-folder').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const folderId = btn.dataset.folderId;
+                const folderName = btn.dataset.folderName;
+                await downloadFolder(folderId, folderName);
+            });
+        });
+
+        document.querySelectorAll('.btn-delete-folder').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const folderId = btn.dataset.folderId;
+                await deleteFolder(folderId);
+            });
+        });
+    }
+
+    function attachFileUploadHandler() {
+        const uploadInput = document.getElementById('folders-upload');
+        if (!uploadInput) return;
+
+        uploadInput.onchange = async (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            if (!selectedFolderId) {
+                alert('Сначала выберите папку (нажмите "Выбрать" на папке)');
+                uploadInput.value = '';
+                return;
+            }
+
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.classList.add('active');
+
+            let successCount = 0;
+
+            for (const file of files) {
+                try {
+                    const uploaded = await fileManager.uploadFileToFolder(file, selectedFolderId);
+                    if (uploaded) {
+                        successCount++;
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки файла:', error);
+                }
+            }
+
+            loadingOverlay.classList.remove('active');
+
+            if (successCount > 0) {
+                alert(`✅ Загружено ${successCount} из ${files.length} файлов в папку`);
+                await loadFolders();
+                await fileManager.updateFileDisplay();
+
+                // 👇 ДОБАВЬТЕ ЭТО 👇
+                setTimeout(() => {
+                    fileManager.attachFileEventHandlers();
+                }, 100);
+
+            } else if (successCount === 0 && files.length > 0) {
+                alert('❌ Не удалось загрузить файлы');
+            }
+
+            uploadInput.value = '';
+        };
+    }
+
+
+    function attachFolderUploadHandler() {
+        const folderInput = document.getElementById('folder-upload-input');
+        if (!folderInput) return;
+
+        folderInput.onchange = async (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.classList.add('active');
+
+            try {
+                // Получаем все существующие файлы пользователя
+                const allFiles = await fileManager.getFiles();
+                console.log('Все файлы пользователя:', allFiles);
+
+                // Группируем файлы по именам для быстрого поиска
+                const filesByName = {};
+                allFiles.forEach(file => {
+                    filesByName[file.originalName] = file;
+                });
+
+                // Получаем все пути файлов и группируем по папкам
+                const filesByPath = {};
+
+                for (const file of files) {
+                    const relativePath = file.webkitRelativePath;
+                    const pathParts = relativePath.split('/');
+                    const rootFolderName = pathParts[0];
+                    const subPath = pathParts.slice(1).join('/');
+
+                    if (!filesByPath[rootFolderName]) {
+                        filesByPath[rootFolderName] = [];
+                    }
+                    filesByPath[rootFolderName].push({
+                        fileName: file.name,
+                        subPath: subPath
+                    });
+                }
+
+                // Для каждой корневой папки создаём структуру
+                for (const [rootFolderName, folderFiles] of Object.entries(filesByPath)) {
+                    console.log(`Обработка папки: ${rootFolderName}, файлов: ${folderFiles.length}`);
+
+                    // Создаём корневую папку
+                    const createResponse = await fetch('/api/folders', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            folderName: rootFolderName,
+                            parentId: null
+                        })
+                    });
+
+                    if (!createResponse.ok) {
+                        throw new Error(`Не удалось создать папку ${rootFolderName}`);
+                    }
+
+                    const rootFolder = await createResponse.json();
+                    const rootFolderId = rootFolder.id;
+
+                    // Привязываем файлы, создавая вложенные папки
+                    for (const {fileName, subPath} of folderFiles) {
+                        try {
+                            let targetFolderId = rootFolderId;
+
+                            // Если файл во вложенной папке, создаём структуру
+                            if (subPath && subPath !== '') {
+                                const subPathParts = subPath.split('/');
+                                const folderPath = subPathParts.slice(0, -1); // убираем имя файла
+
+                                let currentParentId = rootFolderId;
+
+                                for (const folderName of folderPath) {
+                                    // Создаём вложенную папку
+                                    const folderResponse = await fetch('/api/folders', {
+                                        method: 'POST',
+                                        credentials: 'include',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            folderName: folderName,
+                                            parentId: currentParentId
+                                        })
+                                    });
+
+                                    if (folderResponse.ok) {
+                                        const newFolder = await folderResponse.json();
+                                        currentParentId = newFolder.id;
+                                    } else if (folderResponse.status === 409) {
+                                        // Папка уже существует, ищем её
+                                        const foldersResponse = await fetch(`/api/folders?userId=${fileManager.currentUserId}`, {
+                                            credentials: 'include'
+                                        });
+                                        const allFolders = await foldersResponse.json();
+                                        const existingFolder = allFolders.find(f =>
+                                            f.name === folderName && f.parentId === currentParentId
+                                        );
+                                        if (existingFolder) {
+                                            currentParentId = existingFolder.id;
+                                        }
+                                    } else {
+                                        throw new Error(`Не удалось создать папку ${folderName}`);
+                                    }
+                                }
+                                targetFolderId = currentParentId;
+                            }
+
+                            // Находим существующий файл по имени
+                            const existingFile = filesByName[fileName];
+                            if (!existingFile) {
+                                console.warn(`Файл не найден: ${fileName}`);
+                                continue;
+                            }
+
+                            // Привязываем файл к папке
+                            console.log(`📁 Привязываем файл ${fileName} (ID: ${existingFile.id}) к папке ${targetFolderId}`);
+
+                            const bindResponse = await fetch(`${fileManager.baseUrl}/api/folders/${targetFolderId}/files`, {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    fileIds: [existingFile.id],
+                                    addedBy: fileManager.currentUserEmail
+                                })
+                            });
+
+                            if (!bindResponse.ok) {
+                                const errorText = await bindResponse.text();
+                                console.error(`Ошибка привязки файла ${fileName}:`, errorText);
+                            } else {
+                                console.log(`✅ Файл ${fileName} привязан к папке`);
+                            }
+
+                        } catch (error) {
+                            console.error(`Ошибка обработки файла ${fileName}:`, error);
+                        }
+                    }
+                }
+
+                // Обновляем отображение
+                await loadFolders();
+                await fileManager.updateFileDisplay();
+
+                setTimeout(() => {
+                    fileManager.attachFileEventHandlers();
+                }, 100);
+
+                alert('✅ Папка успешно загружена! Все файлы привязаны к папкам.');
+
+            } catch (error) {
+                console.error('Ошибка загрузки папки:', error);
+                alert('Ошибка: ' + error.message);
+            } finally {
+                loadingOverlay.classList.remove('active');
+                folderInput.value = '';
+            }
+        };
+
+        const uploadFolderArea = document.getElementById('upload-folder-area');
+        if (uploadFolderArea) {
+            uploadFolderArea.onclick = () => {
+                folderInput.click();
+            };
+        }
+    }
+
+
+    // Вспомогательная функция для поиска или создания папки
+    async function findOrCreateFolder(folderName, parentId) {
+        try {
+            console.log(`🔍 Ищем папку: ${folderName}, parentId: ${parentId}`);
+
+            // Пробуем найти существующую папку
+            const response = await fetch(`/api/folders?userId=${fileManager.currentUserId}`, {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const folders = await response.json();
+                console.log('Все папки пользователя:', folders);
+
+                const existingFolder = folders.find(f =>
+                    f.name === folderName && f.parentId === parentId
+                );
+
+                if (existingFolder) {
+                    console.log(`✅ Найдена существующая папка: ${folderName} (ID: ${existingFolder.id})`);
+                    return existingFolder;
+                }
+            }
+
+            // Если не нашли, создаём новую
+            console.log(`📁 Создаём новую папку: ${folderName} (parentId: ${parentId})`);
+
+            const createResponse = await fetch('/api/folders', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    folderName: folderName,
+                    parentId: parentId
+                })
+            });
+
+            if (!createResponse.ok) {
+                const errorText = await createResponse.text();
+                console.error('Ошибка создания папки:', errorText);
+
+                // Если папка уже существует, попробуем найти её ещё раз
+                if (createResponse.status === 409 || errorText.includes('duplicate') || errorText.includes('exists')) {
+                    console.log('Папка вероятно уже существует, пробуем найти...');
+                    const retryResponse = await fetch(`/api/folders?userId=${fileManager.currentUserId}`, {
+                        credentials: 'include'
+                    });
+                    if (retryResponse.ok) {
+                        const folders = await retryResponse.json();
+                        const existingFolder = folders.find(f =>
+                            f.name === folderName && f.parentId === parentId
+                        );
+                        if (existingFolder) {
+                            console.log(`✅ Найдена существующая папка при повторной попытке: ${folderName}`);
+                            return existingFolder;
+                        }
+                    }
+                }
+
+                throw new Error(`Не удалось создать папку ${folderName}: ${createResponse.status} - ${errorText}`);
+            }
+
+            const newFolder = await createResponse.json();
+            console.log(`✅ Папка создана: ${folderName} (ID: ${newFolder.id})`);
+            return newFolder;
+
+        } catch (error) {
+            console.error(`❌ Ошибка при работе с папкой ${folderName}:`, error);
+            throw error;
+        }
+    }
+
+    async function uploadFileWithPath(file, targetFolderId, relativePath) {
+        // Если есть путь, создаём вложенные папки
+        if (relativePath && relativePath.includes('/')) {
+            const pathParts = relativePath.split('/');
+            const fileName = pathParts.pop();
+            const folderPath = pathParts;
+
+            let currentParentId = targetFolderId;
+
+            for (const folderName of folderPath) {
+                const folder = await findOrCreateFolder(folderName, currentParentId);
+                currentParentId = folder.id;
+            }
+
+            return await fileManager.uploadFileToFolder(file, currentParentId);
+        } else {
+            // Файл в корне
+            return await fileManager.uploadFileToFolder(file, targetFolderId);
+        }
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         fileManager.init();
+        loadFolders();
 
-        // Кнопка обновления
-        document.getElementById('refresh-files').addEventListener('click', async () => {
-            const btn = document.getElementById('refresh-files');
-            btn.style.transform = 'rotate(360deg)';
-            btn.style.transition = 'transform 0.5s ease';
+        const createBtn = document.getElementById('create-folder-btn');
+        if (createBtn) {
+            createBtn.addEventListener('click', createFolder);
+        }
 
-            await fileManager.updateFileDisplay();
+        const deleteAllFoldersBtn = document.getElementById('delete-all-folders');
+        if (deleteAllFoldersBtn) {
+            deleteAllFoldersBtn.addEventListener('click', deleteAllFolders);
+        }
 
-            setTimeout(() => {
-                btn.style.transform = 'rotate(0deg)';
-            }, 500);
-        });
+        attachFileUploadHandler();
+        attachFolderUploadHandler();
 
-        // Переключение категорий
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                document.querySelectorAll('.category-tab').forEach(t => {
-                    t.classList.remove('active');
-                });
-
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
-
-                document.querySelectorAll('.category-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-
+                document.querySelectorAll('.category-content').forEach(c => c.classList.remove('active'));
                 const categoryId = this.getAttribute('data-category');
                 document.getElementById(`${categoryId}-content`).classList.add('active');
             });
         });
+
+        const refreshBtn = document.getElementById('refresh-files');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', async () => {
+                await fileManager.updateFileDisplay();
+                await loadFolders();
+            });
+        }
     });
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+        // Делаем fileManager глобальным для отладки
+    window.fileManager = fileManager;
+    window.selectedFolderId = selectedFolderId;
+    window.findOrCreateFolder = findOrCreateFolder;
+    window.uploadFileWithPath = uploadFileWithPath;
+
+    // Обновляем глобальную переменную при изменении выбранной папки
+    const originalAttachFolderEvents = attachFolderEvents;
+    window.attachFolderEvents = function() {
+        originalAttachFolderEvents();
+        setTimeout(() => {
+            window.selectedFolderId = selectedFolderId;
+            console.log('✅ Глобальный selectedFolderId обновлён:', window.selectedFolderId);
+        }, 100);
+    };
+    attachFolderEvents = window.attachFolderEvents;
+
+    console.log('✅ FileManager доступен глобально');
+    console.log('📧 Email:', fileManager.currentUserEmail);
+    console.log('🆔 User ID:', fileManager.currentUserId);
+
 </script>
+
+<style>
+    .folders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
+
+    .folder-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .folder-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .folder-card.selected {
+        background: rgba(79, 172, 254, 0.3);
+        border-color: rgba(79, 172, 254, 0.6);
+        box-shadow: 0 0 15px rgba(79, 172, 254, 0.3);
+    }
+
+    .folder-card .folder-icon svg {
+        width: 50px;
+        height: 50px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    .folder-card .folder-name {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 10px 0 5px;
+        color: white;
+        word-break: break-all;
+    }
+
+    .folder-card .folder-stats {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        margin-bottom: 15px;
+    }
+
+    .folder-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .btn-select-folder, .btn-rename-folder, .btn-download-folder, .btn-delete-folder {
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-size: 0.7rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-select-folder { background: rgba(79, 172, 254, 0.3); }
+    .btn-rename-folder { background: rgba(255, 193, 7, 0.3); }
+    .btn-download-folder { background: rgba(46, 204, 113, 0.3); }
+    .btn-delete-folder { background: rgba(244, 67, 54, 0.3); }
+
+    .btn-select-folder:hover, .btn-rename-folder:hover,
+    .btn-download-folder:hover, .btn-delete-folder:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-create-folder {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        border-radius: 20px;
+        color: white;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-create-folder:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+    }
+
+    .upload-folder-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 40px;
+        background: rgba(79, 172, 254, 0.1);
+        border-radius: 15px;
+        border: 2px dashed rgba(79, 172, 254, 0.5);
+        margin-top: 30px;
+        margin-bottom: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-folder-area:hover {
+        background: rgba(79, 172, 254, 0.2);
+        border-color: rgba(79, 172, 254, 0.8);
+    }
+
+    .upload-folder-area .upload-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(79, 172, 254, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
 </body>
 </html>

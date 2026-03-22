@@ -1,17 +1,15 @@
-package com.MWS;
+package com.MWS.service;
 
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
 import com.MWS.model.UserEntity;
 import com.MWS.repository.UserRepository;
-import com.MWS.service.UserServiceRelease;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

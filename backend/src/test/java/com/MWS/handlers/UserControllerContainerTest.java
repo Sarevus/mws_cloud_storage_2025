@@ -1,5 +1,6 @@
-package com.MWS;
+package com.MWS.handlers;
 
+import com.MWS.CloudStorageApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;

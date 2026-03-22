@@ -6,7 +6,7 @@ class FileManager {
     constructor() {
         this.baseUrl = 'http://localhost:6969';
         this.currentUserId = this.getUserIdFromUrl();
-        // Категории из fileExchange.html
+        this.currentUserEmail = null;
         this.categories = ['photos', 'videos', 'documents', 'music', 'shared'];
 
         console.log('FileManager создан для пользователя:', this.currentUserId);
@@ -31,6 +31,45 @@ class FileManager {
         }
 
         return userId;
+    }
+
+    /**
+     * Загружает email пользователя из сессии
+     */
+    async loadUserEmail() {
+        // Сначала пробуем из sessionStorage
+        let email = sessionStorage.getItem('userEmail');
+        if (email) {
+            this.currentUserEmail = email;
+            console.log('Email из sessionStorage:', email);
+            return email;
+        }
+
+        // Если нет, получаем через API
+        try {
+            console.log('Получаем email из сессии через API...');
+            const response = await fetch(`${this.baseUrl}/api/auth/me`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+                if (userData.email) {
+                    this.currentUserEmail = userData.email;
+                    sessionStorage.setItem('userEmail', userData.email);
+                    console.log('✅ Email получен из сессии:', userData.email);
+                    return userData.email;
+                }
+            } else {
+                console.log('Не удалось получить email, статус:', response.status);
+            }
+        } catch (error) {
+            console.error('Ошибка получения email:', error);
+        }
+
+        console.warn('⚠️ Email пользователя не найден');
+        return null;
     }
 
     /**
@@ -753,6 +792,16 @@ class FileManager {
 
         console.log('Initializing FileManager for user:', this.currentUserId);
 
+        // Загружаем email пользователя
+        await this.loadUserEmail();
+
+        console.log('User email:', this.currentUserEmail);
+
+        // Проверяем, что email получен
+        if (!this.currentUserEmail) {
+            console.warn('⚠️ ВНИМАНИЕ: Email не получен. Привязка файлов к папкам может не работать!');
+        }
+
         this.initAllUploaders();
         await this.updateStorageInfo();
         await this.updateFileDisplay();
@@ -1118,6 +1167,71 @@ class FileManager {
             return [];
         }
     }
+
+    /**
+     * Загружает файл и сразу привязывает к папке
+     */
+    async uploadFileToFolder(file, folderId) {
+        console.log('=== uploadFileToFolder START ===');
+        console.log('File name:', file.name);
+        console.log('Folder ID:', folderId);
+        console.log('Current user email:', this.currentUserEmail);
+
+        if (!folderId) {
+            console.error('❌ Не указан folderId');
+            return null;
+        }
+
+        if (!this.currentUserEmail) {
+            console.log('Email отсутствует, загружаем...');
+            await this.loadUserEmail();
+            if (!this.currentUserEmail) {
+                console.error('❌ Не удалось получить email');
+                alert('Ошибка: не удалось получить email пользователя');
+                return null;
+            }
+        }
+
+        try {
+            console.log('📤 Шаг 1: Загрузка файла на сервер...');
+            const uploadedFile = await this.uploadFile(file, null);
+
+            if (!uploadedFile || !uploadedFile.id) {
+                throw new Error('Файл не загружен');
+            }
+
+            console.log(`✅ Файл загружен, ID: ${uploadedFile.id}, имя: ${uploadedFile.originalName}`);
+
+            console.log('📁 Шаг 2: Привязка к папке...');
+            const response = await fetch(`${this.baseUrl}/api/folders/${folderId}/files`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileIds: [uploadedFile.id],
+                    addedBy: this.currentUserEmail
+                })
+            });
+
+            console.log('Response status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Ошибка привязки:', errorText);
+                throw new Error(`Ошибка привязки к папке: ${response.status} - ${errorText}`);
+            }
+
+            console.log(`✅ Файл "${uploadedFile.originalName}" успешно привязан к папке ${folderId}`);
+            return uploadedFile;
+
+        } catch (error) {
+            console.error('❌ Ошибка в uploadFileToFolder:', error);
+            throw error;
+        }
+    }
+
+
+
 
 }
 
