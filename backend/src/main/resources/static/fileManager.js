@@ -17,7 +17,13 @@ class FileManager {
      */
     getUserIdFromUrl() {
         const params = new URLSearchParams(window.location.search);
-        const userId = params.get('id');
+        // Пробуем получить id (для fileExchange и myProfile)
+        let userId = params.get('id');
+
+        // Если нет id, пробуем получить userId (для share.html)
+        if (!userId) {
+            userId = params.get('userId');
+        }
 
         if (!userId) {
             console.error('User ID not found in URL');
@@ -44,6 +50,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'GET',
+                credentials: 'include',
                 headers: { 'Accept': 'application/json' }
             });
 
@@ -184,6 +191,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'POST',
+                credentials: 'include',
                 body: formData
             });
 
@@ -298,6 +306,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'PUT',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ newName: newName.trim() })
             });
@@ -323,6 +332,45 @@ class FileManager {
             console.error('❌ Rename error:', error);
             alert(`Ошибка переименования: ${error.message}`);
             return null;
+        }
+    }
+
+    /**
+     * Обновляет прогресс-бар хранилища
+     */
+    async updateStorageInfo() {
+        if (!this.currentUserId) return;
+
+        try {
+            const response = await fetch(`${this.baseUrl}/api/storage/info`, {
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            const progressBar = document.getElementById('storage-progress');
+            const usedEl = document.getElementById('storage-used');
+            const totalEl = document.getElementById('storage-total');
+            const percentEl = document.getElementById('storage-percent');
+
+            if (progressBar && usedEl && totalEl && percentEl) {
+                progressBar.style.width = data.percent + '%';
+                usedEl.textContent = this.formatFileSize(data.used);
+                totalEl.textContent = this.formatFileSize(data.total);
+                percentEl.textContent = `(${data.percent}%)`;
+
+                console.log('✅ Прогресс-бар обновлён:', {
+                    used: this.formatFileSize(data.used),
+                    total: this.formatFileSize(data.total),
+                    percent: data.percent + '%'
+                });
+            }
+        } catch (error) {
+            console.error('❌ Ошибка загрузки информации о хранилище:', error);
         }
     }
 
@@ -423,6 +471,7 @@ class FileManager {
                 <button class="btn-rename" data-file-id="${fileId}">
                     Переименовать
                 </button>
+                <button class="btn-share" data-file-id="${fileId}" data-file-name="${fileName}">Поделиться</button>
                 <button class="btn-delete" data-file-id="${fileId}">
                     Удалить
                 </button>
@@ -447,6 +496,9 @@ class FileManager {
         try {
             const files = await this.getFiles();
             console.log('📁 Всего файлов:', files.length);
+
+            // Обновляем информацию о хранилище
+            await this.updateStorageInfo();
 
             const totalFilesEl = document.getElementById('total-files');
             if (totalFilesEl) {
@@ -590,6 +642,14 @@ class FileManager {
                 }
             });
         });
+
+        document.querySelectorAll('.btn-share').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const fileId = btn.dataset.fileId;
+                window.location.href = `share.html?fileId=${fileId}&userId=${this.currentUserId}`;
+            });
+        });
     }
 
     /**
@@ -684,7 +744,7 @@ class FileManager {
     /**
      * Инициализирует FileManager
      */
-    init() {
+    async init() {
         if (!this.currentUserId) {
             console.error('FileManager: User ID not found');
             alert('Ошибка: ID пользователя не найден в URL');
@@ -694,7 +754,8 @@ class FileManager {
         console.log('Initializing FileManager for user:', this.currentUserId);
 
         this.initAllUploaders();
-        this.updateFileDisplay();
+        await this.updateStorageInfo();
+        await this.updateFileDisplay();
 
         this.initDeleteAllButtons();
 
@@ -795,6 +856,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'DELETE',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
             });
 
@@ -841,6 +903,7 @@ class FileManager {
 
             const response = await fetch(url, {
                 method: 'DELETE',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
             });
 
@@ -895,7 +958,7 @@ class FileManager {
 
         try {
             const url = `${this.baseUrl}/api/files?userId=${this.currentUserId}&category=${category}`;
-            const response = await fetch(url, { method: 'DELETE' });
+            const response = await fetch(url, { method: 'DELETE', credentials: 'include' });
             const result = await response.json();
 
             if (result.success) {
@@ -907,6 +970,152 @@ class FileManager {
         } catch (error) {
             alert('Ошибка: ' + error.message);
             return false;
+        }
+    }
+
+    /**
+     * Получает список пользователей, имеющих доступ к файлу
+     */
+    async getFileAccessors(fileId) {
+        if (!this.currentUserId) {
+            console.error('Cannot get accessors: user ID not found');
+            return [];
+        }
+
+        try {
+            const url = `${this.baseUrl}/api/permission/${fileId}/accessors`;
+            console.log('Fetching accessors from:', url);
+
+            const response = await fetch(url, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log('Accessors response:', result);
+
+            return result || [];
+
+        } catch (error) {
+            console.error('❌ Error fetching accessors:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Предоставляет доступ к файлу другому пользователю
+     */
+    async shareFile(fileId, targetUserEmail, role) {
+        if (!this.currentUserId) {
+            alert('Ошибка: ID пользователя не найден');
+            return false;
+        }
+
+        try {
+            const url = `${this.baseUrl}/api/permission/share`;
+            console.log('Sharing file:', {fileId, targetUserEmail, role});
+
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileId: fileId,
+                    userEmail: targetUserEmail,
+                    role: role
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log('Share response:', result);
+
+            alert('✅ Доступ предоставлен');
+            return true;
+
+        } catch (error) {
+            console.error('❌ Error sharing file:', error);
+            alert(`Ошибка: ${error.message}`);
+            return false;
+        }
+    }
+
+    /**
+     * Отзывает доступ
+     */
+    async revokeAccess(fileId, targetUserId) {
+        if (!this.currentUserId) {
+            alert('Ошибка: ID пользователя не найден');
+            return false;
+        }
+
+        try {
+            const url = `${this.baseUrl}/api/permission/${fileId}/revoke/${targetUserId}`;
+            console.log('Revoking access:', url);
+
+            const response = await fetch(url, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            console.log('Access revoked successfully');
+            alert('✅ Доступ отозван');
+            return true;
+
+        } catch (error) {
+            console.error('❌ Error revoking access:', error);
+            alert(`Ошибка: ${error.message}`);
+            return false;
+        }
+    }
+
+    /**
+     * Получает файлы, доступные текущему пользователю (которыми поделились)
+     */
+    async getSharedWithMe() {
+        if (!this.currentUserId) {
+            console.error('Cannot get shared files: user ID not found');
+            return [];
+        }
+
+        try {
+            const url = `${this.baseUrl}/api/permission/shared-with-me`;
+            console.log('Fetching shared files from:', url);
+
+            const response = await fetch(url, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log('Shared files response:', result);
+
+            return result || [];
+
+        } catch (error) {
+            console.error('❌ Error fetching shared files:', error);
+            return [];
         }
     }
 

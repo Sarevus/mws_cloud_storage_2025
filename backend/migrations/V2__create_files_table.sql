@@ -1,7 +1,10 @@
 CREATE TABLE files (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
-    link VARCHAR(500) NOT NULL,  -- Указали длину!
+    link VARCHAR(500) NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    size BIGINT,
+    mime_type VARCHAR(100),
     category VARCHAR(50) DEFAULT 'general'
 );
 

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Доступные мне файлы - Cloud Storage</title>
+    <link rel="stylesheet" href="./styles/index.css">
+    <link rel="stylesheet" href="./styles/shared-with-me.css">
+</head>
+<body>
+<div class="overlay"></div>
+<div class="background-circles">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+</div>
+
+<div class="shared-container">
+    <!-- Кнопка "Назад в профиль" с правильным дизайном -->
+    <button class="back-btn" onclick="goToProfile()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Назад в профиль
+    </button>
+
+    <div class="shared-header">
+        <h1>Доступные мне файлы</h1>
+        <p>Файлы, к которым вам предоставили доступ</p>
+    </div>
+
+    <!-- Табы для фильтрации -->
+    <div class="shared-tabs">
+        <button class="shared-tab active" data-filter="all">Все</button>
+        <button class="shared-tab" data-filter="read">Чтение</button>
+        <button class="shared-tab" data-filter="edit">Редактирование</button>
+    </div>
+
+    <!-- Список файлов -->
+    <div class="shared-files-list" id="shared-files-list">
+        <div class="loading-files">Загрузка файлов...</div>
+    </div>
+
+    <!-- Кнопка "Перейти к моим файлам" с правильным дизайном -->
+    <div style="text-align: center; margin-top: 30px;">
+        <button class="btn-primary" onclick="goToMyFiles()" style="width: auto; min-width: 200px;">
+            Перейти к моим файлам
+        </button>
+    </div>
+</div>
+
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Загрузка...</p>
+</div>
+
+<script>
+    function goToProfile() {
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get('id');
+        window.location.href = `myProfile.html?id=${userId}`;
+    }
+
+    function goToMyFiles() {
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get('id');
+        window.location.href = `fileExchange.html?id=${userId}`;
+    }
+</script>
+
+<script type="module" src="sharedWithMe.js"></script>
+</body>
+</html>

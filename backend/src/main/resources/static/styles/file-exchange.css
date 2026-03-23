@@ -339,3 +339,101 @@
         font-size: 1.1rem;
     }
 }
+
+.storage-section {
+    margin-top: 20px;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.storage-section h3 {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.storage-bar-container {
+    width: 100%;
+}
+
+.storage-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.storage-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+.storage-stats {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.storage-stats span {
+    font-weight: 600;
+    color: white;
+}
+
+/* Стили для прогресс-бара в fileExchange */
+.storage-section {
+    margin-top: 20px;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.storage-section h3 {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    color: white;
+    text-align: center;
+}
+
+.storage-bar-container {
+    width: 100%;
+}
+
+.storage-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.storage-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+.storage-stats {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+}
+
+.storage-stats span {
+    font-weight: 600;
+    color: white;
+}

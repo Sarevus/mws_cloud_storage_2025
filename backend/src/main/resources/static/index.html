@@ -118,5 +118,21 @@
             });
         });
     </script>
+
+    <script>
+        // Проверка сессии при загрузке главной
+        fetch('/api/auth/me', {
+            method: 'GET',
+            credentials: 'include'
+          })
+          .then(res => res.json())
+          .then(user => {
+            if (user.id) {
+              // Если есть сессия - сразу в профиль
+              window.location.href = `/myProfile.html?id=${user.id}`;
+            }
+          })
+          .catch(err => console.log('Не авторизован'));
+    </script>
 </body>
 </html>

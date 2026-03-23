@@ -1,0 +1,490 @@
+/* share.css - Стили для страницы управления доступом */
+
+.share-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 3;
+}
+
+.share-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.share-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #fff, #e0e7ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.file-info-share {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.file-icon-large {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-details {
+    flex: 1;
+    text-align: left;
+}
+
+.file-details h3 {
+    font-size: 1.3rem;
+    margin-bottom: 5px;
+}
+
+.file-details p {
+    opacity: 0.8;
+    font-size: 0.95rem;
+}
+
+.share-section, .permissions-section, .public-link-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.share-section h2, .permissions-section h2, .public-link-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.share-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4facfe;
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.form-control option {
+    background: #2c3e50;
+    color: white;
+}
+
+.btn-share {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.btn-share:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+}
+
+.btn-share:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Список разрешений */
+.permissions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.permission-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.permission-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.permission-avatar {
+    width: 40px;
+    height: 40px;
+    background: rgba(79, 172, 254, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-weight: 600;
+    color: white;
+}
+
+.permission-info {
+    flex: 1;
+}
+
+.permission-info h4 {
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.permission-info p {
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.permission-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 15px;
+}
+
+.badge-read {
+    background: rgba(52, 152, 219, 0.2);
+    border: 1px solid rgba(52, 152, 219, 0.4);
+    color: #87CEEB;
+}
+
+.badge-edit {
+    background: rgba(46, 204, 113, 0.2);
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    color: #98FB98;
+}
+
+.permission-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-revoke {
+    padding: 6px 12px;
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-revoke:hover {
+    background: rgba(244, 67, 54, 0.3);
+}
+
+.btn-change-access {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-change-access:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Публичная ссылка */
+.public-link-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.link-display {
+    display: flex;
+    gap: 10px;
+}
+
+.link-display .form-control {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    color: #87CEEB;
+    font-family: monospace;
+}
+
+.btn-copy {
+    width: 46px;
+    height: 46px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-copy:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.link-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-create-link, .btn-delete-link {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-create-link {
+    background: rgba(46, 204, 113, 0.2);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    color: white;
+}
+
+.btn-create-link:hover {
+    background: rgba(46, 204, 113, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-delete-link {
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    color: white;
+}
+
+.btn-delete-link:hover {
+    background: rgba(244, 67, 54, 0.3);
+    transform: translateY(-2px);
+}
+
+.loading-permissions {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.empty-permissions {
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .share-container {
+        margin: 20px auto;
+    }
+
+    .share-header h1 {
+        font-size: 2rem;
+    }
+
+    .file-info-share {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .file-details {
+        text-align: center;
+    }
+
+    .permission-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .permission-avatar {
+        margin-right: 0;
+    }
+
+    .permission-badge {
+        margin-right: 0;
+    }
+
+    .permission-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .link-actions {
+        flex-direction: column;
+    }
+}
+
+/* Стили для кнопок */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.back-btn svg {
+    stroke: white;
+    width: 20px;
+    height: 20px;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    padding: 6px 12px;
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background: rgba(244, 67, 54, 0.3);
+}
+
+.btn-retry {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-retry:hover {
+    background: rgba(255, 255, 255, 0.2);
+}

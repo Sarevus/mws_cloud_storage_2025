@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // подстановка данных из бд
     fetch(`/api/user/${encodeURIComponent(userId)}`, {
         method: "GET",
+        credentials: 'include',
         headers: {
             "Accept": "application/json"
         }
@@ -108,7 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!sure) return;
 
             fetch(`/api/user/${encodeURIComponent(userId)}`, {
-                method: "DELETE"
+                method: "DELETE",
+                credentials: 'include'
             })
                 .then(async response => {
                     console.log("DELETE /api/user status:", response.status);

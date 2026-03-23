@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление доступом - Cloud Storage</title>
+    <link rel="stylesheet" href="./styles/index.css">
+    <link rel="stylesheet" href="./styles/share.css">
+</head>
+<body>
+<div class="overlay"></div>
+<div class="background-circles">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+</div>
+
+<div class="share-container">
+    <!-- Кнопка "Назад к файлам" с правильным дизайном -->
+    <button class="back-btn" onclick="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Назад к файлам
+    </button>
+
+    <div class="share-header">
+        <h1>Управление доступом</h1>
+        <div class="file-info-share" id="file-info">
+            <!-- Информация о файле будет загружена динамически -->
+        </div>
+    </div>
+
+    <!-- Секция добавления доступа -->
+    <div class="share-section">
+        <h2>Предоставить доступ</h2>
+        <div class="share-form">
+            <div class="form-group">
+                <label for="user-email">Email пользователя</label>
+                <input type="email" id="user-email" class="form-control" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="access-level">Уровень доступа</label>
+                <select id="access-level" class="form-control">
+                    <option value="read">Чтение</option>
+                    <option value="edit">Редактирование</option>
+                </select>
+            </div>
+            <button class="btn-primary" id="grant-access-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <line x1="20" y1="8" x2="20" y2="14"/>
+                    <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                Предоставить доступ
+            </button>
+        </div>
+    </div>
+
+    <!-- Список пользователей с доступом -->
+    <div class="permissions-section">
+        <h2>Кто имеет доступ</h2>
+        <div class="permissions-list" id="permissions-list">
+            <div class="loading-permissions">Загрузка списка доступа...</div>
+        </div>
+    </div>
+</div>
+
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Загрузка...</p>
+</div>
+
+<script>
+    function goBack() {
+        const params = new URLSearchParams(window.location.search);
+        const fileId = params.get('fileId');
+        const userId = params.get('userId');
+        window.location.href = `fileExchange.html?id=${userId}`;
+    }
+</script>
+
+<script type="module" src="shareManager.js"></script>
+</body>
+</html>

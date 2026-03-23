@@ -109,4 +109,14 @@ public class Config {
         System.out.println("Debug Mode: " + isDebugMode());
         System.out.println("====================");
     }
+
+    // Dotenv - библиотека, которая загружает переменные окружения из .env
+    // По умолчанию хост, на котором запущен Redis, это localhost
+    public static String getRedisHost() {
+        return dotenv.get("REDIS_HOST", "localhost");
+    }
+
+    public static int getRedisPort() {
+        return Integer.parseInt(dotenv.get("REDIS_PORT", "6379"));
+    }
 }

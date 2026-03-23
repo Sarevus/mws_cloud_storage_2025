@@ -1,0 +1,583 @@
+/* shared-with-me.css - Стили для страницы общих файлов */
+
+.shared-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 3;
+}
+
+.shared-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.shared-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    background: linear-gradient(45deg, #fff, #e0e7ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shared-header p {
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+/* Табы */
+.shared-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.shared-tab {
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.shared-tab:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.shared-tab.active {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-color: transparent;
+}
+
+/* Список файлов */
+.shared-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.shared-file-card {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.shared-file-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.shared-file-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+}
+
+.shared-file-info {
+    flex: 1;
+}
+
+.shared-file-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.shared-file-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.shared-file-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.shared-file-owner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 20px;
+}
+
+.owner-avatar {
+    width: 30px;
+    height: 30px;
+    background: rgba(79, 172, 254, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.shared-access-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 20px;
+}
+
+.shared-file-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-open-file {
+    padding: 8px 16px;
+    background: rgba(79, 172, 254, 0.2);
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 10px;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-open-file:hover {
+    background: rgba(79, 172, 254, 0.3);
+    transform: translateY(-2px);
+}
+
+.empty-shared-files {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+}
+
+.empty-shared-files h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.empty-shared-files p {
+    opacity: 0.8;
+    margin-bottom: 25px;
+}
+
+.loading-files {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Модальное окно для открытия файла */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-body {
+    margin-bottom: 25px;
+}
+
+.file-preview {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.file-preview svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.8;
+}
+
+.file-details-modal {
+    text-align: center;
+}
+
+.file-details-modal h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    word-break: break-all;
+}
+
+.file-details-modal p {
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-download-modal {
+    background: rgba(79, 172, 254, 0.2);
+    border: 1px solid rgba(79, 172, 254, 0.3) !important;
+    color: white;
+}
+
+.btn-download-modal:hover {
+    background: rgba(79, 172, 254, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-close-modal {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white;
+}
+
+.btn-close-modal:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .shared-file-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .shared-file-icon {
+        margin-right: 0;
+    }
+
+    .shared-file-meta {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .shared-file-owner {
+        margin-right: 0;
+        justify-content: center;
+    }
+
+    .shared-access-badge {
+        margin-right: 0;
+    }
+
+    .shared-file-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+}
+
+/* Стили для кнопок навигации */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Стили для кнопки действия */
+.action-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-weight: 600;
+    width: 100%;
+    max-width: 300px;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Специальный стиль для кнопки "Перейти к моим файлам" */
+.action-btn[onclick="goToMyFiles()"] {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+}
+
+.action-btn[onclick="goToMyFiles()"]:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+}
+
+/* Стили для кнопок */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.back-btn svg {
+    stroke: white;
+    width: 20px;
+    height: 20px;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+}
+
+.shared-file-owner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 20px;
+    min-width: 180px;
+}
+
+.owner-avatar {
+    width: 30px;
+    height: 30px;
+    background: rgba(79, 172, 254, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    cursor: help;
+}
+
+.owner-email {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .shared-file-owner {
+        min-width: auto;
+        margin-right: 0;
+    }
+
+    .owner-email {
+        max-width: 120px;
+    }
+}
+
+.owner-highlight {
+    color: #4facfe;
+    font-weight: 500;
+    padding: 2px 6px;
+    background: rgba(79, 172, 254, 0.1);
+    border-radius: 4px;
+}
+
+.file-details-modal p {
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.file-details-modal {
+    text-align: left;
+    padding: 10px;
+}
+
+.btn-rename-modal {
+    background: rgba(255, 193, 7, 0.2);
+    border: 1px solid rgba(255, 193, 7, 0.3) !important;
+    color: white;
+}
+
+.btn-rename-modal:hover {
+    background: rgba(255, 193, 7, 0.3);
+    transform: translateY(-2px);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    min-width: 120px;
+}
+
+.btn-download-modal {
+    background: rgba(79, 172, 254, 0.2);
+    border: 1px solid rgba(79, 172, 254, 0.3) !important;
+    color: white;
+}
+
+.btn-download-modal:hover {
+    background: rgba(79, 172, 254, 0.3);
+    transform: translateY(-2px);
+}
+
+.shared-file-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shared-file-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}

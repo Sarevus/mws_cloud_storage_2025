@@ -38,6 +38,11 @@ public interface FileRepository {
     void deleteById(UUID id);
 
     /**
+     * Удаляет все файлы.
+     */
+    void deleteAll();
+
+    /**
      * Удаляет файл по ключу в S3.
      */
     void deleteByS3Key(String s3Key);

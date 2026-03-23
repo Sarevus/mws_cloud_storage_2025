@@ -2,6 +2,7 @@ package com.MWS.repository;
 
 import com.MWS.model.UserEntity;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.Optional; // Используем Optional для методов, которые могут ничего не найти
 
@@ -20,13 +21,19 @@ public interface UserRepository {
      */
     Optional<UserEntity> findById(UUID id);
 
+    List<UserEntity> findAll();
+
     /**
      * Удаляет пользователя по его ID.
      * @param id id пользователя
      */
     void deleteById(UUID id);
 
+    void deleteAll();
+
     UserEntity update(UserEntity user);
 
     Optional<UserEntity> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }
