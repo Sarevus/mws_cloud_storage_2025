@@ -58,29 +58,27 @@ public class S3FileStorage {
      */
     private void createBucketIfNotExists() {
         try {
-            HeadBucketRequest headBucketRequest = HeadBucketRequest.builder()
+            logger.info("Пробуем создать bucket '{}'", bucketName);
+
+            CreateBucketRequest createBucketRequest = CreateBucketRequest.builder()
                     .bucket(bucketName)
                     .build();
 
-            s3Client.headBucket(headBucketRequest);
+            s3Client.createBucket(createBucketRequest);
+            logger.info("✅ Bucket '{}' успешно создан", bucketName);
+
+        } catch (BucketAlreadyOwnedByYouException e) {
+            logger.info("Bucket '{}' уже существует и принадлежит нам", bucketName);
+
+        } catch (BucketAlreadyExistsException e) {
             logger.info("Bucket '{}' уже существует", bucketName);
 
-        } catch (NoSuchBucketException e) {
-            logger.info("Bucket '{}' не найден, создаем...", bucketName);
-            try {
-                CreateBucketRequest createBucketRequest = CreateBucketRequest.builder()
-                        .bucket(bucketName)
-                        .build();
+        } catch (S3Exception e) {
+            logger.error("❌ Ошибка S3 при создании bucket '{}': {}", bucketName, e.awsErrorDetails().errorMessage(), e);
+            throw new RuntimeException("Ошибка работы с bucket в S3/Ceph", e);
 
-                s3Client.createBucket(createBucketRequest);
-                logger.info("✅ Bucket '{}' успешно создан", bucketName);
-
-            } catch (Exception ex) {
-                logger.error("❌ Не удалось создать bucket '{}'", bucketName, ex);
-                throw new RuntimeException("Не удалось создать bucket", ex);
-            }
         } catch (Exception e) {
-            logger.error("Ошибка при проверке bucket", e);
+            logger.error("❌ Ошибка подключения к S3/Ceph при создании bucket '{}'", bucketName, e);
             throw new RuntimeException("Ошибка подключения к S3/Ceph", e);
         }
     }
