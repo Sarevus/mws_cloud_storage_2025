@@ -198,7 +198,7 @@ public class FolderController {
             response.getOutputStream().write(baos.toByteArray());
             response.getOutputStream().flush();
 
-            logger.info("✅ Папка {} успешно скачана", folderId);
+            logger.info("Папка {} успешно скачана", folderId);
 
         } catch (Exception e) {
             logger.error("Ошибка скачивания папки:", e);

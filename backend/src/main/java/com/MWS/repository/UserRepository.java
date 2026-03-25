@@ -1,6 +1,6 @@
 package com.MWS.repository;
 
-import com.MWS.model.UserEntity;
+import com.MWS.model.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,16 +12,16 @@ public interface UserRepository {
      * Регает нового пользователя или обновляет существующего
      * @param user пользователь для сохранения
      */
-    UserEntity save(UserEntity user);
+    User save(User user);
 
     /**
      * Ищет пользователя по его ID.
      * @param id id пользователя
      * @return Optional инфа про пользователя или пустой если не найден
      */
-    Optional<UserEntity> findById(UUID id);
+    Optional<User> findById(UUID id);
 
-    List<UserEntity> findAll();
+    List<User> findAll();
 
     /**
      * Удаляет пользователя по его ID.
@@ -31,9 +31,11 @@ public interface UserRepository {
 
     void deleteAll();
 
-    UserEntity update(UserEntity user);
+    User update(User user);
 
-    Optional<UserEntity> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    User updateSubscription(User user);
 }

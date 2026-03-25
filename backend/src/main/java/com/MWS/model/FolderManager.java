@@ -11,7 +11,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "folder_manager")
 @Data  // автоматически генерирует геттеры/сеттеры
-@NoArgsConstructor  // генерирует пустой конструктор
+@NoArgsConstructor
 public class FolderManager {
     @EmbeddedId  // поле является составным первичным ключом
     private FolderManagerId id;

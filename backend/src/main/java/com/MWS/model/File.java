@@ -23,7 +23,7 @@ public class File {
     @Setter
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;              // Владелец файла
+    private User user;              // Владелец файла
 
     @Setter
     @Column(name = "link", nullable = false)
@@ -62,7 +62,7 @@ public class File {
     public File() {
     }
 
-    public File(UserEntity user, String originalName, Long size, String mimeType, String category) {
+    public File(User user, String originalName, Long size, String mimeType, String category) {
         this.id = UUID.randomUUID();
         this.user = user;
         this.originalName = originalName;

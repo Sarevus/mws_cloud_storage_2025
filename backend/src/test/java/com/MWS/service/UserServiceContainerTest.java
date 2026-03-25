@@ -2,7 +2,7 @@ package com.MWS.service;
 
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
-import com.MWS.model.UserEntity;
+import com.MWS.model.User;
 import com.MWS.repository.UserRepository;
 import com.MWS.repository.UserRepositoryPostgres;
 import org.flywaydb.core.Flyway;
@@ -104,7 +104,7 @@ public class UserServiceContainerTest {
         assertEquals("testuser1@mail.ru", result.email());
         assertEquals("+79106754432", result.phoneNumber());
 
-        Optional<UserEntity> savedUser = userRepository.findByEmail("testuser1@mail.ru");
+        Optional<User> savedUser = userRepository.findByEmail("testuser1@mail.ru");
         assertTrue(savedUser.isPresent());
         assertEquals("Аня", savedUser.get().getName());
     }
@@ -162,7 +162,7 @@ public class UserServiceContainerTest {
         assertNotNull(result);
         assertEquals("+76665554433", result.phoneNumber());
 
-        Optional<UserEntity> savedUser = userRepository.findByEmail("gglleebb@gmail.com");
+        Optional<User> savedUser = userRepository.findByEmail("gglleebb@gmail.com");
         assertTrue(savedUser.isPresent());
         assertEquals("Глеб123", savedUser.get().getName());
     }
@@ -242,7 +242,7 @@ public class UserServiceContainerTest {
         assertEquals("vova_updated@mail.ru", result.email());
         assertEquals("+79106759999", result.phoneNumber());
 
-        Optional<UserEntity> updatedUser = userRepository.findByEmail("vova_updated@mail.ru");
+        Optional<User> updatedUser = userRepository.findByEmail("vova_updated@mail.ru");
         assertTrue(updatedUser.isPresent());
         assertEquals("Вова Новый", updatedUser.get().getName());
         assertEquals("+79106759999", updatedUser.get().getPhoneNumber());
@@ -337,12 +337,12 @@ public class UserServiceContainerTest {
         GetSimpleUserDto createdUser = userService.createUser(createDto);
         UUID userId = createdUser.id();
 
-        Optional<UserEntity> userBeforeDelete = userRepository.findById(userId);
+        Optional<User> userBeforeDelete = userRepository.findById(userId);
         assertTrue(userBeforeDelete.isPresent());
 
         userService.deleteUser(userId);
 
-        Optional<UserEntity> userAfterDelete = userRepository.findById(userId);
+        Optional<User> userAfterDelete = userRepository.findById(userId);
         assertFalse(userAfterDelete.isPresent(), "Пользователь должен быть удален");
     }
 
@@ -373,7 +373,7 @@ public class UserServiceContainerTest {
 
         assertNotNull(userId);
 
-        Optional<UserEntity> user = userRepository.findByEmail("kolya@mail.ru");
+        Optional<User> user = userRepository.findByEmail("kolya@mail.ru");
         assertTrue(user.isPresent());
         assertEquals(user.get().getId(), userId);
     }

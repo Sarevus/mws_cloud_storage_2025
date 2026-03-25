@@ -4,7 +4,7 @@ import com.MWS.Validator.ValidationResult;
 import com.MWS.Validator.Validator;
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
-import com.MWS.model.UserEntity;
+import com.MWS.model.User;
 import com.MWS.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -14,7 +14,6 @@ import com.MWS.security.HashPassword;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -58,14 +57,14 @@ public class UserServiceRelease implements UserService {
 
 
         // заполняем UserEntity
-        UserEntity user = new UserEntity();
+        User user = new User();
         user.setName(name);
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setPassword(password);
 
         // сохраняем user
-        UserEntity savedUser = userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         return new GetSimpleUserDto(
                 savedUser.getId(),
@@ -78,7 +77,7 @@ public class UserServiceRelease implements UserService {
 
     @Override
     public GetSimpleUserDto updateUser(UUID id, CreateUserDTO userDTO) {
-        UserEntity user = userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Такого пользователя не существует: " + id));
 
 
@@ -114,7 +113,7 @@ public class UserServiceRelease implements UserService {
 
 
         // сохраняем user
-        UserEntity savedUser = userRepository.update(user);
+        User savedUser = userRepository.update(user);
 
         return new GetSimpleUserDto(
                 savedUser.getId(),
@@ -134,7 +133,7 @@ public class UserServiceRelease implements UserService {
     @Override
     public GetSimpleUserDto getUser(UUID id) {
         // Если такого пользователя нет возвращаем exception
-        UserEntity user = userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден: " + id));
 
         // Если есть, то возвращаем его данные
@@ -165,7 +164,7 @@ public class UserServiceRelease implements UserService {
     @Override
     public UUID loginUser(String email, String rawPassword) {
 
-        UserEntity user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
 
         if (!HashPassword.verifyPassword(rawPassword, user.getPassword())) {

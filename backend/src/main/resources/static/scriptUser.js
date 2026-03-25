@@ -27,8 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("user-email").textContent = user.email || 'Не указано';
         document.getElementById("user-number").textContent = user.phoneNumber || 'Не указано';
 
-        // После загрузки пользователя загружаем информацию о хранилище
+        // Загружаем информацию о хранилище и подписке
         loadStorageInfo();
+        loadCurrentSubscription();
     })
     .catch(err => {
         console.error('Ошибка:', err);
@@ -43,12 +44,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// Функция загрузки текущей подписки
+async function loadCurrentSubscription() {
+    try {
+        const response = await fetch('/api/subscriptions/current', {
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.plan) {
+                const subscriptionSpan = document.getElementById('user-subscription');
+                if (subscriptionSpan) {
+                    subscriptionSpan.textContent = data.plan.name;
+                }
+                console.log('✅ Текущая подписка:', data.plan.name);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Ошибка загрузки подписки:', error);
+        const subscriptionSpan = document.getElementById('user-subscription');
+        if (subscriptionSpan) {
+            subscriptionSpan.textContent = 'Ошибка';
+        }
+    }
+}
+
 // Функция загрузки информации о хранилище
 async function loadStorageInfo() {
     try {
         console.log('Загрузка информации о хранилище...');
 
-        // Правильный URL для StorageController
         const response = await fetch('/api/storage/info', {
             credentials: 'include',
             headers: {
@@ -64,13 +90,11 @@ async function loadStorageInfo() {
         const data = await response.json();
         console.log('Информация о хранилище (сырые данные):', data);
 
-        // Обновляем прогресс-бар
         updateStorageBar(data);
 
     } catch (error) {
         console.error('❌ Ошибка загрузки информации о хранилище:', error);
 
-        // Показываем ошибку в интерфейсе
         const progressBar = document.getElementById('storage-progress');
         const usedEl = document.getElementById('storage-used');
 
@@ -93,10 +117,7 @@ function updateStorageBar(data) {
         return;
     }
 
-    // Устанавливаем ширину прогресс-бара
     progressBar.style.width = data.percent + '%';
-
-    // Форматируем байты в читаемый вид
     usedEl.textContent = formatBytes(data.used);
     totalEl.textContent = formatBytes(data.total);
     percentEl.textContent = `(${data.percent}%)`;
@@ -123,6 +144,7 @@ function formatBytes(bytes) {
 // Функция для ручного обновления (можно вызвать из консоли)
 window.refreshStorage = function() {
     loadStorageInfo();
+    loadCurrentSubscription();
 };
 
 // Проверка сессии каждую минуту
@@ -138,3 +160,6 @@ setInterval(() => {
             window.location.href = "/loginIndex.html";
         });
 }, 60000);
+
+// Делаем функцию глобальной для вызова из других окон
+window.loadCurrentSubscription = loadCurrentSubscription;

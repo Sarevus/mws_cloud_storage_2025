@@ -40,11 +40,11 @@ public class FolderManagerService {
     }
 
     @Transactional
-    public void addFilesToFolder(UUID folderId, List<UUID> fileIds, String addedBy) {
+    public void addFilesToFolder(UUID folderId, List<UUID> fileIds, String userEmail) {
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new IllegalArgumentException("Папки не существует"));
 
-        UUID userId = userRepository.findByEmail(addedBy)
+        UUID userId = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"))
                 .getId();
 
@@ -52,7 +52,7 @@ public class FolderManagerService {
             throw new IllegalArgumentException("Добавлять файлы может только владелец");
         }
 
-        addFilesToFolderLogics(folderId, fileIds, addedBy, userId);
+        addFilesToFolderLogics(folderId, fileIds, userEmail, userId);
     }
 
     @Transactional
@@ -163,11 +163,6 @@ public class FolderManagerService {
             try {
                 File file = fileRepository.findById(fileId)
                         .orElseThrow(() -> new IllegalArgumentException("Файл не найден"));
-
-                if (!permissionRepository.hasPermission(fileId, userId, Roles.READER)) {
-                    logger.info("У пользователя {} нет права на добавление файла {}", addedBy, file.getOriginalName());
-                    continue;
-                }
 
                 if (isFileInFolder(folderId, fileId)) {
                     throw new DuplicateFileException(file.getOriginalName());

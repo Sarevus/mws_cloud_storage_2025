@@ -1,18 +1,14 @@
 package com.MWS.exception;
 
-import com.MWS.CloudStorageApplication;
 import com.MWS.dto.response.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -46,6 +42,14 @@ public class GlobalExceptionHandler {
         logger.warn("Некорректный запрос: {}", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(message));
+    }
+
+    // 402
+    @ExceptionHandler(PaymentRequiredException.class)
+    @ResponseStatus(HttpStatus.PAYMENT_REQUIRED)
+    public ErrorResponse handlePaymentRequired(PaymentRequiredException ex) {
+        logger.warn("Требуется оплата: {}", ex.getMessage());
+        return new ErrorResponse(ex.getMessage());
     }
 
     // 403 - Forbidden (не хватает прав)

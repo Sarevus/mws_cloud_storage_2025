@@ -27,16 +27,20 @@ public class FolderService {
     private final UserRepository userRepository;
     private final FolderRepository folderRepository;
     private final FolderManagerRepository folderManagerRepository;
+    private final FileService fileService;
+    private final FolderManagerService folderManagerService;
 
     @Autowired
     public FolderService(FileRepository fileRepository,
                          UserRepository userRepository,
                          FolderRepository folderRepository,
-                         FolderManagerRepository folderManagerRepository) {
+                         FolderManagerRepository folderManagerRepository, FileService fileService, FolderManagerService folderManagerService) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.folderRepository = folderRepository;
         this.folderManagerRepository = folderManagerRepository;
+        this.fileService = fileService;
+        this.folderManagerService = folderManagerService;
     }
 
     @Transactional
@@ -167,19 +171,29 @@ public class FolderService {
             throw new SecurityException("Только владелец может удалить папку");
         }
 
-        // 1. Удаляем все связи с файлами в этой папке
+        // Удаляем файлы из хранилища!
+        List<FileDto> files = getAllFilesInFolder(folderId);
+
+        for (FileDto file : files) {
+            try {
+                fileService.deleteFile(ownerId, file.id());
+            } catch (Exception ignored) {
+            }
+        }
+
+        // Удаляем все связи с файлами в этой папке
         folderManagerRepository.deleteByIdFolderId(folderId);
 
-        // 2. Рекурсивно удаляем подпапки
+        // Рекурсивно удаляем подпапки
         List<Folder> subfolders = folderRepository.findByParentId(folderId);
         for (Folder subfolder : subfolders) {
             deleteFolderRecursively(subfolder.getId(), subfolder.getOwnerId());
         }
 
-        // 3. Удаляем саму папку
+        // Удаляем саму папку
         folderRepository.deleteById(folderId);
 
-        // 4. Обновляем количество папок в родительской папке
+        // Обновляем количество папок в родительской папке
         if (parentId != null) {
             folderRepository.decrementFoldersQuantity(parentId);
         }

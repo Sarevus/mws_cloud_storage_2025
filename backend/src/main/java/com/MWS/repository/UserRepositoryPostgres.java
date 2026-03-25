@@ -1,6 +1,6 @@
 package com.MWS.repository;
 
-import com.MWS.model.UserEntity;
+import com.MWS.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class UserRepositoryPostgres implements UserRepository {
     private EntityManager entityManager;
 
     @Override
-    public UserEntity save(UserEntity user) {
+    public User save(User user) {
         if (user.getId() == null) {
             entityManager.persist(user);
         } else {
@@ -33,16 +33,16 @@ public class UserRepositoryPostgres implements UserRepository {
     }
 
     @Override
-    public Optional<UserEntity> findById(UUID id) {
-        UserEntity user = entityManager.find(UserEntity.class, id);
+    public Optional<User> findById(UUID id) {
+        User user = entityManager.find(User.class, id);
         return Optional.ofNullable(user);
     }
 
     @Override
-    public Optional<UserEntity> findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         try {
-            UserEntity user = entityManager.createQuery(
-                            "SELECT u FROM UserEntity u WHERE u.email = :email", UserEntity.class)
+            User user = entityManager.createQuery(
+                            "SELECT u FROM User u WHERE u.email = :email", User.class)
                     .setParameter("email", email)
                     .getSingleResult();
             return Optional.ofNullable(user);
@@ -52,14 +52,14 @@ public class UserRepositoryPostgres implements UserRepository {
     }
 
     @Override
-    public List<UserEntity> findAll() {
-        return entityManager.createQuery("SELECT u FROM UserEntity u", UserEntity.class)
+    public List<User> findAll() {
+        return entityManager.createQuery("SELECT u FROM User u", User.class)
                 .getResultList();
     }
 
     @Override
     public void deleteById(UUID id) {
-        UserEntity user = entityManager.find(UserEntity.class, id);
+        User user = entityManager.find(User.class, id);
         if (user != null) {
             entityManager.remove(user);
             logger.info("Пользователь удалён: {}", id);
@@ -68,21 +68,40 @@ public class UserRepositoryPostgres implements UserRepository {
 
     @Override
     public void deleteAll() {
-        entityManager.createQuery("DELETE FROM UserEntity").executeUpdate();
+        entityManager.createQuery("DELETE FROM User").executeUpdate();
         logger.info("Все пользователи удалены");
     }
 
     @Override
-    public UserEntity update(UserEntity user) {
+    public User update(User user) {
         return save(user);
     }
 
     @Override
     public boolean existsByEmail(String email) {
         Long count = entityManager.createQuery(
-                        "SELECT COUNT(u) FROM UserEntity u WHERE u.email = :email", Long.class)
+                        "SELECT COUNT(u) FROM User u WHERE u.email = :email", Long.class)
                 .setParameter("email", email)
                 .getSingleResult();
         return count > 0;
+    }
+
+    @Override
+    public User updateSubscription(User user) {
+        User managed = entityManager.merge(user);
+
+        // Обновляем storage_limit при изменении подписки
+        if (user.getSubscriptionId() != null) {
+            entityManager.createNativeQuery(
+                            "UPDATE users SET storage_limit = (SELECT storage_limit_bytes FROM subscription_plans WHERE id = ?) " +
+                                    "WHERE id = ?"
+                    )
+                    .setParameter(1, user.getSubscriptionId())
+                    .setParameter(2, user.getId())
+                    .executeUpdate();
+        }
+
+        logger.info("Пользователь обновлён: {}", managed.getId());
+        return managed;
     }
 }

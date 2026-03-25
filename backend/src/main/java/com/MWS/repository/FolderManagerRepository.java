@@ -1,7 +1,6 @@
 package com.MWS.repository;
 
 import com.MWS.model.File;
-import com.MWS.model.Folder;
 import com.MWS.model.FolderManager;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

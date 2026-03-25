@@ -1,0 +1,426 @@
+/* subscription.css */
+
+.subscription-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 3;
+}
+
+.subscription-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.subscription-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    background: linear-gradient(45deg, #fff, #e0e7ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subscription-header p {
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+/* Текущая подписка */
+.current-subscription {
+    background: rgba(79, 172, 254, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(79, 172, 254, 0.4);
+    text-align: center;
+}
+
+.current-subscription h3 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.current-plan {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.plan-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #fff, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.plan-limit {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Сетка карточек */
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.plan-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.plan-card:hover {
+    transform: translateY(-10px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.plan-card.popular {
+    border: 2px solid #4facfe;
+    transform: scale(1.02);
+}
+
+.plan-card.popular:hover {
+    transform: scale(1.02) translateY(-10px);
+}
+
+.popular-badge {
+    position: absolute;
+    top: 20px;
+    right: -30px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    padding: 5px 40px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transform: rotate(45deg);
+    width: 120px;
+    text-align: center;
+}
+
+.plan-name-large {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.plan-price {
+    margin-bottom: 20px;
+}
+
+.price-month {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #4facfe;
+}
+
+.price-month small {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.price-year {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 5px;
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 25px 0;
+    text-align: left;
+}
+
+.plan-features li {
+    padding: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.plan-features li::before {
+    content: "✓";
+    color: #4facfe;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.btn-subscribe {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn-subscribe:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+}
+
+.btn-subscribe:disabled {
+    opacity: 0.7;
+    cursor: default;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-current {
+    background: rgba(255, 255, 255, 0.2);
+    cursor: default;
+}
+
+.btn-current:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Информация о лимитах */
+.limits-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+}
+
+.limits-info h3 {
+    font-size: 1.3rem;
+    margin-bottom: 25px;
+}
+
+.limits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.limit-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+}
+
+.limit-icon {
+    font-size: 2rem;
+}
+
+.limit-text {
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.loading-plans {
+    text-align: center;
+    padding: 60px;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .subscription-container {
+        margin: 20px auto;
+    }
+
+    .subscription-header h1 {
+        font-size: 2rem;
+    }
+
+    .plans-grid {
+        gap: 20px;
+    }
+
+    .plan-card {
+        padding: 20px;
+    }
+
+    .plan-name-large {
+        font-size: 1.5rem;
+    }
+
+    .price-month {
+        font-size: 1.8rem;
+    }
+
+    .limits-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .limits-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .current-plan {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-retry {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-retry:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Стиль для карточки текущей подписки в сетке */
+.plan-card.current-plan-card {
+    border: 2px solid #4facfe;
+    background: rgba(79, 172, 254, 0.2);
+    transform: scale(1.02);
+}
+
+.plan-card.current-plan-card:hover {
+    transform: scale(1.02) translateY(-10px);
+}
+
+.current-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+}
+
+/* Стили для текущей подписки сверху */
+.current-subscription {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.3) 0%, rgba(0, 242, 254, 0.3) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(79, 172, 254, 0.5);
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.current-subscription h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    opacity: 0.9;
+    color: white;
+}
+
+.current-plan {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px 25px;
+    border-radius: 15px;
+}
+
+.current-plan .plan-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #fff, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.current-plan .plan-limit {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+/* Анимация для текущей подписки */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для кнопки повтора */
+.btn-retry {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-retry:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}

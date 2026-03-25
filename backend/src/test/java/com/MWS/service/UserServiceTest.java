@@ -2,7 +2,7 @@ package com.MWS.service;
 
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
-import com.MWS.model.UserEntity;
+import com.MWS.model.User;
 import com.MWS.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +34,7 @@ public class UserServiceTest {
                 "123456"
         );
         UUID userId = UUID.randomUUID();
-        UserEntity user = new UserEntity();
+        User user = new User();
         user.setId(userId);
         user.setName("Аня");
         user.setEmail("testuser1@mail.ru");
@@ -42,7 +42,7 @@ public class UserServiceTest {
         user.setPassword("123456");
 
         when(UserRepository.findByEmail("testuser1@mail.ru")).thenReturn(Optional.empty());
-        when(UserRepository.save(any(UserEntity.class))).thenReturn(user);
+        when(UserRepository.save(any(User.class))).thenReturn(user);
 
         GetSimpleUserDto result = UserServiceRelease.createUser(successfulDto);
 
@@ -52,7 +52,7 @@ public class UserServiceTest {
         assertEquals("+79106754432", result.phoneNumber());
 
         verify(UserRepository).findByEmail("testuser1@mail.ru");
-        verify(UserRepository).save(any(UserEntity.class));
+        verify(UserRepository).save(any(User.class));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class UserServiceTest {
 
 
         UUID userId = UUID.randomUUID();
-        UserEntity User = new UserEntity();
+        User User = new User();
         User.setId(userId);
         User.setName("Борис");
         User.setEmail("testuser2@mail.ru");
@@ -79,7 +79,7 @@ public class UserServiceTest {
         assertTrue(exception.getMessage().contains("Некорректный номер телефона"));
 
         verify(UserRepository, never()).findByEmail("testuser2@mail.ru");
-        verify(UserRepository, never()).save(any(UserEntity.class));
+        verify(UserRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class UserServiceTest {
         );
 
         UUID userId = UUID.randomUUID();
-        UserEntity User = new UserEntity();
+        User User = new User();
         User.setId(userId);
         User.setName("Пользователь3");
         User.setEmail("testuser1@mail.ru");
@@ -108,7 +108,7 @@ public class UserServiceTest {
 
         assertTrue(exception.getMessage().contains("Email " + dto.email() + " уже занят."));
         verify(UserRepository).findByEmail("testuser1@mail.ru");
-        verify(UserRepository, never()).save(any(UserEntity.class));
+        verify(UserRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -121,7 +121,7 @@ public class UserServiceTest {
         );
 
         UUID userId = UUID.randomUUID();
-        UserEntity user = new UserEntity();
+        User user = new User();
         user.setId(userId);
         user.setName("Глеб123");
         user.setEmail("gglleebb@gmail.com");
@@ -129,7 +129,7 @@ public class UserServiceTest {
         user.setPassword("jqewgfiygqi");
 
         when(UserRepository.findByEmail("gglleebb@gmail.com")).thenReturn(Optional.empty());
-        when(UserRepository.save(any(UserEntity.class))).thenReturn(user);
+        when(UserRepository.save(any(User.class))).thenReturn(user);
 
         GetSimpleUserDto result = UserServiceRelease.createUser(successfulDto);
 
@@ -137,7 +137,7 @@ public class UserServiceTest {
         assertEquals("+76665554433", result.phoneNumber());
 
         verify(UserRepository).findByEmail("gglleebb@gmail.com");
-        verify(UserRepository).save(any(UserEntity.class));
+        verify(UserRepository).save(any(User.class));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class UserServiceTest {
         assertTrue(exception.getMessage().contains("Пароль должен быть от 6 до 100 символов"));
 
         verify(UserRepository, never()).findByEmail("daria@gmail.com");
-        verify(UserRepository, never()).save(any(UserEntity.class));
+        verify(UserRepository, never()).save(any(User.class));
     }
 
 }

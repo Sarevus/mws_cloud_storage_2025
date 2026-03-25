@@ -5,7 +5,7 @@ import com.MWS.dto.UserInfoDto;
 import com.MWS.model.File;
 import com.MWS.model.FilePermission;
 import com.MWS.model.Roles;
-import com.MWS.model.UserEntity;
+import com.MWS.model.User;
 import com.MWS.repository.FileRepository;
 import com.MWS.repository.PermissionRepository;
 import com.MWS.repository.UserRepository;
@@ -45,7 +45,7 @@ public class FilePermissionService {
             throw new SecurityException("Only owner can share files");
         }
 
-        UserEntity user = userRepository.findByEmail(userEmail)
+        User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (user.getId().equals(ownerId)) {
@@ -151,10 +151,10 @@ public class FilePermissionService {
     public FilePermissionDto toDto(FilePermission permission) {
         File file = permission.getFile();
 
-        UserEntity owner = userRepository.findById(permission.getOwnerId())
+        User owner = userRepository.findById(permission.getOwnerId())
                 .orElse(null);
 
-        UserEntity user = userRepository.findById(permission.getUserId())
+        User user = userRepository.findById(permission.getUserId())
                 .orElse(null);
 
         return new FilePermissionDto(

@@ -7,12 +7,18 @@ import com.MWS.Validator.annotations.NotNull;
 import com.MWS.Validator.annotations.PhoneNumber;
 import com.MWS.Validator.annotations.Size;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.UUID;
 
+@Data
 @Entity
 @Table(name = "users")
-public class UserEntity {
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -31,65 +37,15 @@ public class UserEntity {
     @NotNull(message = "Пароль не может быть null")
     @Size(min = 6, max = 50, message = "Пароль должен быть минимум 6 символов")
     private String password;
+
     @Column(name = "phone_number", nullable = false)
     @PhoneNumber(message = "Некорректный формат телефонного номера")
     private String phoneNumber;
 
-    public UserEntity() {
-    }
+    @Column(name = "storage_limit")
+    @NotNull(message = "Лимит на размер хранилища не может быть null")
+    private Long storageLimit;
 
-    public UserEntity(UUID id, String name, String email, String phoneNumber, String password) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.password = password;
-    }
-
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("User{ID: %s, name=%s}", id, name);
-    }
-
+    @Column(name = "subscription_id")
+    private UUID subscriptionId;
 }

@@ -163,8 +163,11 @@ class FileManager {
 
     /**
      * Загружает файл на сервер
+     * @param {File} file - файл
+     * @param {string|null} category - категория
+     * @param {boolean} skipCategory - если true, не показывать в категориях
      */
-    async uploadFile(file, category = null) {
+    async uploadFile(file, category = null, skipCategory = false) {
         if (!this.currentUserId) {
             alert('Ошибка: ID пользователя не найден');
             return null;
@@ -184,7 +187,8 @@ class FileManager {
             имя: file.name,
             категория: category,
             размер: this.formatFileSize(file.size),
-            тип: file.type
+            тип: file.type,
+            skipCategory: skipCategory
         });
 
         const formData = new FormData();
@@ -192,7 +196,11 @@ class FileManager {
 
         try {
             let finalCategory = category;
-            if (!finalCategory || finalCategory === 'shared') {
+
+            if (skipCategory) {
+                finalCategory = "folder_files";
+                console.log(`📁 Файл для папки, категория: "${finalCategory}"`);
+            } else if (!finalCategory || finalCategory === 'shared') {
                 finalCategory = this.detectCategoryFromFile(file);
                 console.log(`Автоматически определена категория: "${finalCategory}"`);
             }
@@ -224,11 +232,15 @@ class FileManager {
 
             if (!existingFile) {
                 console.log('✅ Файл успешно загружен:', result.file);
-                alert(`Файл "${file.name}" успешно загружен!`);
+                if (!skipCategory) {
+                    alert(`Файл "${file.name}" успешно загружен!`);
+                }
                 return result.file;
             } else {
                 console.log('✅ Файл успешно обновлён:', result.file);
-                alert(`Файл "${file.name}" успешно обновлён!`);
+                if (!skipCategory) {
+                    alert(`Файл "${file.name}" успешно обновлён!`);
+                }
                 return result.file;
             }
 
@@ -464,13 +476,16 @@ class FileManager {
 
         try {
             const files = await this.getFiles();
-            console.log('📁 Всего файлов:', files.length);
+            // Фильтруем файлы folder_files - они НЕ должны отображаться в категориях
+            const visibleFiles = files.filter(f => f.category !== 'folder_files');
+
+            console.log('📁 Всего файлов:', files.length, 'видимых:', visibleFiles.length);
 
             await this.updateStorageInfo();
 
             const totalFilesEl = document.getElementById('total-files');
             if (totalFilesEl) {
-                totalFilesEl.textContent = `${files.length} файл${files.length % 10 === 1 ? '' : files.length % 10 >= 2 && files.length % 10 <= 4 ? 'а' : 'ов'}`;
+                totalFilesEl.textContent = `${visibleFiles.length} файл${visibleFiles.length % 10 === 1 ? '' : visibleFiles.length % 10 >= 2 && visibleFiles.length % 10 <= 4 ? 'а' : 'ов'}`;
             }
 
             for (const categoryName of this.categories) {
@@ -492,9 +507,9 @@ class FileManager {
 
                 let categoryFiles = [];
                 if (categoryName === 'shared') {
-                    categoryFiles = files;
+                    categoryFiles = visibleFiles;
                 } else {
-                    categoryFiles = files.filter(file => {
+                    categoryFiles = visibleFiles.filter(file => {
                         const fileCategory = this.getFileCategory(file);
                         return fileCategory === categoryName;
                     });
@@ -635,7 +650,7 @@ class FileManager {
 
             for (const file of files) {
                 const uploadCategory = categoryId === 'shared' ? null : categoryId;
-                const uploadedFile = await this.uploadFile(file, uploadCategory);
+                const uploadedFile = await this.uploadFile(file, uploadCategory, false);
                 if (uploadedFile) successCount++;
             }
 
@@ -851,7 +866,63 @@ class FileManager {
     }
 
     /**
-     * Привязывает существующий файл к папке (БЕЗ ПОВТОРНОЙ ЗАГРУЗКИ)
+     * Загружает файл и сразу привязывает к папке (без добавления в категории)
+     */
+    async uploadFileToFolder(file, folderId) {
+        console.log('=== uploadFileToFolder START ===');
+        console.log('File name:', file.name);
+        console.log('Folder ID:', folderId);
+        console.log('Current user email:', this.currentUserEmail);
+
+        if (!folderId) {
+            console.error('❌ Не указан folderId');
+            return null;
+        }
+
+        if (!this.currentUserEmail) {
+            await this.loadUserEmail();
+            if (!this.currentUserEmail) {
+                console.error('❌ Не удалось получить email');
+                return null;
+            }
+        }
+
+        try {
+            console.log('📤 Загрузка файла в папку (без категории)...');
+            const uploadedFile = await this.uploadFile(file, null, true);
+
+            if (!uploadedFile || !uploadedFile.id) {
+                throw new Error('Файл не загружен');
+            }
+
+            console.log(`✅ Файл загружен, ID: ${uploadedFile.id}`);
+
+            console.log('📁 Привязка к папке...');
+            const response = await fetch(`${this.baseUrl}/api/folders/${folderId}/files`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileIds: [uploadedFile.id]
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Ошибка привязки: ${response.status} - ${errorText}`);
+            }
+
+            console.log(`✅ Файл "${uploadedFile.originalName}" привязан к папке ${folderId}`);
+            return uploadedFile;
+
+        } catch (error) {
+            console.error('❌ Ошибка в uploadFileToFolder:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Привязывает существующий файл к папке (без повторной загрузки)
      */
     async bindFileToFolder(fileId, folderId) {
         console.log('=== bindFileToFolder START ===');
@@ -879,8 +950,7 @@ class FileManager {
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    fileIds: [fileId],
-                    addedBy: this.currentUserEmail
+                    fileIds: [fileId]
                 })
             });
 

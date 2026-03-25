@@ -1,0 +1,142 @@
+# Server Configuration
+server:
+  port: 6969
+  tomcat:
+    max-swallow-size: 100MB
+    max-http-form-post-size: 100MB
+    connection-timeout: 120000
+
+# Multipart configuration
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+      enabled: true
+
+  # Datasource Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cloud3_data
+    username: developer
+    password: dev123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 300000
+      connection-timeout: 20000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        temp:
+          use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  # Static resources
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+  # Flyway
+  flyway:
+    baseline-on-migrate: true
+    validate-on-migrate: false
+
+# Logging
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+    com:
+      MWS: DEBUG
+
+subscription: #префикс
+  plans:
+    FREE:
+      name: 'FREE'
+      storage_limit_bytes: 10485760
+      price_per_month: 0
+      price_per_year: 0
+      max_file_size_bytes: 409600
+      max_files_count: 10
+      can_share_files: false
+      description:
+        en: 'Free plan'
+      features:
+        en:
+          storage: "1 GB"
+          max_file_size: "10 MB"
+          max_files: 100
+      priority: 0
+
+    BASIC:
+      name: 'BASIC'
+      storage_limit_bytes: 10737418240
+      price_per_month: 200
+      price_per_year: 2400
+      max_file_size_bytes: 104857600
+      max_files_count: 1000
+      can_share_files: true
+      description:
+        en: 'Basic plan'
+      features:
+        en:
+          storage: "10 GB"
+          max_file_size: "100 MB"
+          max_files: 1000
+          basic_sharing: true
+      priority: 1
+
+    PREMIUM:
+      name: 'PREMIUM'
+      storage_limit_bytes: 107374182400
+      price_per_month: 500
+      price_per_year: 6000
+      max_file_size_bytes: 1073741824
+      max_files_count: 10000
+      can_share_files: true
+      description:
+        en: 'Premium plan'
+      features:
+        en:
+          storage: "100 GB"
+          max_file_size: "1 GB"
+          max_files: 10000
+          priority_support: true
+          advanced_sharing: true
+      priority: 2
+
+    BUSINESS:
+      name: 'BUSINESS'
+      storage_limit_bytes: 1099511627776
+      price_per_month: 2000
+      price_per_year: 24000
+      max_file_size_bytes: 10737418240
+      max_files_count: 100000
+      can_share_files: true
+      description:
+        en: 'Business plan'
+      features:
+        en:
+          storage: "1 TB"
+          max_file_size: "10 GB"
+          max_files: 100000
+          priority_support: true
+          advanced_sharing: true
+          team_management: true
+      priority: 3

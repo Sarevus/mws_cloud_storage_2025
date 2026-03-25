@@ -14,12 +14,14 @@ import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -29,13 +31,15 @@ public class FolderManagerController {
 
     private final FolderManagerService folderManagerService;
     private final FileService fileService;
+    private final FolderService folderService;
 
     @Autowired
     public FolderManagerController(FolderService folderService,
                                    FolderManagerService folderManagerService,
-                                   FileService fileService) {
+                                   FileService fileService, FolderService folderService1) {
         this.folderManagerService = folderManagerService;
         this.fileService = fileService;
+        this.folderService = folderService1;
     }
 
     @PostMapping("/folders/{folderId}/files")
@@ -43,13 +47,15 @@ public class FolderManagerController {
                                  @RequestBody FilesRequestDto request,
                                  HttpSession session) {
         UUID userId = (UUID) session.getAttribute("userId");
+        String email = (String) session.getAttribute("email");
+
         if (userId == null) {
             throw new IllegalArgumentException("Пользователь не авторизован");
         }
 
-        logger.info("Пользователь {} добавляет файлы в папку {}", userId, request.folderName());
+        logger.info("Пользователь {} добавляет файлы в папку {}", userId, folderId);
 
-        folderManagerService.addFilesToFolder(folderId, request.fileIds(), request.addedBy());
+        folderManagerService.addFilesToFolder(folderId, request.fileIds(), email);
     }
 
     @DeleteMapping("/folders/{folderId}/files")
@@ -167,8 +173,7 @@ public class FolderManagerController {
 
         logger.info("Пользователь {} загружает файл {} в папку {}", userId, file.getOriginalFilename(), folderId);
 
-        // Загружаем файл через существующий метод uploadFile
-        com.MWS.model.File uploadedFile = fileService.uploadFile(
+        File uploadedFile = fileService.uploadFile(
                 userId,
                 file.getOriginalFilename(),
                 file.getInputStream(),

@@ -5,6 +5,7 @@ import com.MWS.dto.ShareRequestDto;
 import com.MWS.model.Roles;
 import com.MWS.repository.FileRepository;
 import com.MWS.service.FilePermissionService;
+import com.MWS.service.UserStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -25,11 +26,13 @@ public class PermissionController {
 
     private final FilePermissionService filePermissionService;
     private final FileRepository fileRepository;
+    private final UserStorageService userStorageService;
 
     @Autowired
-    public PermissionController(FilePermissionService filePermissionService, FileRepository fileRepository) {
+    public PermissionController(FilePermissionService filePermissionService, FileRepository fileRepository, UserStorageService userStorageService) {
         this.filePermissionService = filePermissionService;
         this.fileRepository = fileRepository;
+        this.userStorageService = userStorageService;
     }
 
     @PostMapping("share")
@@ -40,6 +43,7 @@ public class PermissionController {
         if (userId == null) {
             throw new IllegalArgumentException("No such user");
         }
+        userStorageService.checkShareAllowed(userId);
 
         logger.info("Пользователь {} делится файлом {} с пользователем {}", userId, shareRequest.fileId(), shareRequest.userEmail());
 

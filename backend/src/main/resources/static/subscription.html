@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тарифы - Cloud Storage</title>
+    <link rel="stylesheet" href="./styles/index.css">
+    <link rel="stylesheet" href="./styles/subscription.css">
+</head>
+<body>
+<div class="overlay"></div>
+<div class="background-circles">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+</div>
+
+<div class="subscription-container">
+    <!-- Кнопка назад -->
+    <button class="back-btn" onclick="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Назад в профиль
+    </button>
+
+    <div class="subscription-header">
+        <h1>Выберите тариф</h1>
+        <p>Подберите оптимальный план для ваших задач</p>
+    </div>
+
+    <!-- Текущая подписка -->
+    <div class="current-subscription" id="current-subscription" style="display: none;">
+        <div class="current-info">
+            <h3>Ваша текущая подписка</h3>
+            <div class="current-plan" id="current-plan">
+                <span class="plan-name">Загрузка...</span>
+                <span class="plan-limit" id="storage-info"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Карточки тарифов -->
+    <div class="plans-grid" id="plans-grid">
+        <div class="loading-plans">Загрузка тарифов...</div>
+    </div>
+
+    <!-- Информация о лимитах -->
+    <div class="limits-info">
+        <h3>Что вы получите с каждым тарифом</h3>
+        <div class="limits-grid">
+            <div class="limit-item">
+                <div class="limit-icon">📦</div>
+                <div class="limit-text">Дополнительное место в хранилище</div>
+            </div>
+            <div class="limit-item">
+                <div class="limit-icon">📄</div>
+                <div class="limit-text">Увеличенный размер загружаемых файлов</div>
+            </div>
+            <div class="limit-item">
+                <div class="limit-icon">🔗</div>
+                <div class="limit-text">Возможность делиться файлами</div>
+            </div>
+            <div class="limit-item">
+                <div class="limit-icon">🚀</div>
+                <div class="limit-text">Приоритетная поддержка</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Оформление подписки...</p>
+</div>
+
+<script>
+    function goBack() {
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get('id');
+        if (userId) {
+            window.location.href = `myProfile.html?id=${userId}`;
+        } else {
+            window.location.href = 'myProfile.html';
+        }
+    }
+</script>
+<script type="module" src="subscription.js"></script>
+</body>
+</html>

@@ -1,9 +1,8 @@
 package com.MWS.service;
 
-import com.MWS.dto.UserStorageDtoInfo;
 import com.MWS.model.File;
 import com.MWS.model.Roles;
-import com.MWS.model.UserEntity;
+import com.MWS.model.User;
 import com.MWS.repository.FileRepository;
 import com.MWS.repository.FolderManagerRepository;
 import com.MWS.repository.UserRepository;
@@ -80,10 +79,13 @@ public class FileService {
             throw new RuntimeException("Недостаточно места в хранилище");
         }
 
+        int currentFilesCount = fileRepository.findByUserId(userId).size();
+        userStorageService.checkUploadAllowed(userId, fileSize, currentFilesCount);
+
         logger.info("Начало загрузки файла '{}' для пользователя {}", originalFilename, userId);
 
         try {
-            UserEntity user = userRepository.findById(userId)
+            User user = userRepository.findById(userId)
                     .orElseThrow(() -> {
                         logger.error("Пользователь {} не найден", userId);
                         return new RuntimeException("Пользователь не найден");
