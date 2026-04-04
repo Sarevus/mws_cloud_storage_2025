@@ -1,9 +1,9 @@
 package com.MWS.handlers;
 
+import com.MWS.dto.EmailRequest;
 import com.MWS.dto.create_update.CreateUserDTO;
 import com.MWS.dto.get.GetSimpleUserDto;
 import com.MWS.dto.login.LoginUserDTO;
-import com.MWS.service.EmailService;
 import com.MWS.service.UserService;
 import com.MWS.service.VerificationCodeService;
 import jakarta.servlet.http.HttpSession;
@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -22,14 +25,15 @@ public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final UserService userService;
-    private final EmailService emailService;
     private final VerificationCodeService verificationCodeService;
+    private final String EMAIL_SERVICE_URL = "http://localhost:6767/api/email/send";
+    private final RestTemplate restTemplate;
 
 
     @Autowired
-    public AuthController(UserService userService, EmailService emailService, VerificationCodeService verificationCodeService) {
+    public AuthController(UserService userService, RestTemplate restTemplate, VerificationCodeService verificationCodeService) {
         this.userService = userService;
-        this.emailService = emailService;
+        this.restTemplate = restTemplate;
         this.verificationCodeService = verificationCodeService;
     }
 
@@ -38,8 +42,20 @@ public class AuthController {
     public void requestRegister(@RequestBody CreateUserDTO body) {
         userService.validateRegistrationRequest(body);
         int code = (int) (Math.random() * 900000) + 100000;
-
-        emailService.sendTextEmail(body.email(), "Код подтверждения", "Ваш код: " + code);
+        Map<String, Object> data = new HashMap<>();
+        data.put("code", code);
+        EmailRequest emailRequest = new EmailRequest(
+                body.email(),
+                "Код подтверждения",
+                "VerificationCodeTemplate",
+                data
+        );
+        try {
+            restTemplate.postForEntity(EMAIL_SERVICE_URL, emailRequest, Void.class);
+        } catch (Exception e) {
+            logger.error("Не удалось отправить код подтверждения: {}", e.getMessage());
+            throw new RuntimeException("Email service is unavailable");
+        }
 
         verificationCodeService.savePendingUser(body, code);
 
@@ -63,24 +79,6 @@ public class AuthController {
         throw new RuntimeException("Invalid code");
     }
 
-
-    /**
-     * Обрабатывает запрос на создание нового пользователя.
-     */
-
-//    @PostMapping("/register")
-//    @ResponseStatus(HttpStatus.CREATED) // возвращает код 201 - пользователь создан
-//    public GetSimpleUserDto register(@RequestBody CreateUserDTO body, HttpSession session) {
-//        GetSimpleUserDto user = userService.createUser(body);
-//
-//        session.setAttribute("userId", user.id());
-//        session.setAttribute("email", user.email());
-//
-//        logger.info("Пользователь с email {} зарегистрирован и вошёл", user.email());
-//
-//        return user;
-//
-//    }
 
     /**
      * Обрабатывает запрос на вход в страничку пользователя
