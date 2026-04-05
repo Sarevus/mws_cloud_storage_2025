@@ -43,11 +43,11 @@ public class AuthController {
         userService.validateRegistrationRequest(body);
         int code = (int) (Math.random() * 900000) + 100000;
         Map<String, Object> data = new HashMap<>();
-        data.put("code", code);
+        data.put("message", "Ваш код подтверждения: " + code);
         EmailRequest emailRequest = new EmailRequest(
                 body.email(),
                 "Код подтверждения",
-                "VerificationCodeTemplate",
+                "",
                 data
         );
         try {

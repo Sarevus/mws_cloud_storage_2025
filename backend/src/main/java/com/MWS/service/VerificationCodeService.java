@@ -1,20 +1,26 @@
 package com.MWS.service;
 
 import com.MWS.dto.create_update.CreateUserDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class VerificationCodeService {
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+    private static final long CODE_EXPIRATION_MINUTES = 5;
+
     private final Map<String, CreateUserDTO> pendingRegistrations = new ConcurrentHashMap<>();
-    private final Map<String, Integer> codes = new ConcurrentHashMap<>();
 
     public void savePendingUser(CreateUserDTO request, int code) {
         pendingRegistrations.put(request.email(), request);
-        codes.put(request.email(), code);
+        redisTemplate.opsForValue().set(request.email(), String.valueOf(code), 5, TimeUnit.MINUTES);
     }
 
     public CreateUserDTO getPendingUser(String email) {
@@ -22,15 +28,17 @@ public class VerificationCodeService {
     }
 
     public void saveCode(String email, int code) {
-        codes.put(email, code);
+        redisTemplate.opsForValue().set(email, String.valueOf(code),
+                CODE_EXPIRATION_MINUTES, TimeUnit.MINUTES);
     }
 
     public boolean verifyCode(String email, int code) {
-        return codes.containsKey(email) && codes.get(email) == code;
+        String savedCode = redisTemplate.opsForValue().get(email);
+        return savedCode != null && savedCode.equals(String.valueOf(code));
     }
 
     public void removeCode(String email) {
-        codes.remove(email);
+        redisTemplate.delete(email);
         pendingRegistrations.remove(email);
     }
 }
