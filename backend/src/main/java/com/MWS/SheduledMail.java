@@ -1,7 +1,7 @@
 package com.MWS;
 
 import com.MWS.dto.EmailRequest;
-import com.MWS.model.UserEntity;
+import com.MWS.model.User;
 import com.MWS.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +28,8 @@ public class SheduledMail {
 
     @Scheduled(cron = "0 * * * * ?")
     public void scheduleTask() {
-        List<UserEntity> users = userRepository.findAll();
-        for (UserEntity user : users) {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
             Map<String, Object> context = new HashMap<>();
             context.put("name", user.getName());
             context.put("message", "С нашей подпиской память не закончится никогда!!!");
