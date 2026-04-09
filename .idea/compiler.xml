@@ -24,6 +24,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Email_Service" options="-parameters" />
       <module name="cloud-storage-backend" options="-parameters" />
     </option>
   </component>

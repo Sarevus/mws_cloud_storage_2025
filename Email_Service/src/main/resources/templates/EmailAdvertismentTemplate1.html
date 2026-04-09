@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .header {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .brand {
+        font-size: 1.5em;
+        color: rgb(88, 52, 181) !important;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .container {
+        font-size: 16px;
+        width: 90%;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer {
+        color: #aaa;
+        font-size: 0.8em;
+        font-weight: 300;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="#" class="brand">Cloud Storge</a>
+            <h3>Здравствуйте, <span th:text="${name}"></span>!</h3>
+        </div>
+        <table cellspacing="0" cellpadding="0" width="100%" style="border-collapse: collapse; width: 100%;">
+            <tr>
+                <td text-align="center" valign="middle" style="background-color: #eeeeee;">
+                    <a href="#" target="_blank" style="text-decoration: none;">
+                        <img src="https://img-webcalypt.ru/storage/memes/29661/20252/V3pPSmBYSNdPDAVDsqAI6tIISG2ot9hyuiEeJYF81okWp7rKvF8rOh9hPNq3ePuCdlR0AbEZl5ApAzezz9I2Jsemcs8BIdDJTkuBnMnAoaE69tXq2d21usbvy8c6fCnN.jpeg"
+                            alt="Квадрат" width="100%"
+                            style="display: block; width: 100%; max-width: 100%; height: auto; border: 0;" />
+                    </a>
+                </td>
+            </tr>
+        </table>
+        <p th:text="${message}"></p>
+
+        <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 10px;">
+            <tr>
+                <td align="left"
+                    style="background-color: #eae7ff; border: 1px solid #eeeeee; border-radius: 12px; padding: 20px;">
+
+                    <!-- Строка 1 -->
+                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td width="40" valign="top" style="font-size: 22px; line-height: 1;">🛡️</td>
+                            <td
+                                style="padding-left: 12px; font-family: sans-serif; font-size: 14px; color: #333333; line-height: 1.4;">
+                                <strong style="font-size: 15px;">Надежно</strong><br>
+                                ваши данные защищены
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Белый разделитель -->
+                    <div style="border-top: 2px solid #ffffff; margin: 15px 0; height: 0; font-size: 0;">
+                    </div>
+
+                    <!-- Строка 2 -->
+                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td width="40" valign="top" style="font-size: 22px; line-height: 1;">💰</td>
+                            <td
+                                style="padding-left: 12px; font-family: sans-serif; font-size: 14px; color: #333333; line-height: 1.4;">
+                                <strong style="font-size: 15px;">Дешево</strong><br>
+                                цена на 90% ниже чем у конкурентов
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Белый разделитель -->
+                    <div style="border-top: 2px solid #ffffff; margin: 15px 0; height: 0; font-size: 0;">
+                    </div>
+
+                    <!-- Строка 3 -->
+                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td width="40" valign="top" style="font-size: 22px; line-height: 1;">⚙️</td>
+                            <td
+                                style="padding-left: 12px; font-family: sans-serif; font-size: 14px; color: #333333; line-height: 1.4;">
+                                <strong style="font-size: 15px;">Практично</strong><br>
+                                ничего лишнего
+                            </td>
+                        </tr>
+                    </table>
+
+                </td>
+            </tr>
+        </table>
+
+
+
+        <div class="footer">
+            <p>С уважением,</p>
+            <p>CloudStorage.</p>
+        </div>
+    </div>
+</body>
+
+</html>

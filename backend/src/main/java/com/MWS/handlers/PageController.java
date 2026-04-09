@@ -35,4 +35,9 @@ public class PageController {
     public String editProfile() {
         return "forward:/editProfile.html";
     }
+
+    @GetMapping("/verificationPage")
+    public String verificationPage() {
+        return "forward:/verificationPage.html";
+    }
 }
