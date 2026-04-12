@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudStorage Promo</title>
+</head>
+
+<body style="margin: 0; padding: 0; background-color: #f4f5fb; font-family: Arial, sans-serif; color: #333333;">
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+       style="background-color: #f4f5fb; margin: 0; padding: 30px 0;">
+    <tr>
+        <td align="center">
+
+            <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0"
+                   style="width: 600px; max-width: 600px; background-color: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,0.08);">
+
+                <!-- Header -->
+                <tr>
+                    <td align="center" style="padding: 30px 30px 20px 30px; background-color: #ffffff;">
+                        <a href="#" style="text-decoration: none; color: #6c4df6; font-size: 28px; font-weight: 800;">
+                            CloudStorage
+                        </a>
+                        <p style="margin: 18px 0 0 0; font-size: 24px; font-weight: 700; color: #222222;">
+                            Здравствуйте, <span th:text="${name}">Пользователь</span>!
+                        </p>
+                        <p style="margin: 12px 0 0 0; font-size: 16px; line-height: 1.6; color: #666666;">
+                            Храните файлы удобно, безопасно и без переплат.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Hero image -->
+                <tr>
+                    <td>
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
+                             alt="Cloud storage"
+                             width="600"
+                             style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;">
+                    </td>
+                </tr>
+
+                <!-- Main text -->
+                <tr>
+                    <td style="padding: 30px;">
+                        <p style="margin: 0; font-size: 16px; line-height: 1.8; color: #444444;"
+                           th:text="${message}">
+                            Попробуйте CloudStorage уже сегодня — быстрый доступ к вашим файлам, надежная защита
+                            данных и выгодные тарифы для любого объема хранения.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- CTA block -->
+                <tr>
+                    <td align="center" style="padding: 0 30px 30px 30px;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                                <td align="center" bgcolor="#6c4df6" style="border-radius: 12px;">
+                                    <a href="#"
+                                       style="display: inline-block; padding: 14px 28px; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 12px;">
+                                        Попробовать сейчас
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Benefits section -->
+                <tr>
+                    <td style="padding: 0 30px 30px 30px;">
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                               style="background: linear-gradient(135deg, #f2eeff 0%, #ebe7ff 100%); border-radius: 16px; padding: 10px;">
+
+                            <tr>
+                                <td style="padding: 20px 20px 10px 20px; font-size: 20px; font-weight: 700; color: #2d2d2d;">
+                                    Почему выбирают нас
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 10px 20px;">
+                                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                        <tr>
+                                            <td width="42" valign="top" style="font-size: 24px;">🔐</td>
+                                            <td style="font-size: 15px; line-height: 1.6; color: #444444;">
+                                                <strong style="color: #222222;">Безопасность</strong><br>
+                                                Ваши файлы надежно защищены и доступны только вам.
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 0 20px;">
+                                    <div style="height: 1px; background-color: #ffffff;"></div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 10px 20px;">
+                                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                        <tr>
+                                            <td width="42" valign="top" style="font-size: 24px;">⚡</td>
+                                            <td style="font-size: 15px; line-height: 1.6; color: #444444;">
+                                                <strong style="color: #222222;">Скорость</strong><br>
+                                                Загружайте и открывайте документы за секунды.
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 0 20px;">
+                                    <div style="height: 1px; background-color: #ffffff;"></div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 10px 20px;">
+                                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                        <tr>
+                                            <td width="42" valign="top" style="font-size: 24px;">💸</td>
+                                            <td style="font-size: 15px; line-height: 1.6; color: #444444;">
+                                                <strong style="color: #222222;">Выгода</strong><br>
+                                                Больше места за меньшие деньги без лишних функций.
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Promo block -->
+                <tr>
+                    <td style="padding: 0 30px 30px 30px;">
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                               style="background-color: #111827; border-radius: 16px;">
+                            <tr>
+                                <td style="padding: 24px; color: #ffffff;">
+                                    <p style="margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #b8b8ff;">
+                                        Специальное предложение
+                                    </p>
+                                    <p style="margin: 12px 0 0 0; font-size: 26px; font-weight: 800; line-height: 1.4;">
+                                        Получите <span style="color: #9f8cff;">+100 ГБ</span> бесплатно
+                                    </p>
+                                    <p style="margin: 12px 0 0 0; font-size: 15px; line-height: 1.7; color: #d1d5db;">
+                                        Попробуйте наш тариф Premium совершенно бесплатно
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding: 0 30px 30px 30px;">
+                        <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #999999;">
+                            С уважением,<br>
+                            команда <strong style="color: #6c4df6;">CloudStorage</strong>
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+</table>
+
+</body>
+
+</html>
